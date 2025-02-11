@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="256" fill="#2c5530"/>
+  
+  <!-- JLC text as paths -->
+  <g fill="white" transform="translate(126, 196) scale(2.0)">
+    <!-- J -->
+    <path d="M70 80h40v15h-15v65c0 15-10 20-25 20h-20v-20h10c5 0 7-3 7-8v-57h-12v-15z"/>
+    <!-- L -->
+    <path d="M125 80h25v85h35v15h-60z"/>
+    <!-- C -->
+    <path d="M195 80c20 0 35 5 45 15l-10 15c-8-7-20-10-35-10c-15 0-25 7-25 20v30c0 13 10 20 25 20c15 0 27-3 35-10l10 15c-10 10-25 15-45 15c-30 0-45-15-45-40v-30c0-25 15-40 45-40z"/>
+  </g>
+  
+  <!-- Decorative leaf element -->
+  <path 
+    d="M400 180C400 180 350 150 256 150C162 150 112 180 112 180C112 180 162 210 256 210C350 210 400 180 400 180Z" 
+    fill="white" 
+    opacity="0.3"
+    transform="translate(0, -30)"
+  />
+</svg> 
