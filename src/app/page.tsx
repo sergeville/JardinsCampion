@@ -202,36 +202,31 @@ export default function Vote() {
           </button>
         </div>
       </div>
-      <div className="card-container">
+      <div className="logo-grid">
         {logos.map((logo) => (
-          <label key={logo.value} className="card">
-            <div className="logo">
+          <div key={logo.value} className="logo-container">
+            <div className="logo-image">
               <Image
                 src={logo.src}
                 alt={logo.alt}
-                width={250}
-                height={250}
-                style={{ objectFit: 'contain' }}
+                width={300}
+                height={300}
                 priority
-                unoptimized
-              />
-              <input 
-                type="hidden" 
-                name={`logo-owner-${logo.value}`} 
-                value={logo.ownerId} 
               />
             </div>
-            <div className="radio-container">
-              <input 
-                type="radio" 
-                name="logo-selection" 
-                value={logo.value} 
-                onChange={() => handleLogoSelection(logo.value)}
-                required 
-              />
-              <span>{t.selectThis} ({t.votes}: {voteCount[logo.value] || 0})</span>
+            <div className="vote-section">
+              <label>
+                <input
+                  type="radio"
+                  name="logo"
+                  value={logo.value}
+                  checked={selectedLogo === logo.value}
+                  onChange={() => handleLogoSelection(logo.value)}
+                />
+                {t.selectThis} ({voteCount[logo.value] || 0} {t.votes})
+              </label>
             </div>
-          </label>
+          </div>
         ))}
       </div>
 
