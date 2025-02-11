@@ -1,7 +1,7 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 10px;
     background-color: #f5f5f5;
     min-height: 100vh;
 }
@@ -10,27 +10,45 @@ h1 {
     text-align: center;
     color: #2c5530;
     margin-bottom: 30px;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    padding: 0 10px;
 }
 
 .card-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: 1fr;
     gap: 20px;
-    max-width: 1200px;
+    width: 100%;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+    .card-container {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 20px;
+    }
+    
+    body {
+        padding: 20px;
+    }
 }
 
 .card {
     background: white;
     border-radius: 12px;
-    padding: 20px;
+    padding: 15px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
     cursor: pointer;
     transition: transform 0.2s;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .card:hover {
@@ -38,8 +56,9 @@ h1 {
 }
 
 .logo {
-    width: 300px;
-    height: 300px;
+    width: 100%;
+    max-width: 250px;
+    aspect-ratio: 1;
     margin-bottom: 15px;
 }
 
@@ -54,6 +73,8 @@ h1 {
     align-items: center;
     gap: 10px;
     margin-top: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .radio-container input[type="radio"] {
@@ -66,11 +87,14 @@ h1 {
 
 .radio-container span {
     color: #333;
-    font-size: 16px;
+    font-size: clamp(14px, 3vw, 16px);
+    text-align: center;
 }
 
 .submit-button {
     display: block;
+    width: calc(100% - 40px);
+    max-width: 300px;
     margin: 30px auto;
     padding: 12px 30px;
     background-color: #2c5530;
@@ -78,7 +102,7 @@ h1 {
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 18px;
+    font-size: clamp(16px, 3vw, 18px);
     transition: background-color 0.3s;
 }
 
@@ -110,21 +134,31 @@ h1 {
 
 .modal {
     background: white;
-    padding: 30px;
+    padding: 20px;
     border-radius: 12px;
     width: 90%;
     max-width: 400px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+    box-sizing: border-box;
+}
+
+@media (min-width: 480px) {
+    .modal {
+        padding: 30px;
+    }
 }
 
 .modal h2 {
     color: #2c5530;
     margin-top: 0;
     margin-bottom: 20px;
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
 }
 
 .input-group {
     margin-bottom: 20px;
+    width: 100%;
 }
 
 .input-group label {
@@ -132,6 +166,7 @@ h1 {
     margin-bottom: 8px;
     color: #333;
     font-weight: 500;
+    font-size: clamp(14px, 3vw, 16px);
 }
 
 .input-group input {
@@ -139,8 +174,8 @@ h1 {
     padding: 10px;
     border: 2px solid #ddd;
     border-radius: 6px;
-    font-size: 16px;
-    transition: border-color 0.3s;
+    font-size: clamp(14px, 3vw, 16px);
+    box-sizing: border-box;
 }
 
 .input-group input:focus {
@@ -152,6 +187,7 @@ h1 {
     display: flex;
     gap: 10px;
     justify-content: flex-end;
+    flex-wrap: wrap;
 }
 
 .modal-button {
@@ -159,8 +195,22 @@ h1 {
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: clamp(14px, 3vw, 16px);
     transition: background-color 0.3s;
+    flex: 1;
+    min-width: 100px;
+    max-width: 200px;
+}
+
+@media (max-width: 480px) {
+    .modal-buttons {
+        flex-direction: column;
+    }
+    
+    .modal-button {
+        width: 100%;
+        max-width: none;
+    }
 }
 
 .modal-button.primary {
@@ -179,4 +229,91 @@ h1 {
 
 .modal-button.secondary:hover {
     background-color: #d0d0d0;
+}
+
+.vote-history {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.vote-history h2 {
+    color: #2c5530;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    text-align: center;
+}
+
+.vote-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.vote-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: clamp(14px, 3vw, 16px);
+}
+
+.vote-item:last-child {
+    border-bottom: none;
+}
+
+.voter-name {
+    font-weight: 600;
+    color: #2c5530;
+}
+
+.vote-details {
+    color: #666;
+}
+
+.vote-time {
+    margin-left: auto;
+    color: #999;
+    font-size: 0.9em;
+}
+
+@media (max-width: 480px) {
+    .vote-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .vote-time {
+        margin-left: 0;
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.language-toggle {
+    background-color: #2c5530;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.language-toggle:hover {
+    background-color: #1e3c21;
 } 

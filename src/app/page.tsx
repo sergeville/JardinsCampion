@@ -4,47 +4,89 @@ import Image from 'next/image'
 
 interface VoteData {
   userName: string;
+  userId: string;
   logoId: string;
   timestamp: Date;
+  ownerId?: string;
 }
 
 interface UserVote {
   userName: string;
+  userId: string;
   logoId: string;
 }
+
+const translations = {
+  en: {
+    title: 'Choose Your Favorite Logo Design',
+    selectThis: 'Select this',
+    votes: 'Votes',
+    recentVotes: 'Recent Votes',
+    votedFor: 'voted for Logo #',
+    enterName: 'Please enter your name:',
+    namePlaceholder: 'Your name',
+    submit: 'Submit Vote',
+    cancel: 'Cancel',
+    alreadyVoted: (name: string, logo: string) => `${name}, you have already voted for Logo #${logo}!`,
+    cannotVoteOwn: 'Sorry, you cannot vote for your own logo!',
+    voteRecorded: (name: string, logo: string) => `Thank you ${name}! Your vote for Logo #${logo} has been recorded.`,
+    voteChanged: (name: string, oldLogo: string, newLogo: string) => 
+      `Thank you ${name}! Your vote has been changed from Logo #${oldLogo} to Logo #${newLogo}.`
+  },
+  fr: {
+    title: 'Choisissez Votre Logo Préféré',
+    selectThis: 'Sélectionner',
+    votes: 'Votes',
+    recentVotes: 'Votes Récents',
+    votedFor: 'a voté pour le Logo #',
+    enterName: 'Veuillez entrer votre nom:',
+    namePlaceholder: 'Votre nom',
+    submit: 'Soumettre le Vote',
+    cancel: 'Annuler',
+    alreadyVoted: (name: string, logo: string) => `${name}, vous avez déjà voté pour le Logo #${logo}!`,
+    cannotVoteOwn: 'Désolé, vous ne pouvez pas voter pour votre propre logo!',
+    voteRecorded: (name: string, logo: string) => `Merci ${name}! Votre vote pour le Logo #${logo} a été enregistré.`,
+    voteChanged: (name: string, oldLogo: string, newLogo: string) => 
+      `Merci ${name}! Votre vote a été changé du Logo #${oldLogo} au Logo #${newLogo}.`
+  }
+};
 
 export default function Vote() {
   const [showModal, setShowModal] = useState(false);
   const [selectedLogo, setSelectedLogo] = useState<string | null>(null);
   const [userName, setUserName] = useState('');
+  const [userId, setUserId] = useState('');
   const [voteCount, setVoteCount] = useState<Record<string, number>>({});
   const [voteHistory, setVoteHistory] = useState<VoteData[]>([]);
   const [userVotes, setUserVotes] = useState<UserVote[]>([]);
+  const [language, setLanguage] = useState<'en' | 'fr'>('en');
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    const form = event.target as HTMLFormElement;
-    const formData = new FormData(form);
-    const logoId = formData.get('logo-selection') as string;
-    if (logoId) {
-      setSelectedLogo(logoId);
-      setShowModal(true);
-    }
+  const t = translations[language];
+
+  const toggleLanguage = () => {
+    setLanguage(prev => prev === 'en' ? 'fr' : 'en');
   };
 
-  const getUserPreviousVote = (userName: string): UserVote | undefined => {
-    return userVotes.find(vote => vote.userName.toLowerCase() === userName.toLowerCase());
+  const handleLogoSelection = (logoId: string) => {
+    setSelectedLogo(logoId);
+    setShowModal(true);
+  };
+
+  const getUserPreviousVote = (userId: string): UserVote | undefined => {
+    return userVotes.find(vote => vote.userId === userId);
   };
 
   const handleModalSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (selectedLogo && userName.trim()) {
       const trimmedUserName = userName.trim();
-      const previousVote = getUserPreviousVote(trimmedUserName);
+      const generatedUserId = trimmedUserName.toLowerCase().replace(/\s+/g, '-');
+      setUserId(generatedUserId);
       
-      // If user has already voted for this same logo, prevent duplicate vote
-      if (previousVote && previousVote.logoId === selectedLogo) {
-        alert(`${trimmedUserName}, you have already voted for Logo #${selectedLogo}!`);
+      const selectedLogoData = logos.find(logo => logo.value === selectedLogo);
+      
+      if (selectedLogoData?.ownerId === generatedUserId) {
+        alert(t.cannotVoteOwn);
         setShowModal(false);
         setUserName('');
         setSelectedLogo(null);
@@ -53,43 +95,46 @@ export default function Vote() {
         return;
       }
 
-      // If user is changing their vote
+      const previousVote = getUserPreviousVote(generatedUserId);
+      
+      if (previousVote && previousVote.logoId === selectedLogo) {
+        alert(t.alreadyVoted(trimmedUserName, selectedLogo));
+        setShowModal(false);
+        setUserName('');
+        setSelectedLogo(null);
+        const form = document.querySelector('form');
+        if (form) form.reset();
+        return;
+      }
+
       if (previousVote) {
-        // Decrement the previous logo's vote count
         setVoteCount(prev => ({
           ...prev,
           [previousVote.logoId]: Math.max((prev[previousVote.logoId] || 0) - 1, 0)
         }));
         
-        // Remove the previous vote from userVotes
-        setUserVotes(prev => prev.filter(vote => 
-          vote.userName.toLowerCase() !== trimmedUserName.toLowerCase()
-        ));
+        setUserVotes(prev => prev.filter(vote => vote.userId !== generatedUserId));
       }
 
       const voteData: VoteData = {
         userName: trimmedUserName,
+        userId: generatedUserId,
         logoId: selectedLogo,
-        timestamp: new Date()
+        timestamp: new Date(),
+        ownerId: selectedLogoData?.ownerId
       };
 
-      // Update vote count for the new selection
       setVoteCount(prev => ({
         ...prev,
         [selectedLogo]: (prev[selectedLogo] || 0) + 1
       }));
 
-      // Track user's new vote
-      setUserVotes(prev => [...prev, { userName: trimmedUserName, logoId: selectedLogo }]);
-
-      // Add vote to history
+      setUserVotes(prev => [...prev, { userName: trimmedUserName, userId: generatedUserId, logoId: selectedLogo }]);
       setVoteHistory(prev => [...prev, voteData]);
 
-      console.log('Vote submitted:', voteData);
-      
       const message = previousVote 
-        ? `Thank you ${trimmedUserName}! Your vote has been changed from Logo #${previousVote.logoId} to Logo #${selectedLogo}.`
-        : `Thank you ${trimmedUserName}! Your vote for Logo #${selectedLogo} has been recorded.`;
+        ? t.voteChanged(trimmedUserName, previousVote.logoId, selectedLogo)
+        : t.voteRecorded(trimmedUserName, selectedLogo);
       
       alert(message);
       setShowModal(false);
@@ -100,45 +145,81 @@ export default function Vote() {
     }
   };
 
+  const logos = [
+    { 
+      src: '/logos/Logo2.png', 
+      value: '1', 
+      alt: 'Elegant floral logo with intertwined leaves and vines in a circular design',
+      ownerId: 'owner123'
+    },
+    { 
+      src: '/logos/Logo3.png', 
+      value: '2', 
+      alt: 'Modern minimalist garden logo with stylized plant elements',
+      ownerId: 'owner456'
+    },
+    { 
+      src: '/logos/Logo4.png', 
+      value: '3', 
+      alt: 'Nature-inspired logo featuring delicate leaf patterns',
+      ownerId: 'owner789'
+    },
+    { 
+      src: '/logos/Logo1.jpeg', 
+      value: '4', 
+      alt: 'Classic garden design logo with ornate botanical details',
+      ownerId: 'owner012'
+    }
+  ];
+
   return (
     <main>
-      <h1>Choose Your Favorite Logo Design</h1>
-      <form onSubmit={handleSubmit}>
-        <div className="card-container">
-          {[
-            { src: '/logos/Logo2.png', value: '1', alt: 'Elegant floral logo with intertwined leaves and vines in a circular design' },
-            { src: '/logos/Logo3.png', value: '2', alt: 'Modern minimalist garden logo with stylized plant elements' },
-            { src: '/logos/Logo4.png', value: '3', alt: 'Nature-inspired logo featuring delicate leaf patterns' },
-            { src: '/logos/Logo1.jpeg', value: '4', alt: 'Classic garden design logo with ornate botanical details' }
-          ].map((logo) => (
-            <label key={logo.value} className="card">
-              <div className="logo">
-                <Image
-                  src={logo.src}
-                  alt={logo.alt}
-                  width={250}
-                  height={250}
-                  style={{ objectFit: 'contain' }}
-                />
-              </div>
-              <div className="radio-container">
-                <input type="radio" name="logo-selection" value={logo.value} required />
-                <span>Select this (Votes: {voteCount[logo.value] || 0})</span>
-              </div>
-            </label>
-          ))}
-        </div>
-        <button type="submit" className="submit-button">Submit Vote</button>
-      </form>
+      <div className="header">
+        <h1>{t.title}</h1>
+        <button onClick={toggleLanguage} className="language-toggle">
+          {language === 'en' ? 'FR' : 'EN'}
+        </button>
+      </div>
+      <div className="card-container">
+        {logos.map((logo) => (
+          <label key={logo.value} className="card">
+            <div className="logo">
+              <Image
+                src={logo.src}
+                alt={logo.alt}
+                width={250}
+                height={250}
+                style={{ objectFit: 'contain' }}
+                priority
+                unoptimized
+              />
+              <input 
+                type="hidden" 
+                name={`logo-owner-${logo.value}`} 
+                value={logo.ownerId} 
+              />
+            </div>
+            <div className="radio-container">
+              <input 
+                type="radio" 
+                name="logo-selection" 
+                value={logo.value} 
+                onChange={() => handleLogoSelection(logo.value)}
+                required 
+              />
+              <span>{t.selectThis} ({t.votes}: {voteCount[logo.value] || 0})</span>
+            </div>
+          </label>
+        ))}
+      </div>
 
-      {/* Vote History Section */}
       <div className="vote-history">
-        <h2>Recent Votes</h2>
+        <h2>{t.recentVotes}</h2>
         <div className="vote-list">
           {voteHistory.map((vote, index) => (
             <div key={index} className="vote-item">
               <span className="voter-name">{vote.userName}</span>
-              <span className="vote-details">voted for Logo #{vote.logoId}</span>
+              <span className="vote-details">{t.votedFor}{vote.logoId}</span>
               <span className="vote-time">
                 {new Date(vote.timestamp).toLocaleTimeString()}
               </span>
@@ -150,10 +231,10 @@ export default function Vote() {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal">
-            <h2>Almost Done!</h2>
+            <h2>{t.enterName}</h2>
             <form onSubmit={handleModalSubmit}>
               <div className="input-group">
-                <label htmlFor="userName">Please enter your name:</label>
+                <label htmlFor="userName">{t.enterName}</label>
                 <input
                   type="text"
                   id="userName"
@@ -161,7 +242,7 @@ export default function Vote() {
                   onChange={(e) => setUserName(e.target.value)}
                   required
                   autoFocus
-                  placeholder="Your name"
+                  placeholder={t.namePlaceholder}
                 />
               </div>
               <div className="modal-buttons">
@@ -173,10 +254,10 @@ export default function Vote() {
                     setUserName('');
                   }}
                 >
-                  Cancel
+                  {t.cancel}
                 </button>
                 <button type="submit" className="modal-button primary">
-                  Submit Vote
+                  {t.submit}
                 </button>
               </div>
             </form>
