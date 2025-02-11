@@ -206,12 +206,12 @@ export default function Vote() {
         {logos.map((logo) => (
           <div key={logo.value} className="logo-container">
             <div className="logo-image">
-              <Image
+              <img
                 src={logo.src}
                 alt={logo.alt}
                 width={300}
                 height={300}
-                priority
+                style={{ objectFit: 'contain' }}
               />
             </div>
             <div className="vote-section">
