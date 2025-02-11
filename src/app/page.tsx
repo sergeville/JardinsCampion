@@ -8,11 +8,18 @@ interface VoteData {
   timestamp: Date;
 }
 
+interface UserVote {
+  userName: string;
+  logoId: string;
+}
+
 export default function Vote() {
   const [showModal, setShowModal] = useState(false);
   const [selectedLogo, setSelectedLogo] = useState<string | null>(null);
   const [userName, setUserName] = useState('');
   const [voteCount, setVoteCount] = useState<Record<string, number>>({});
+  const [voteHistory, setVoteHistory] = useState<VoteData[]>([]);
+  const [userVotes, setUserVotes] = useState<UserVote[]>([]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -25,25 +32,66 @@ export default function Vote() {
     }
   };
 
+  const getUserPreviousVote = (userName: string): UserVote | undefined => {
+    return userVotes.find(vote => vote.userName.toLowerCase() === userName.toLowerCase());
+  };
+
   const handleModalSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (selectedLogo && userName.trim()) {
+      const trimmedUserName = userName.trim();
+      const previousVote = getUserPreviousVote(trimmedUserName);
+      
+      // If user has already voted for this same logo, prevent duplicate vote
+      if (previousVote && previousVote.logoId === selectedLogo) {
+        alert(`${trimmedUserName}, you have already voted for Logo #${selectedLogo}!`);
+        setShowModal(false);
+        setUserName('');
+        setSelectedLogo(null);
+        const form = document.querySelector('form');
+        if (form) form.reset();
+        return;
+      }
+
+      // If user is changing their vote
+      if (previousVote) {
+        // Decrement the previous logo's vote count
+        setVoteCount(prev => ({
+          ...prev,
+          [previousVote.logoId]: Math.max((prev[previousVote.logoId] || 0) - 1, 0)
+        }));
+        
+        // Remove the previous vote from userVotes
+        setUserVotes(prev => prev.filter(vote => 
+          vote.userName.toLowerCase() !== trimmedUserName.toLowerCase()
+        ));
+      }
+
       const voteData: VoteData = {
-        userName: userName.trim(),
+        userName: trimmedUserName,
         logoId: selectedLogo,
         timestamp: new Date()
       };
 
-      // Update vote count
+      // Update vote count for the new selection
       setVoteCount(prev => ({
         ...prev,
         [selectedLogo]: (prev[selectedLogo] || 0) + 1
       }));
 
-      // You could send voteData to an API here
+      // Track user's new vote
+      setUserVotes(prev => [...prev, { userName: trimmedUserName, logoId: selectedLogo }]);
+
+      // Add vote to history
+      setVoteHistory(prev => [...prev, voteData]);
+
       console.log('Vote submitted:', voteData);
       
-      alert(`Thank you ${userName}! Your vote for logo #${selectedLogo} has been recorded.`);
+      const message = previousVote 
+        ? `Thank you ${trimmedUserName}! Your vote has been changed from Logo #${previousVote.logoId} to Logo #${selectedLogo}.`
+        : `Thank you ${trimmedUserName}! Your vote for Logo #${selectedLogo} has been recorded.`;
+      
+      alert(message);
       setShowModal(false);
       setUserName('');
       setSelectedLogo(null);
@@ -82,6 +130,22 @@ export default function Vote() {
         </div>
         <button type="submit" className="submit-button">Submit Vote</button>
       </form>
+
+      {/* Vote History Section */}
+      <div className="vote-history">
+        <h2>Recent Votes</h2>
+        <div className="vote-list">
+          {voteHistory.map((vote, index) => (
+            <div key={index} className="vote-item">
+              <span className="voter-name">{vote.userName}</span>
+              <span className="vote-details">voted for Logo #{vote.logoId}</span>
+              <span className="vote-time">
+                {new Date(vote.timestamp).toLocaleTimeString()}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {showModal && (
         <div className="modal-overlay">
