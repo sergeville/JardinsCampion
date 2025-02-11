@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "@types/react": "^19.0.8",
+    "next": "^15.1.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "name": "jardins-campion",
+  "version": "1.0.0",
+  "description": "A simple HTML page for voting on JLC logo designs.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "22.13.1",
+    "typescript": "5.7.3"
+  }
+}
