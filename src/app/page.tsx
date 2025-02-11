@@ -61,16 +61,15 @@ export default function Vote() {
             { src: '/logos/Logo2.png', value: '1', alt: 'Elegant floral logo with intertwined leaves and vines in a circular design' },
             { src: '/logos/Logo3.png', value: '2', alt: 'Modern minimalist garden logo with stylized plant elements' },
             { src: '/logos/Logo4.png', value: '3', alt: 'Nature-inspired logo featuring delicate leaf patterns' },
-            { src: '/logos/Logo1.jpeg', value: '4', alt: 'Classic garden design logo with ornate botanical details' },
-            { src: '/logos/Logo5.png', value: '5', alt: 'Contemporary landscaping logo with geometric plant motifs' }
+            { src: '/logos/Logo1.jpeg', value: '4', alt: 'Classic garden design logo with ornate botanical details' }
           ].map((logo) => (
             <label key={logo.value} className="card">
               <div className="logo">
                 <Image
                   src={logo.src}
                   alt={logo.alt}
-                  width={300}
-                  height={300}
+                  width={250}
+                  height={250}
                   style={{ objectFit: 'contain' }}
                 />
               </div>
