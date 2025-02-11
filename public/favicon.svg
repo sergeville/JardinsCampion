@@ -1,19 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Background circle -->
   <circle cx="256" cy="256" r="256" fill="#2c5530"/>
   
-  <!-- JLC text -->
-  <text 
-    x="256" 
-    y="300" 
-    font-family="Arial, sans-serif" 
-    font-size="200" 
-    font-weight="bold" 
-    fill="white" 
-    text-anchor="middle"
-  >
-    JLC
-  </text>
+  <!-- JLC text as paths -->
+  <g fill="white">
+    <path d="M160 200h80v40h-20v120h-40V240h-20v-40z"/>
+    <path d="M240 200h40v160h-40V200z"/>
+    <path d="M300 200h100v40h-30v120h-40V240h-30v-40z"/>
+  </g>
   
   <!-- Decorative leaf element -->
   <path 
