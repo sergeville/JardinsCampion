@@ -18,7 +18,7 @@ interface UserVote {
 
 const translations = {
   en: {
-    title: 'Choose Your Favorite Logo Design',
+    title: 'Jardins du Lac Campion - Logo Selection',
     selectThis: 'Select this',
     votes: 'Votes',
     recentVotes: 'Recent Votes',
@@ -36,7 +36,7 @@ const translations = {
     lightMode: 'Light Mode'
   },
   fr: {
-    title: 'Choisissez Votre Logo Préféré',
+    title: 'Jardins du Lac Campion - Sélection du Logo',
     selectThis: 'Sélectionner',
     votes: 'Votes',
     recentVotes: 'Votes Récents',
