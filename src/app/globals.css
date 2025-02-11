@@ -1,14 +1,51 @@
+:root {
+  /* Light theme colors */
+  --background-color: #f5f5f5;
+  --text-color: #333;
+  --primary-color: #2c5530;
+  --primary-hover: #1e3c21;
+  --card-background: white;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --border-color: #eee;
+  --secondary-button-bg: #e0e0e0;
+  --secondary-button-color: #333;
+  --secondary-button-hover: #d0d0d0;
+  --modal-overlay: rgba(0, 0, 0, 0.5);
+  --input-border: #ddd;
+  --vote-details-color: #666;
+  --vote-time-color: #999;
+}
+
+[data-theme='dark'] {
+  --background-color: #1a1a1a;
+  --text-color: #e0e0e0;
+  --primary-color: #3d7a45;
+  --primary-hover: #4a9453;
+  --card-background: #2d2d2d;
+  --card-shadow: rgba(0, 0, 0, 0.3);
+  --border-color: #404040;
+  --secondary-button-bg: #404040;
+  --secondary-button-color: #e0e0e0;
+  --secondary-button-hover: #505050;
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+  --input-border: #404040;
+  --vote-details-color: #b0b0b0;
+  --vote-time-color: #808080;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     margin: 0;
     padding: 10px;
-    background-color: #f5f5f5;
+    background-color: var(--background-color);
     min-height: 100vh;
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
 }
 
 h1 {
     text-align: center;
-    color: #2c5530;
+    color: var(--primary-color);
     margin-bottom: 30px;
     font-size: clamp(1.5rem, 4vw, 2.5rem);
     padding: 0 10px;
@@ -38,15 +75,15 @@ h1 {
 }
 
 .card {
-    background: white;
+    background: var(--card-background);
     border-radius: 12px;
     padding: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--card-shadow);
     display: flex;
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s, background-color 0.3s, box-shadow 0.3s;
     width: 100%;
     box-sizing: border-box;
 }
@@ -66,6 +103,30 @@ h1 {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    transition: filter 0.3s ease;
+    border-radius: 8px;
+    background-color: white;
+    padding: 10px;
+}
+
+/* Apply filter in dark mode */
+[data-theme='dark'] .logo img {
+    filter: brightness(0.9) contrast(1.1);
+    background-color: #404040;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+/* Add a subtle background in dark mode */
+[data-theme='dark'] .logo {
+    position: relative;
+    background-color: #404040;
+    border-radius: 8px;
+    padding: 5px;
+}
+
+/* Remove unused styles */
+.logo-dark, .logo-light {
+    display: none;
 }
 
 .radio-container {
@@ -81,12 +142,12 @@ h1 {
     margin: 0;
     width: 20px;
     height: 20px;
-    accent-color: #2c5530;
+    accent-color: var(--primary-color);
     cursor: pointer;
 }
 
 .radio-container span {
-    color: #333;
+    color: var(--text-color);
     font-size: clamp(14px, 3vw, 16px);
     text-align: center;
 }
@@ -97,7 +158,7 @@ h1 {
     max-width: 300px;
     margin: 30px auto;
     padding: 12px 30px;
-    background-color: #2c5530;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 6px;
@@ -107,13 +168,13 @@ h1 {
 }
 
 .submit-button:hover {
-    background-color: #1e3c21;
+    background-color: var(--primary-hover);
 }
 
 .radio-custom {
     width: 20px;
     height: 20px;
-    border: 2px solid #2c5530;
+    border: 2px solid var(--primary-color);
     border-radius: 50%;
     margin-right: 8px;
     position: relative;
@@ -125,7 +186,7 @@ h1 {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--modal-overlay);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -133,7 +194,7 @@ h1 {
 }
 
 .modal {
-    background: white;
+    background: var(--card-background);
     padding: 20px;
     border-radius: 12px;
     width: 90%;
@@ -150,7 +211,7 @@ h1 {
 }
 
 .modal h2 {
-    color: #2c5530;
+    color: var(--primary-color);
     margin-top: 0;
     margin-bottom: 20px;
     font-size: clamp(1.2rem, 3vw, 1.5rem);
@@ -164,7 +225,7 @@ h1 {
 .input-group label {
     display: block;
     margin-bottom: 8px;
-    color: #333;
+    color: var(--text-color);
     font-weight: 500;
     font-size: clamp(14px, 3vw, 16px);
 }
@@ -172,15 +233,17 @@ h1 {
 .input-group input {
     width: 100%;
     padding: 10px;
-    border: 2px solid #ddd;
+    border: 2px solid var(--input-border);
     border-radius: 6px;
     font-size: clamp(14px, 3vw, 16px);
     box-sizing: border-box;
+    background-color: var(--card-background);
+    color: var(--text-color);
 }
 
 .input-group input:focus {
     outline: none;
-    border-color: #2c5530;
+    border-color: var(--primary-color);
 }
 
 .modal-buttons {
@@ -214,34 +277,34 @@ h1 {
 }
 
 .modal-button.primary {
-    background-color: #2c5530;
+    background-color: var(--primary-color);
     color: white;
 }
 
 .modal-button.primary:hover {
-    background-color: #1e3c21;
+    background-color: var(--primary-hover);
 }
 
 .modal-button.secondary {
-    background-color: #e0e0e0;
-    color: #333;
+    background-color: var(--secondary-button-bg);
+    color: var(--secondary-button-color);
 }
 
 .modal-button.secondary:hover {
-    background-color: #d0d0d0;
+    background-color: var(--secondary-button-hover);
 }
 
 .vote-history {
     max-width: 900px;
     margin: 40px auto;
     padding: 20px;
-    background: white;
+    background: var(--card-background);
     border-radius: 12px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .vote-history h2 {
-    color: #2c5530;
+    color: var(--primary-color);
     margin-top: 0;
     margin-bottom: 20px;
     font-size: clamp(1.2rem, 3vw, 1.5rem);
@@ -259,7 +322,7 @@ h1 {
     align-items: center;
     gap: 10px;
     padding: 10px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
     font-size: clamp(14px, 3vw, 16px);
 }
 
@@ -269,16 +332,16 @@ h1 {
 
 .voter-name {
     font-weight: 600;
-    color: #2c5530;
+    color: var(--primary-color);
 }
 
 .vote-details {
-    color: #666;
+    color: var(--vote-details-color);
 }
 
 .vote-time {
     margin-left: auto;
-    color: #999;
+    color: var(--vote-time-color);
     font-size: 0.9em;
 }
 
@@ -303,8 +366,13 @@ h1 {
     padding: 0 20px;
 }
 
-.language-toggle {
-    background-color: #2c5530;
+.header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.language-toggle, .theme-toggle {
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 4px;
@@ -314,6 +382,16 @@ h1 {
     transition: background-color 0.3s;
 }
 
-.language-toggle:hover {
-    background-color: #1e3c21;
+.language-toggle:hover, .theme-toggle:hover {
+    background-color: var(--primary-hover);
+}
+
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 20px;
 } 

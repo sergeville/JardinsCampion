@@ -31,7 +31,9 @@ const translations = {
     cannotVoteOwn: 'Sorry, you cannot vote for your own logo!',
     voteRecorded: (name: string, logo: string) => `Thank you ${name}! Your vote for Logo #${logo} has been recorded.`,
     voteChanged: (name: string, oldLogo: string, newLogo: string) => 
-      `Thank you ${name}! Your vote has been changed from Logo #${oldLogo} to Logo #${newLogo}.`
+      `Thank you ${name}! Your vote has been changed from Logo #${oldLogo} to Logo #${newLogo}.`,
+    darkMode: 'Dark Mode',
+    lightMode: 'Light Mode'
   },
   fr: {
     title: 'Choisissez Votre Logo Préféré',
@@ -47,7 +49,9 @@ const translations = {
     cannotVoteOwn: 'Désolé, vous ne pouvez pas voter pour votre propre logo!',
     voteRecorded: (name: string, logo: string) => `Merci ${name}! Votre vote pour le Logo #${logo} a été enregistré.`,
     voteChanged: (name: string, oldLogo: string, newLogo: string) => 
-      `Merci ${name}! Votre vote a été changé du Logo #${oldLogo} au Logo #${newLogo}.`
+      `Merci ${name}! Votre vote a été changé du Logo #${oldLogo} au Logo #${newLogo}.`,
+    darkMode: 'Mode Sombre',
+    lightMode: 'Mode Clair'
   }
 };
 
@@ -60,12 +64,25 @@ export default function Vote() {
   const [voteHistory, setVoteHistory] = useState<VoteData[]>([]);
   const [userVotes, setUserVotes] = useState<UserVote[]>([]);
   const [language, setLanguage] = useState<'en' | 'fr'>('en');
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const t = translations[language];
 
   const toggleLanguage = () => {
     setLanguage(prev => prev === 'en' ? 'fr' : 'en');
   };
+
+  const toggleTheme = () => {
+    setIsDarkMode(prev => !prev);
+    document.documentElement.setAttribute('data-theme', isDarkMode ? 'light' : 'dark');
+  };
+
+  // Initialize theme on component mount
+  React.useEffect(() => {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setIsDarkMode(prefersDark);
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  }, []);
 
   const handleLogoSelection = (logoId: string) => {
     setSelectedLogo(logoId);
@@ -147,25 +164,25 @@ export default function Vote() {
 
   const logos = [
     { 
-      src: '/logos/Logo2.png', 
+      src: '/logos/Logo2.png',
       value: '1', 
       alt: 'Elegant floral logo with intertwined leaves and vines in a circular design',
       ownerId: 'owner123'
     },
     { 
-      src: '/logos/Logo3.png', 
+      src: '/logos/Logo3.png',
       value: '2', 
       alt: 'Modern minimalist garden logo with stylized plant elements',
       ownerId: 'owner456'
     },
     { 
-      src: '/logos/Logo4.png', 
+      src: '/logos/Logo4.png',
       value: '3', 
       alt: 'Nature-inspired logo featuring delicate leaf patterns',
       ownerId: 'owner789'
     },
     { 
-      src: '/logos/Logo1.jpeg', 
+      src: '/logos/Logo1.jpeg',
       value: '4', 
       alt: 'Classic garden design logo with ornate botanical details',
       ownerId: 'owner012'
@@ -176,9 +193,14 @@ export default function Vote() {
     <main>
       <div className="header">
         <h1>{t.title}</h1>
-        <button onClick={toggleLanguage} className="language-toggle">
-          {language === 'en' ? 'FR' : 'EN'}
-        </button>
+        <div className="header-buttons">
+          <button onClick={toggleLanguage} className="language-toggle">
+            {language === 'en' ? 'FR' : 'EN'}
+          </button>
+          <button onClick={toggleTheme} className="theme-toggle" aria-label={isDarkMode ? t.lightMode : t.darkMode}>
+            {isDarkMode ? '☀️' : '🌙'}
+          </button>
+        </div>
       </div>
       <div className="card-container">
         {logos.map((logo) => (
