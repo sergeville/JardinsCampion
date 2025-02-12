@@ -63,7 +63,7 @@ export default function Vote() {
   const [voteCount, setVoteCount] = useState<Record<string, number>>({});
   const [voteHistory, setVoteHistory] = useState<VoteData[]>([]);
   const [userVotes, setUserVotes] = useState<UserVote[]>([]);
-  const [language, setLanguage] = useState<'en' | 'fr'>('en');
+  const [language, setLanguage] = useState<'en' | 'fr'>('fr');
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const t = translations[language];
