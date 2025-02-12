@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.0.2] - 2024-02-20
+
+### Fixed
+- Mobile layout improvements:
+  - Repositioned header buttons to prevent overlap with title
+  - Adjusted welcome message spacing and padding
+  - Improved vertical spacing between elements
+  - Better responsive layout for small screens
+- Image loading issues:
+  - Fixed image paths for GitHub Pages deployment
+  - Added proper base path configuration
+  - Updated Next.js config for static exports
+  - Improved error handling for failed image loads
+
+### Changed
+- Layout Enhancements:
+  - Reduced padding and margins on mobile
+  - Added padding-top to title for better button spacing
+  - Centered header buttons on mobile
+  - More compact mobile layout while maintaining readability
+
+### Technical Updates
+- Next.js Configuration:
+  - Added proper basePath handling for GitHub Pages
+  - Configured image optimization settings
+  - Updated static export settings
+- Mobile Responsiveness:
+  - Improved header component structure
+  - Better CSS organization for mobile styles
+  - Enhanced button positioning logic
+
 ## [1.0.1] - 2024-02-20
 
 ### Fixed
