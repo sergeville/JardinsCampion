@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
-  basePath: process.env.NODE_ENV === 'development' ? '' : '/JardinsCampion',
+  basePath: process.env.GITHUB_ACTIONS ? '/JardinsCampion' : '',
   images: {
     unoptimized: true
   },
