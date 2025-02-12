@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.0] - 2025-02-12
+
+### Added
+- 
+
+### Changed
+- Theme Improvements:
+  - Updated text color to very light green (#e8f5e9) in both light and dark modes
+  - Enhanced visual consistency across themes
+  - Improved readability with subtle green tint
+
+### Fixed
+- 
+
 ## [1.1.0] - 2024-02-20
 
 ### Added
