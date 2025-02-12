@@ -1,128 +1,164 @@
-# Jardins Campion Logo Voting App
+# Jardins du Lac Campion - Logo Voting App
 
-A modern Next.js application for collecting votes on logo designs. Users can view logo options, select their favorite, and submit their vote along with their name.
-
-![Next.js](https://img.shields.io/badge/Next.js-15.1.7-black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.7.3-blue)
-![React](https://img.shields.io/badge/React-19.0.0-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
+A modern, accessible web application for voting on logo designs for Jardins du Lac Campion. The app supports both English and French languages, features a dark/light mode theme, and provides real-time vote tracking.
 
 ## Features
 
-- 🎨 Interactive logo gallery with hover effects
-- 📱 Responsive design that works on all devices
-- ✨ Clean, modern UI with smooth animations
-- 🔍 High-quality image display with Next.js Image optimization
-- 📊 Real-time vote counting and history tracking
-- 👤 User name collection with each vote
-- 🔄 Smart vote management:
-  - Users can change their vote
-  - Previous vote is automatically decremented
-  - Prevents duplicate votes for the same logo
-  - Shows vote history with timestamps
-- 🎯 Form validation and error handling
+- 🖼️ Interactive logo grid with keyboard navigation
+- 🌍 Bilingual support (English/French)
+- 🌓 Dark/Light mode theme with consistent styling:
+  - Dark gray theme (#2d2d2d) for improved readability
+  - White backgrounds for logos in dark mode
+  - Optimized contrast for text and interactive elements
+- 📊 Real-time vote tracking
+- 📱 Responsive design
+- ♿ Accessibility features
+- 🔒 Vote validation and owner restrictions
 
-## Quick Start
+## Theme Implementation
 
-```bash
-# Install dependencies
-npm install
+The application uses CSS variables for theming, with two main themes:
 
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
+### Light Mode
+```css
+:root {
+  --bg-color: #ffffff;
+  --card-bg: #ffffff;
+  --text-color: #000000;
+  --accent-color: #2e7d32;
+}
 ```
 
-The application will be available at `http://localhost:3000`
-
-## Project Structure
-
-```
-.
-├── public/
-│   ├── logos/        # Logo images
-│   ├── favicon.svg   # Site favicon
-│   └── icon.svg      # Site icon
-├── src/
-│   └── app/
-│       ├── page.tsx   # Main voting page
-│       ├── layout.tsx # Root layout
-│       └── globals.css # Global styles
-├── package.json
-└── tsconfig.json
+### Dark Mode
+```css
+[data-theme="dark"] {
+  --bg-color: #2d2d2d;
+  --card-bg: #2d2d2d;
+  --text-color: #ffffff;
+  --accent-color: #4caf50;
+}
 ```
 
-## Technology Stack
+Theme switching is handled by the `useTheme` hook, which:
+- Detects system color scheme preference
+- Allows manual theme toggling
+- Persists theme choice in localStorage
+- Provides smooth transitions between themes
 
-- **Framework**: Next.js 13+ with App Router
-- **Language**: TypeScript
-- **Styling**: CSS Modules
-- **State Management**: React Hooks
-- **Image Optimization**: Next.js Image Component
-- **Form Handling**: Native HTML5 Forms
-
-## Voting System Features
-
-### User Vote Management
-- Each user can vote once per logo
-- Users can change their vote at any time
-- Previous votes are automatically decremented when changed
-- Duplicate votes for the same logo are prevented
-
-### Vote History
-- Real-time vote tracking
-- Shows who voted for which logo
-- Includes timestamps for each vote
-- Maintains a chronological list of all votes
-
-### Vote Counting
-- Accurate vote counting with duplicate prevention
-- Automatic vote count adjustment when users change votes
-- Zero-floor protection for vote counts
-
-## Development
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 16.8 or later
-- npm or yarn
+- Node.js (v14 or higher)
+- npm (v6 or higher)
 
-### Local Development
+### Installation
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/sergeville/jardins-campion.git
-   cd jardins-campion
-   ```
+
+```bash
+git clone https://github.com/your-username/jardins-campion.git
+cd jardins-campion
+```
 
 2. Install dependencies:
-   ```bash
-   npm install
-   ```
 
-3. Start development server:
-   ```bash
-   npm run dev
-   ```
+```bash
+npm install
+```
 
-### Adding New Logos
+3. Start the development server:
 
-Place new logo files in the `public/logos` directory and update the logo array in `src/app/page.tsx`.
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:3000`.
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build production version
+- `npm start` - Start production server
+- `npm test` - Run tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Run tests with coverage report
+- `npm run lint` - Run ESLint
+- `npm run lint:fix` - Fix ESLint issues
+- `npm run format` - Format code with Prettier
+
+## Project Structure
+
+```text
+
+jardins-campion/
+├── public/
+│   └── logos/          # Logo images
+├── src/
+│   ├── app/            # Next.js app directory
+│   ├── components/     # React components
+│   ├── hooks/          # Custom React hooks
+│   └── translations/   # Language files
+├── __tests__/         # Test files
+└── __mocks__/         # Test mocks
+```
+
+## Key Components
+
+- `LogoGrid`: Displays logos in a grid with voting interface
+- `VoteHistory`: Shows recent votes
+- `NameInputModal`: Modal for entering voter's name
+- `ErrorBoundary`: Handles component errors gracefully
+
+## Custom Hooks
+
+- `useVoteManagement`: Manages voting state and logic
+- `useTheme`: Handles dark/light mode theme
+- `useLanguage`: Manages language selection
+
+## Testing
+
+The project uses Jest and React Testing Library for testing. Tests cover:
+
+- Component rendering
+- User interactions
+- Accessibility features
+- Theme switching
+- Language switching
+- Vote management
+- Error handling
+
+## Accessibility
+
+The app follows WCAG guidelines with features like:
+
+- Keyboard navigation
+- ARIA labels
+- Semantic HTML
+- Color contrast compliance
+- Screen reader support
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
 
 ## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Next.js team for the amazing framework
+- React Testing Library for the testing utilities
+- All contributors and users of the app

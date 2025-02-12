@@ -1,5 +1,5 @@
-import './globals.css'
-import type { Metadata } from 'next'
+import './globals.css';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'JLC Logo Vote',
@@ -7,17 +7,13 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon.ico', sizes: 'any' }
+      { url: '/favicon.ico', sizes: 'any' },
     ],
     apple: '/apple-touch-icon.png',
   },
-}
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -26,10 +22,8 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body>
-        <div id="root">
-          {children}
-        </div>
+        <div id="root">{children}</div>
       </body>
     </html>
-  )
+  );
 }
