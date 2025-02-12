@@ -118,11 +118,31 @@ h1 {
   flex-direction: column;
   align-items: center;
   transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  position: relative;
+  outline: none;
 }
 
-.logo-container:hover {
+.logo-container:hover, .logo-container:focus {
   transform: translateY(-5px);
   box-shadow: 0 4px 8px var(--card-shadow);
+}
+
+.logo-container:focus-visible {
+  box-shadow: 0 0 0 3px var(--primary-color);
+}
+
+.logo-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.logo-container:hover::after {
+  border-color: var(--primary-color);
 }
 
 .logo-image {

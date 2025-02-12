@@ -211,7 +211,18 @@ export default function Vote() {
       </div>
       <div className="logo-grid">
         {logos.map((logo) => (
-          <div key={logo.value} className="logo-container">
+          <div 
+            key={logo.value} 
+            className="logo-container"
+            onClick={() => handleLogoSelection(logo.value)}
+            role="button"
+            tabIndex={0}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleLogoSelection(logo.value);
+              }
+            }}
+          >
             <div className="logo-image">
               <img
                 src={logo.src}
@@ -222,7 +233,7 @@ export default function Vote() {
               />
             </div>
             <div className="vote-section">
-              <label>
+              <label onClick={(e) => e.stopPropagation()}>
                 <input
                   type="radio"
                   name="logo"
