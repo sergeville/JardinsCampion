@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.0.4] - 2024-02-20
+
+### Added
+- Automated version management system:
+  - Add version bump scripts for patch, minor, and major versions
+  - Add CONTRIBUTING.md with versioning guidelines
+  - Add automated changelog management
+
+### Changed
+- Standardized development workflow:
+  - Implement semantic versioning (SemVer)
+  - Add commit message standards
+  - Document release process
+
+### Technical Updates
+- Add scripts/version-bump.js for automated version management
+- Update package.json with version bump commands
+- Implement git tag automation
+
+## [1.0.3] - 2024-02-20
+
+### Fixed
+- Image loading in development:
+  - Fixed image paths to work correctly in local development
+  - Removed environment-specific path prefixes
+  - Simplified image loading configuration
+- Next.js Configuration:
+  - Optimized basePath and assetPrefix settings
+  - Streamlined image loading configuration
+  - Improved development and production environment handling
+
 ## [1.0.2] - 2024-02-20
 
 ### Fixed
@@ -13,6 +44,12 @@
   - Added proper base path configuration
   - Updated Next.js config for static exports
   - Improved error handling for failed image loads
+  - Fixed image paths to work correctly in both local development and production
+  - Removed hardcoded base paths for better environment handling
+  - Simplified image path management in LogoGrid component
+- Vote history display:
+  - Updated to show votes in reverse chronological order (newest first)
+  - Improved timestamp sorting accuracy
 
 ### Changed
 - Layout Enhancements:
@@ -26,6 +63,8 @@
   - Added proper basePath handling for GitHub Pages
   - Configured image optimization settings
   - Updated static export settings
+  - Simplified asset prefix configuration
+  - Removed unnecessary image domains and patterns
 - Mobile Responsiveness:
   - Improved header component structure
   - Better CSS organization for mobile styles
