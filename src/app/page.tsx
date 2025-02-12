@@ -19,6 +19,7 @@ interface UserVote {
 const translations = {
   en: {
     title: 'Jardins du Lac Campion\nLogo Selection',
+    mobileMessage: 'Welcome! Tap on a logo to vote.',
     selectThis: 'Select this',
     votes: 'Votes',
     recentVotes: 'Recent Votes',
@@ -37,6 +38,7 @@ const translations = {
   },
   fr: {
     title: 'Jardins du Lac Campion\nVoté pour le plus beau logo',
+    mobileMessage: 'Bienvenue! Tapez sur un logo pour voter.',
     selectThis: 'Sélectionner',
     votes: 'Votes',
     recentVotes: 'Votes Récents',
@@ -193,6 +195,9 @@ export default function Vote() {
 
   return (
     <main>
+      <div className="mobile-message">
+        {t.mobileMessage}
+      </div>
       <div className="header">
         <h1>{t.title}</h1>
         <div className="header-buttons">

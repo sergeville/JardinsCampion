@@ -451,4 +451,22 @@ h1 {
     h1 {
         margin: 20px 0 30px;
     }
+}
+
+.mobile-message {
+    display: block;
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    margin: 10px;
+}
+
+@media (min-width: 768px) {
+    .mobile-message {
+        display: none;
+    }
 } 
