@@ -403,7 +403,7 @@ h1 {
 
 .header-buttons {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .language-toggle, .theme-toggle {
@@ -411,8 +411,8 @@ h1 {
     color: white;
     border: none;
     border-radius: 4px;
-    padding: 8px 16px;
-    font-size: 16px;
+    padding: 6px 12px;
+    font-size: 14px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
@@ -425,8 +425,26 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     padding: 0;
-    font-size: 20px;
+    font-size: 16px;
+}
+
+/* Tablet and larger screens */
+@media (min-width: 768px) {
+    .language-toggle, .theme-toggle {
+        padding: 8px 16px;
+        font-size: 16px;
+    }
+
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .header-buttons {
+        gap: 10px;
+    }
 } 
