@@ -5,7 +5,7 @@
     "react-dom": "^18.2.0"
   },
   "name": "jardins-campion",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "A simple HTML page for voting on JLC logo designs.",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,10 @@
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "version:patch": "node scripts/version-bump.js patch",
+    "version:minor": "node scripts/version-bump.js minor",
+    "version:major": "node scripts/version-bump.js major"
   },
   "keywords": [],
   "author": "",
