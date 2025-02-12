@@ -18,7 +18,7 @@ interface UserVote {
 
 const translations = {
   en: {
-    title: 'Jardins du Lac Campion - Logo Selection',
+    title: 'Jardins du Lac Campion\nLogo Selection',
     selectThis: 'Select this',
     votes: 'Votes',
     recentVotes: 'Recent Votes',
