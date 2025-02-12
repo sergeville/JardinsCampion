@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import './LogoGrid.css';
 
 interface Logo {
@@ -28,6 +29,8 @@ const LogoGrid: React.FC<LogoGridProps> = ({
   translations: t,
 }) => {
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const pathname = usePathname();
+  const basePath = pathname.startsWith('/JardinsCampion') ? '/JardinsCampion' : '';
 
   const handleKeyDown = (event: React.KeyboardEvent, logoId: string) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -56,7 +59,7 @@ const LogoGrid: React.FC<LogoGridProps> = ({
           <div className="logo-image">
             {!imageErrors[logo.value] ? (
               <Image
-                src={logo.src}
+                src={`${basePath}${logo.src}`}
                 alt={logo.alt}
                 width={200}
                 height={200}

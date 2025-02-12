@@ -10,25 +10,25 @@ import ErrorBoundary from '../components/ErrorBoundary';
 
 const logos = [
   {
-    src: process.env.GITHUB_ACTIONS ? '/JardinsCampion/logos/Logo2.png' : '/logos/Logo2.png',
+    src: '/logos/Logo2.png',
     value: '1',
     alt: 'Elegant floral logo with intertwined leaves and vines in a circular design',
     ownerId: 'owner123',
   },
   {
-    src: process.env.GITHUB_ACTIONS ? '/JardinsCampion/logos/Logo3.png' : '/logos/Logo3.png',
+    src: '/logos/Logo3.png',
     value: '2',
     alt: 'Modern minimalist garden logo with stylized plant elements',
     ownerId: 'owner456',
   },
   {
-    src: process.env.GITHUB_ACTIONS ? '/JardinsCampion/logos/Logo4.png' : '/logos/Logo4.png',
+    src: '/logos/Logo4.png',
     value: '3',
     alt: 'Nature-inspired logo featuring delicate leaf patterns',
     ownerId: 'owner789',
   },
   {
-    src: process.env.GITHUB_ACTIONS ? '/JardinsCampion/logos/Logo1.jpeg' : '/logos/Logo1.jpeg',
+    src: '/logos/Logo1.jpeg',
     value: '4',
     alt: 'Classic garden design logo with ornate botanical details',
     ownerId: 'owner012',
