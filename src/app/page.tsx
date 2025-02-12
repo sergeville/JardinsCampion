@@ -36,7 +36,7 @@ const translations = {
     lightMode: 'Light Mode'
   },
   fr: {
-    title: 'Jardins du Lac Campion - Sélection du Logo',
+    title: 'Jardins du Lac Campion - Voté l\'un des logos',
     selectThis: 'Sélectionner',
     votes: 'Votes',
     recentVotes: 'Votes Récents',
