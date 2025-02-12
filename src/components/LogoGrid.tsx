@@ -37,7 +37,7 @@ const LogoGrid: React.FC<LogoGridProps> = ({
   };
 
   const handleImageError = (logoId: string) => {
-    setImageErrors(prev => ({ ...prev, [logoId]: true }));
+    setImageErrors((prev) => ({ ...prev, [logoId]: true }));
     console.error(`Failed to load image for logo ${logoId}`);
   };
 
@@ -65,9 +65,7 @@ const LogoGrid: React.FC<LogoGridProps> = ({
                 onError={() => handleImageError(logo.value)}
               />
             ) : (
-              <div className="image-error">
-                Failed to load image
-              </div>
+              <div className="image-error">Failed to load image</div>
             )}
           </div>
           <div className="vote-section">
