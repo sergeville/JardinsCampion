@@ -58,14 +58,14 @@ const LogoGrid: React.FC<LogoGridProps> = ({
         >
           <div className="logo-image">
             {!imageErrors[logo.value] ? (
-              <Image
+              <img
                 src={`${basePath}${logo.src}`}
                 alt={logo.alt}
                 width={200}
                 height={200}
-                priority={logo.value === '1'}
                 className="logo-image"
                 onError={() => handleImageError(logo.value)}
+                loading={logo.value === '1' ? 'eager' : 'lazy'}
               />
             ) : (
               <div className="image-error">Failed to load image</div>
