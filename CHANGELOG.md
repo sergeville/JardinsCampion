@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0] - 2024-02-20
+
+### Added
+- Multi-user persistence and real-time synchronization:
+  - Add database integration for persistent storage
+  - Implement real-time vote synchronization
+  - Add user session management
+  - Add concurrent voting support
+
+### Changed
+- Architecture Updates:
+  - Move to client-server architecture
+  - Add API endpoints for vote management
+  - Update state management for real-time data
+  - Implement optimistic UI updates
+
 ## [1.0.4] - 2024-02-20
 
 ### Added

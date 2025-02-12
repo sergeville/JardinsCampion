@@ -5,7 +5,7 @@
     "react-dom": "^18.2.0"
   },
   "name": "jardins-campion",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "A simple HTML page for voting on JLC logo designs.",
   "main": "index.js",
   "scripts": {
