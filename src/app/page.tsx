@@ -36,7 +36,7 @@ const translations = {
     lightMode: 'Light Mode'
   },
   fr: {
-    title: 'Jardins du Lac Campion\nVoté l\'un des plus beaux logos',
+    title: 'Jardins du Lac Campion\nVoté pour le plus beau logo',
     selectThis: 'Sélectionner',
     votes: 'Votes',
     recentVotes: 'Votes Récents',
