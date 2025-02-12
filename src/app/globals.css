@@ -92,7 +92,7 @@ main {
   position: relative;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem 2rem;
   text-align: center;
 }
 
@@ -129,23 +129,34 @@ button:hover {
 .mobile-message {
   display: none;
   text-align: center;
-  padding: 1rem;
+  padding: 0.75rem;
   background-color: var(--card-bg);
   border-radius: 8px;
-  margin-bottom: 2rem;
+  margin: 0.5rem 1rem;
 }
 
 @media (max-width: 768px) {
   .mobile-message {
     display: block;
+    margin-bottom: 0.5rem;
   }
   
   .header {
-    padding: 1rem;
+    padding: 0.5rem;
+    margin-top: 0;
+  }
+
+  .header h1 {
+    margin: 1rem 0;
+    font-size: 1.5rem;
+    padding-top: 2.5rem; /* Add space for the buttons */
   }
 
   .header-buttons {
-    left: 1rem;
+    position: relative;
+    left: auto;
+    justify-content: center;
+    margin-bottom: 0.5rem;
   }
 }
 
