@@ -13,7 +13,7 @@
     "util": "^0.12.5"
   },
   "name": "jardins-campion",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "private": true,
   "description": "A simple HTML page for voting on JLC logo designs.",
   "main": "index.js",
