@@ -72,8 +72,8 @@ describe('LogoGrid', () => {
       />
     );
 
-    const logoContainer = screen.getByAltText('Test Logo 2').closest('div.logo-container');
-    fireEvent.click(logoContainer!);
+    const logoContainer = screen.getByRole('button', { name: /Test Logo 2/ });
+    fireEvent.click(logoContainer);
     expect(mockOnLogoSelect).toHaveBeenCalledWith('2');
   });
 
@@ -88,12 +88,12 @@ describe('LogoGrid', () => {
       />
     );
 
-    const logoContainer = screen.getByAltText('Test Logo 1').closest('div.logo-container');
-    fireEvent.keyDown(logoContainer!, { key: 'Enter', code: 'Enter' });
+    const logoContainer = screen.getByRole('button', { name: /Test Logo 1/ });
+    fireEvent.keyDown(logoContainer, { key: 'Enter', code: 'Enter' });
     expect(mockOnLogoSelect).toHaveBeenCalledWith('1');
 
     mockOnLogoSelect.mockClear();
-    fireEvent.keyDown(logoContainer!, { key: ' ', code: 'Space' });
+    fireEvent.keyDown(logoContainer, { key: ' ', code: 'Space' });
     expect(mockOnLogoSelect).toHaveBeenCalledWith('1');
   });
 

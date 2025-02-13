@@ -11,21 +11,25 @@ We follow [Semantic Versioning](https://semver.org/) (SemVer) for version number
 ### Version Update Process
 
 1. Update version numbers in:
+
    - package.json
    - CHANGELOG.md
 
 2. CHANGELOG.md format:
+
 ```markdown
 ## [x.y.z] - YYYY-MM-DD
 
 ### Category (Fixed/Changed/Added/Removed)
+
 - Feature/Component name:
   - Specific change description
   - Additional details
   - Implementation notes
 ```
 
-### Categories:
+### Categories
+
 - **Fixed**: Bug fixes and corrections
 - **Changed**: Changes in existing functionality
 - **Added**: New features
@@ -36,6 +40,7 @@ We follow [Semantic Versioning](https://semver.org/) (SemVer) for version number
 ## Commit Standards
 
 ### Commit Message Format
+
 ```
 type(scope): Brief description
 
@@ -43,7 +48,8 @@ type(scope): Brief description
 - Additional context if needed
 ```
 
-### Types:
+### Types
+
 - **fix**: Bug fixes
 - **feat**: New features
 - **docs**: Documentation changes
@@ -52,7 +58,8 @@ type(scope): Brief description
 - **test**: Test updates
 - **chore**: Maintenance tasks
 
-### Example:
+### Example
+
 ```
 fix(image-loading): Update image path handling
 
@@ -90,6 +97,58 @@ fix(image-loading): Update image path handling
 7. Code review
 8. Merge to main branch
 
+## Testing Guidelines
+
+### Component Testing Best Practices
+
+1. **Async Effects**
+   - Always wait for effects to complete using `waitFor`
+   - Check both state changes and UI updates
+   - Handle initial state setup properly
+
+2. **Component Cleanup**
+   - Use the `unmount` function returned by `render`
+   - Clean up after each test
+   - Reset global state (localStorage, theme, etc.)
+
+3. **Language and Theme Testing**
+   - Set initial state explicitly
+   - Wait for state changes to propagate
+   - Verify both state and UI updates
+   - Handle transitions between states
+
+4. **Test Structure**
+   ```typescript
+   it('test description', async () => {
+     // 1. Setup initial state
+     window.localStorage.setItem('key', 'value');
+     const { unmount } = render(<Component />);
+
+     // 2. Wait for effects
+     await waitFor(() => {
+       expect(window.localStorage.getItem('key')).toBe('value');
+     });
+
+     // 3. Verify UI
+     await waitFor(() => {
+       expect(screen.getByText('expected text')).toBeInTheDocument();
+     });
+
+     // 4. Perform actions
+     await act(async () => {
+       fireEvent.click(screen.getByRole('button'));
+     });
+
+     // 5. Verify changes
+     await waitFor(() => {
+       expect(screen.getByText('new text')).toBeInTheDocument();
+     });
+
+     // 6. Cleanup
+     unmount();
+   });
+   ```
+
 ## Questions?
 
-If you have questions about these guidelines, please reach out to the project maintainers. 
+If you have questions about these guidelines, please reach out to the project maintainers.

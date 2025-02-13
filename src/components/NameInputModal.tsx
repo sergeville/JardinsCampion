@@ -12,6 +12,7 @@ interface NameInputModalProps {
     submit: string;
     cancel: string;
   };
+  loading?: boolean;
 }
 
 const NameInputModal: React.FC<NameInputModalProps> = ({
@@ -19,6 +20,7 @@ const NameInputModal: React.FC<NameInputModalProps> = ({
   onSubmit,
   onCancel,
   translations: t,
+  loading = false,
 }) => {
   const [name, setName] = useState('');
 
@@ -27,20 +29,20 @@ const NameInputModal: React.FC<NameInputModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedName = name.trim();
-    if (trimmedName) {
+    if (trimmedName && !loading) {
       onSubmit(trimmedName);
       setName('');
     }
   };
 
   const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
+    if (e.target === e.currentTarget && !loading) {
       onCancel();
     }
   };
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
+    <div className={`modal-overlay ${loading ? 'loading' : ''}`} onClick={handleOverlayClick}>
       <div className="modal-content" role="dialog" aria-labelledby="modal-title">
         <h2 id="modal-title">{t.enterName}</h2>
         <form onSubmit={handleSubmit}>
@@ -49,19 +51,29 @@ const NameInputModal: React.FC<NameInputModalProps> = ({
             <input
               id="name-input"
               type="text"
+              data-testid="name-input"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => !loading && setName(e.target.value)}
               placeholder={t.namePlaceholder}
               required
+              disabled={loading}
+              aria-disabled={loading}
             />
           </div>
           <div className="button-group">
-            <button type="submit">{t.submit}</button>
-            <button type="button" onClick={onCancel}>
+            <button type="submit" disabled={loading} aria-disabled={loading}>
+              {loading ? 'Submitting...' : t.submit}
+            </button>
+            <button type="button" onClick={onCancel} disabled={loading} aria-disabled={loading}>
               {t.cancel}
             </button>
           </div>
         </form>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="loading-spinner" />
+          </div>
+        )}
       </div>
     </div>
   );

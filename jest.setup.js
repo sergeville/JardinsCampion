@@ -26,7 +26,7 @@ jest.mock('next/image', () => ({
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -57,4 +57,26 @@ global.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}
-}; 
+};
+
+const { TextEncoder, TextDecoder } = require('util');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Add custom matchers
+expect.extend({
+  toBeInTheDocument(received) {
+    const pass = received !== null;
+    if (pass) {
+      return {
+        message: () => `expected ${received} not to be in the document`,
+        pass: true,
+      };
+    } else {
+      return {
+        message: () => `expected ${received} to be in the document`,
+        pass: false,
+      };
+    }
+  },
+});

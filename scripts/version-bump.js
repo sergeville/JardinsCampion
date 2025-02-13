@@ -8,7 +8,7 @@ const { execSync } = require('child_process');
 const BUMP_TYPES = {
   patch: 2,
   minor: 1,
-  major: 0
+  major: 0,
 };
 
 function getCurrentVersion() {
@@ -19,7 +19,7 @@ function getCurrentVersion() {
 function bumpVersion(currentVersion, type) {
   const parts = currentVersion.split('.').map(Number);
   const idx = BUMP_TYPES[type];
-  
+
   if (idx === undefined) {
     throw new Error('Invalid bump type. Use: major, minor, or patch');
   }
@@ -44,7 +44,7 @@ function updateChangelog(newVersion) {
   const changelogPath = 'CHANGELOG.md';
   const today = new Date().toISOString().split('T')[0];
   const newEntry = `\n## [${newVersion}] - ${today}\n\n### Added\n- \n\n### Changed\n- \n\n### Fixed\n- \n`;
-  
+
   const changelog = fs.readFileSync(changelogPath, 'utf8');
   const updatedChangelog = changelog.replace('# Changelog\n', `# Changelog\n${newEntry}`);
   fs.writeFileSync(changelogPath, updatedChangelog);
@@ -77,4 +77,4 @@ function main() {
   console.log(`git push origin main --tags`);
 }
 
-main(); 
+main();

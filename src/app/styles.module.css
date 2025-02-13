@@ -1,0 +1,97 @@
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  margin: 2rem;
+  border-radius: 8px;
+}
+
+.error {
+  text-align: center;
+  padding: 2rem;
+  margin: 2rem;
+  border-radius: 8px;
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  white-space: pre-line;
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.headerButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.languageToggle, 
+.themeToggle {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.mobileMessage {
+  text-align: center;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 1rem;
+  }
+
+  .mobileMessage {
+    display: block;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .header h1 {
+    margin: 1rem 0;
+    font-size: 1.5rem;
+    padding-top: 2.5rem;
+  }
+
+  .headerButtons {
+    position: relative;
+    left: auto;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.errorMessage {
+  text-align: center;
+  padding: 2rem;
+  margin: 2rem;
+  border-radius: 8px;
+  background-color: #ffebee;
+  color: #c62828;
+} 

@@ -1,0 +1,127 @@
+.container {
+  display: flex;
+  align-items: flex-start;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  gap: 1rem;
+}
+
+.inline {
+  display: inline-flex;
+  margin: 0;
+  padding: 0.5rem;
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.content {
+  flex: 1;
+}
+
+.message {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.action {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+/* Severity-based styles */
+.fatal {
+  background-color: #fef2f2;
+  border: 1px solid #fee2e2;
+}
+
+.critical {
+  background-color: #fff1f2;
+  border: 1px solid #ffe4e6;
+}
+
+.error {
+  background-color: #fef2f2;
+  border: 1px solid #fee2e2;
+}
+
+.warning {
+  background-color: #fffbeb;
+  border: 1px solid #fef3c7;
+}
+
+.info {
+  background-color: #f0f9ff;
+  border: 1px solid #e0f2fe;
+}
+
+.default {
+  background-color: #f9fafb;
+  border: 1px solid #f3f4f6;
+}
+
+/* Action button styles based on severity */
+.fatal .action {
+  background-color: #dc2626;
+  color: white;
+}
+
+.fatal .action:hover {
+  background-color: #b91c1c;
+}
+
+.critical .action {
+  background-color: #e11d48;
+  color: white;
+}
+
+.critical .action:hover {
+  background-color: #be123c;
+}
+
+.error .action {
+  background-color: #ef4444;
+  color: white;
+}
+
+.error .action:hover {
+  background-color: #dc2626;
+}
+
+.warning .action {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.warning .action:hover {
+  background-color: #d97706;
+}
+
+.info .action {
+  background-color: #0ea5e9;
+  color: white;
+}
+
+.info .action:hover {
+  background-color: #0284c7;
+}
+
+.default .action {
+  background-color: #6b7280;
+  color: white;
+}
+
+.default .action:hover {
+  background-color: #4b5563;
+} 

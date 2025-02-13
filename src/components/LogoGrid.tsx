@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import './LogoGrid.css';
+import styles from './LogoGrid.module.css';
 
 interface Logo {
   src: string;
@@ -19,6 +18,7 @@ interface LogoGridProps {
     selectThis: string;
     votes: string;
   };
+  loading?: boolean;
 }
 
 const LogoGrid: React.FC<LogoGridProps> = ({
@@ -27,10 +27,9 @@ const LogoGrid: React.FC<LogoGridProps> = ({
   voteCount,
   onLogoSelect,
   translations: t,
+  loading = false,
 }) => {
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
-  const pathname = usePathname();
-  const basePath = pathname.startsWith('/JardinsCampion') ? '/JardinsCampion' : '';
 
   const handleKeyDown = (event: React.KeyboardEvent, logoId: string) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -45,45 +44,47 @@ const LogoGrid: React.FC<LogoGridProps> = ({
   };
 
   return (
-    <div className="logos">
+    <div className={`${styles.logos} ${loading ? styles.loading : ''}`} data-testid="logos-container">
       {logos.map((logo) => (
         <div
           key={logo.value}
-          className={`logo-container ${selectedLogo === logo.value ? 'selected' : ''}`}
-          onClick={() => onLogoSelect(logo.value)}
-          onKeyDown={(e) => handleKeyDown(e, logo.value)}
-          tabIndex={0}
+          className={`${styles.logoContainer} ${selectedLogo === logo.value ? styles.selected : ''}`}
+          onClick={() => !loading && onLogoSelect(logo.value)}
+          onKeyDown={(e) => !loading && handleKeyDown(e, logo.value)}
+          tabIndex={loading ? -1 : 0}
           role="button"
           aria-pressed={selectedLogo === logo.value}
+          aria-disabled={loading}
         >
-          <div className="logo-image">
+          <div className={styles.logoImage}>
             {!imageErrors[logo.value] ? (
-              <img
-                src={`${basePath}${logo.src}`}
+              <Image
+                src={logo.src}
                 alt={logo.alt}
                 width={200}
                 height={200}
-                className="logo-image"
+                style={{ objectFit: 'contain' }}
                 onError={() => handleImageError(logo.value)}
-                loading={logo.value === '1' ? 'eager' : 'lazy'}
               />
             ) : (
-              <div className="image-error">Failed to load image</div>
+              <div className={styles.imageError}>Failed to load image</div>
             )}
           </div>
-          <div className="vote-section">
-            <label onClick={(e) => e.stopPropagation()}>
+          <div className={styles.voteSection}>
+            <label onClick={(e) => !loading && e.stopPropagation()}>
               <input
                 type="radio"
                 name="logo"
                 value={logo.value}
                 checked={selectedLogo === logo.value}
-                onChange={() => onLogoSelect(logo.value)}
+                onChange={() => !loading && onLogoSelect(logo.value)}
+                disabled={loading}
                 aria-label={`${t.selectThis} ${logo.value}`}
               />
               {t.selectThis} ({voteCount[logo.value] || 0} {t.votes})
             </label>
           </div>
+          {loading && <div className={styles.loadingOverlay} />}
         </div>
       ))}
     </div>

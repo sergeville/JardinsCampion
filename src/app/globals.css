@@ -1,9 +1,9 @@
 :root {
   --bg-color: #ffffff;
-  --text-color: #e8f5e9;  /* Very light green text */
+  --text-color: #1b5e20;  /* Dark green text for better readability */
   --text-secondary: #666666;
   --accent-color: #2e7d32;  /* Forest green */
-  --border-color: #cccccc;
+  --border-color: #eaeaea;
   --card-bg: #ffffff;
   --secondary-bg: #e0e0e0;
   --primary-color: #2e7d32;  /* Forest green */
@@ -15,7 +15,7 @@
   --text-color: #e8f5e9;  /* Very light green text */
   --text-secondary: #a0a0a0;
   --accent-color: #4caf50;
-  --border-color: #2d2d2d;
+  --border-color: #333333;
   --card-bg: #2d2d2d;
   --secondary-bg: #2d2d2d;
   --primary-color: #4caf50;
@@ -727,4 +727,20 @@ input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+[data-theme="dark"] img {
+  background-color: white;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 5px;
+  }
 } 

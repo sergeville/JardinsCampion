@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  mongodb-dev:
+    image: mongo:latest
+    container_name: jardins-campion-db-dev
+    command: mongod --replSet rs0 --bind_ip_all --port 27017 --keyFile /data/mongodb-keyfile
+    ports:
+      - "27019:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=devpassword
+    volumes:
+      - mongodb-dev-data:/data/db
+      - ./mongodb-keyfile:/data/mongodb-keyfile:ro
+    networks:
+      - jardins-campion-network
+    healthcheck:
+      test: mongosh -u admin -p devpassword --authenticationDatabase admin --eval "rs.status()" --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 3
+
+  mongodb-prod:
+    image: mongo:latest
+    container_name: jardins-campion-db-prod
+    command: mongod --replSet rs1 --bind_ip_all --port 27017 --keyFile /data/mongodb-keyfile
+    ports:
+      - "27020:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=prodpassword
+    volumes:
+      - mongodb-prod-data:/data/db
+      - ./mongodb-keyfile:/data/mongodb-keyfile:ro
+    networks:
+      - jardins-campion-network
+    healthcheck:
+      test: mongosh -u admin -p prodpassword --authenticationDatabase admin --eval "rs.status()" --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 3
+
+  mongo-init:
+    image: mongo:latest
+    restart: "no"
+    depends_on:
+      - mongodb-dev
+      - mongodb-prod
+    command: >
+      /bin/bash -c "
+      sleep 10 &&
+      mongosh --host mongodb-dev:27017 -u admin -p devpassword --authenticationDatabase admin --eval '
+      rs.initiate({
+        _id: \"rs0\",
+        members: [{ _id: 0, host: \"mongodb-dev:27017\" }]
+      })
+      ' &&
+      mongosh --host mongodb-prod:27017 -u admin -p prodpassword --authenticationDatabase admin --eval '
+      rs.initiate({
+        _id: \"rs1\",
+        members: [{ _id: 0, host: \"mongodb-prod:27017\" }]
+      })
+      '
+      "
+    networks:
+      - jardins-campion-network
+
+volumes:
+  mongodb-dev-data:
+  mongodb-prod-data:
+
+networks:
+  jardins-campion-network:
+    driver: bridge 
