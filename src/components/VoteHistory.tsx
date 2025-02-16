@@ -1,16 +1,16 @@
 import React from 'react';
 import './VoteHistory.css';
 
-interface VoteData {
-  userName: string;
+interface Vote {
   userId: string;
   logoId: string;
   timestamp: Date;
   ownerId?: string;
+  userName: string;
 }
 
 interface VoteHistoryProps {
-  voteHistory: VoteData[];
+  voteHistory: Vote[];
   translations: {
     recentVotes: string;
     votedFor: string;
@@ -18,60 +18,31 @@ interface VoteHistoryProps {
   loading?: boolean;
 }
 
-export const VoteHistory: React.FC<VoteHistoryProps> = ({
+export default function VoteHistory({
   voteHistory,
-  translations: t,
+  translations,
   loading = false,
-}) => {
-  // Sort votes in chronological order
-  const sortedVotes = [...voteHistory].sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-  );
-
-  const formatTime = (timestamp: Date) => {
-    return new Date(timestamp).toLocaleTimeString(undefined, {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
-  };
+}: VoteHistoryProps) {
+  if (loading) {
+    return <div className="loading">Loading vote history...</div>;
+  }
 
   return (
-    <div className={`vote-history ${loading ? 'loading' : ''}`}>
-      <h2>{t.recentVotes}</h2>
-      <div className="vote-list" data-testid="vote-list" role="list">
-        {loading ? (
-          <div className="loading-placeholder">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="vote-item placeholder">
-                <div className="placeholder-text" />
-              </div>
-            ))}
-          </div>
-        ) : sortedVotes.length > 0 ? (
-          sortedVotes.map((vote) => (
-            <div
-              key={`${vote.userId}-${new Date(vote.timestamp).getTime()}`}
-              className="vote-item"
-              role="listitem"
-              aria-label={`${vote.userName} ${t.votedFor}${vote.logoId}`}
-            >
-              <span className="voter-name">{vote.userName}</span>
-              <span className="vote-details">
-                {t.votedFor}
-                {vote.logoId}
-              </span>
-              <span className="vote-time">{formatTime(vote.timestamp)}</span>
-            </div>
-          ))
-        ) : (
-          <div className="no-votes-message" role="listitem">
-            No votes yet
-          </div>
-        )}
-      </div>
+    <div className="vote-history">
+      <h2>{translations.recentVotes}</h2>
+      <ul className="vote-list">
+        {voteHistory.map((vote, index) => (
+          <li
+            key={`${vote.userId}-${vote.logoId}-${index}`}
+            className="vote-item"
+            aria-label={`${vote.userName} ${translations.votedFor} ${vote.logoId}`}
+          >
+            <span className="voter-name">{vote.userName}</span>
+            {' '}{translations.votedFor}{' '}
+            <span className="logo-id">Logo #{vote.logoId}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
-};
-
-export default VoteHistory;
+}

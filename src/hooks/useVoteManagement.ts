@@ -1,7 +1,13 @@
-import { useState, useCallback, useEffect } from 'react';
-import { getAllLogoStats, getVoteHistory, getUserVotes, submitVote } from '../app/actions';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { getAllLogoStats, getVoteHistory, submitVote } from '@/app/actions';
+import type { VoteData, VoteResult, Logo } from '@/types/vote';
+import { networkRequest, NetworkError } from '@/lib/utils/networkManager';
 
-interface VoteData {
+const REFRESH_INTERVAL = 60000; // 60 seconds
+const RATE_LIMIT = 10000; // 10 seconds
+const MAX_BATCH_SIZE = 10;
+
+interface UserVote {
   userName: string;
   userId: string;
   logoId: string;
@@ -9,155 +15,293 @@ interface VoteData {
   ownerId?: string;
 }
 
-interface UserVote {
-  logoId: string;
-  timestamp: Date;
+interface RequestState {
+  loading: boolean;
+  error: string | null;
+  retryCount: number;
 }
 
-export const useVoteManagement = ({ onError }: { onError?: (error: Error) => void } = {}) => {
+interface VoteManagementProps {
+  onError?: (error: Error) => void;
+}
+
+interface VoteManagementResult {
+  voteStats: Record<string, number>;
+  voteHistory: VoteData[];
+  userVotes: UserVote[];
+  loading: boolean;
+  error: string | null;
+  retryCount: number;
+  refreshData: () => void;
+  recordVote: (voteData: VoteData) => Promise<VoteResult | undefined>;
+  voteCount: Record<string, number>;
+  selectedLogo: Logo | null;
+  handleLogoSelection: (logo: Logo) => void;
+}
+
+export function useVoteManagement({ onError }: VoteManagementProps = {}): VoteManagementResult {
+  const [voteStats, setVoteStats] = useState<Record<string, number>>({});
   const [voteCount, setVoteCount] = useState<Record<string, number>>({});
   const [voteHistory, setVoteHistory] = useState<VoteData[]>([]);
   const [userVotes, setUserVotes] = useState<UserVote[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedLogo, setSelectedLogo] = useState<Logo | null>(null);
+  const [requestState, setRequestState] = useState<RequestState>({
+    loading: false,
+    error: null,
+    retryCount: 0,
+  });
+  const lastRefreshTime = useRef<number>(0);
+  const mounted = useRef(true);
+  const abortController = useRef<AbortController | null>(null);
 
-  // Load initial vote data
-  useEffect(() => {
-    const loadVoteData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        console.log('Loading vote data...');
+  const handleLogoSelection = useCallback((logo: Logo) => {
+    setSelectedLogo(logo);
+  }, []);
 
-        const [stats, history] = await Promise.all([getAllLogoStats(), getVoteHistory(10)]);
-
-        console.log('Received vote stats:', stats);
-        console.log('Received vote history:', history);
-
-        // Convert stats to voteCount format
-        const counts: Record<string, number> = {};
-        if (Array.isArray(stats)) {
-          stats.forEach((stat: any) => {
-            counts[stat.logoId] = stat.totalVotes || 0;
-          });
-        }
-        setVoteCount(counts);
-        console.log('Updated vote counts:', counts);
-
-        // Convert history to VoteData format
-        if (Array.isArray(history)) {
-          const formattedHistory = history.map((vote: any) => ({
-            userName: vote.userName || 'Unknown',
-            userId: vote.userId || '',
-            logoId: vote.logoId || '',
-            timestamp: new Date(vote.timestamp || Date.now()),
-            ownerId: vote.ownerId,
-          }));
-          setVoteHistory(formattedHistory);
-          console.log('Updated vote history:', formattedHistory);
-        }
-      } catch (err) {
-        console.error('Error loading vote data:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load vote data';
-        setError(errorMessage);
-        if (onError) onError(err instanceof Error ? err : new Error(errorMessage));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadVoteData();
-  }, [onError]);
-
-  const getUserPreviousVote = useCallback(async (userId: string) => {
-    try {
-      console.log('Getting previous votes for user:', userId);
-      const votes = await getUserVotes(userId);
-      console.log('Received user votes:', votes);
-      if (Array.isArray(votes) && votes.length > 0) {
-        return votes[0];
-      }
-      return undefined;
-    } catch (err) {
-      console.error('Error getting user votes:', err);
-      return undefined;
+  const cancelPendingRequests = useCallback(() => {
+    if (abortController.current) {
+      abortController.current.abort();
+      abortController.current = null;
     }
   }, []);
 
+  const loadVoteData = useCallback(
+    async (force = false) => {
+      if ((!force && requestState.loading) || !mounted.current) return;
+
+      const now = Date.now();
+      if (!force && now - lastRefreshTime.current < RATE_LIMIT) {
+        return;
+      }
+
+      cancelPendingRequests();
+      abortController.current = new AbortController();
+
+      try {
+        setRequestState((prev) => ({ ...prev, loading: true }));
+
+        const [stats, historyResponse] = await Promise.all([
+          networkRequest.standard(
+            async () => {
+              const response = await fetch('/api/votes?action=stats');
+              if (!response.ok) {
+                throw new Error('Failed to fetch logo stats');
+              }
+              const data = await response.json();
+              return data.data;
+            },
+            {
+              maxRetries: 2,
+              onRetry: (error, attempt) => {
+                setRequestState((prev) => ({
+                  ...prev,
+                  retryCount: attempt,
+                  error: `Retrying... (${attempt}/2)`,
+                }));
+              },
+            }
+          ),
+          networkRequest.quick(
+            async () => {
+              const response = await fetch('/api/votes?action=history');
+              if (!response.ok) {
+                throw new Error('Failed to fetch vote history');
+              }
+              const data = await response.json();
+              return data.data || [];
+            },
+            {
+              maxRetries: 2,
+              onRetry: (error, attempt) => {
+                console.warn(`Retrying vote history fetch (${attempt}/2):`, error);
+              },
+            }
+          ),
+        ]);
+
+        if (!mounted.current) return;
+
+        setRequestState((prev) => ({
+          ...prev,
+          error: null,
+          retryCount: 0,
+        }));
+        setVoteStats(stats);
+        setVoteCount(stats);
+        setVoteHistory(historyResponse);
+        lastRefreshTime.current = now;
+      } catch (error) {
+        if (!mounted.current) return;
+
+        const networkError = error instanceof NetworkError ? error : null;
+        const errorMessage = networkError
+          ? `Request failed${networkError.isTimeout ? ' (timeout)' : ''}: ${networkError.message}`
+          : 'Failed to load vote data';
+
+        console.error('Error loading vote data:', error);
+        setRequestState((prev) => ({
+          ...prev,
+          error: errorMessage,
+          retryCount: networkError?.attempt || 0,
+        }));
+
+        onError?.(error instanceof Error ? error : new Error(errorMessage));
+      } finally {
+        if (mounted.current) {
+          setRequestState((prev) => ({ ...prev, loading: false }));
+        }
+      }
+    },
+    [requestState.loading, onError, cancelPendingRequests]
+  );
+
+  useEffect(() => {
+    mounted.current = true;
+    loadVoteData(true);
+
+    const interval = setInterval(() => {
+      if (mounted.current) {
+        loadVoteData();
+      }
+    }, REFRESH_INTERVAL);
+
+    return () => {
+      mounted.current = false;
+      cancelPendingRequests();
+      clearInterval(interval);
+    };
+  }, [loadVoteData, cancelPendingRequests]);
+
+  const refreshData = useCallback(() => {
+    loadVoteData(true);
+  }, [loadVoteData]);
+
   const recordVote = useCallback(
     async (voteData: VoteData) => {
+      if (!mounted.current) return;
+
       try {
-        setLoading(true);
-        setError(null);
-        console.log('Recording vote:', voteData);
+        const result = await networkRequest.standard(
+          async () => {
+            const response = await fetch('/api/votes', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(voteData),
+            });
 
-        // Submit vote to database
-        const result = await submitVote({
-          userId: voteData.userId,
-          logoId: voteData.logoId,
-          ownerId: voteData.ownerId,
-        });
+            const data = await response.json();
 
-        console.log('Vote submission result:', result);
+            if (!response.ok) {
+              // For 409 Conflict (already voted), return a special result
+              if (response.status === 409) {
+                return {
+                  success: false,
+                  status: 'rejected',
+                  conflictResolution: {
+                    originalVote: data.error,
+                    resolutionType: 'reject',
+                    resolvedAt: new Date(),
+                  },
+                };
+              }
 
-        if (result?.status === 'confirmed') {
-          // Update local state
-          setVoteCount((prev) => ({
-            ...prev,
-            [voteData.logoId]: (prev[voteData.logoId] || 0) + 1,
-          }));
+              // Handle other error cases
+              if (response.status === 401) {
+                throw new Error('Please ensure you are logged in before voting');
+              }
+              if (response.status === 408) {
+                throw new Error('Vote submission timed out. Please try again.');
+              }
+              throw new Error(data.error || 'Failed to submit vote');
+            }
+
+            return {
+              success: true,
+              status: 'confirmed',
+              data: data.data,
+            };
+          },
+          {
+            maxRetries: 2,
+            onRetry: (error, attempt) => {
+              console.warn(`Retrying vote submission (${attempt}/2):`, error);
+              setRequestState((prev) => ({
+                ...prev,
+                error: `Retrying vote submission (${attempt}/2)...`,
+                retryCount: attempt,
+              }));
+            },
+          }
+        );
+
+        setRequestState((prev) => ({
+          ...prev,
+          error: null,
+          retryCount: 0,
+        }));
+
+        if (result.success) {
+          // Immediately refresh data from server to ensure accurate counts
+          await loadVoteData(true);
+          
+          // Update local state for immediate feedback
+          const updatedStats = {
+            ...voteStats,
+            [voteData.logoId]: (voteStats[voteData.logoId] || 0) + 1,
+          };
+          setVoteStats(updatedStats);
+          setVoteCount(updatedStats);
 
           setVoteHistory((prev) =>
             [
               {
                 ...voteData,
-                timestamp: new Date(),
+                timestamp: new Date(voteData.timestamp),
               },
               ...prev,
-            ].slice(0, 10)
+            ].slice(0, MAX_BATCH_SIZE)
           );
-
-          console.log('Local state updated after vote');
-          return result;
-        } else if (result?.conflictResolution) {
-          // Handle conflict resolution
-          const { originalVote, resolutionType } = result.conflictResolution;
-          if (resolutionType === 'override') {
-            // Update local state to reflect the override
-            setVoteHistory((prev) => {
-              const newHistory = prev.filter((v) => v.userId !== voteData.userId);
-              return [
-                {
-                  ...voteData,
-                  timestamp: new Date(),
-                },
-                ...newHistory,
-              ].slice(0, 10);
-            });
-            console.log('Local state updated after vote conflict resolution');
-          }
-          return originalVote;
         }
-      } catch (err) {
-        console.error('Error recording vote:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Failed to record vote';
-        setError(errorMessage);
-        if (onError) onError(err instanceof Error ? err : new Error(errorMessage));
-        throw err;
-      } finally {
-        setLoading(false);
+
+        return result;
+      } catch (error) {
+        const networkError = error instanceof NetworkError ? error : null;
+        const errorMessage = networkError
+          ? `Vote submission failed${networkError.isTimeout ? ' (timeout)' : ''}: ${networkError.message}`
+          : error instanceof Error ? error.message : 'Failed to record vote';
+
+        console.error('Error recording vote:', error);
+        onError?.(error instanceof Error ? error : new Error(errorMessage));
+        throw error;
       }
     },
-    [onError]
+    [onError, voteStats, loadVoteData]
   );
 
+  const resolveVoteConflict = async (newVote: VoteData, existingVote: VoteData) => {
+    try {
+      // Implement a conflict resolution strategy here
+      // For simplicity, using a last-write-wins approach
+      return newVote;
+    } catch (error) {
+      console.error('Error resolving vote conflict:', error);
+      throw error;
+    }
+  };
+
   return {
-    voteCount,
+    voteStats,
     voteHistory,
     userVotes,
-    getUserPreviousVote,
+    loading: requestState.loading,
+    error: requestState.error,
+    retryCount: requestState.retryCount,
+    refreshData,
     recordVote,
-    loading,
-    error,
+    voteCount,
+    selectedLogo,
+    handleLogoSelection,
   };
-};
+}

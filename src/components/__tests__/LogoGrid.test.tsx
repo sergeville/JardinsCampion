@@ -1,25 +1,39 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import LogoGrid from '../LogoGrid';
+import '@testing-library/jest-dom';
+import { LogoGrid } from '../LogoGrid';
+import { Logo } from '@/types/vote';
+import type { ImageProps } from 'next/image';
 
-const mockLogos = [
+// Mock next/image
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: function MockImage(props: ImageProps) {
+    return <div data-testid="mock-image" {...props} />;
+  },
+}));
+
+const mockLogos: Logo[] = [
   {
-    src: '/test/logo1.png',
-    value: '1',
-    alt: 'Test Logo 1',
-    ownerId: 'owner1',
+    id: '1',
+    name: 'Logo 1',
+    imageUrl: '/logo1.png',
   },
   {
-    src: '/test/logo2.png',
-    value: '2',
-    alt: 'Test Logo 2',
-    ownerId: 'owner2',
+    id: '2',
+    name: 'Logo 2',
+    imageUrl: '/logo2.png',
   },
 ];
 
+const mockVoteCount: Record<string, number> = {
+  '1': 5,
+  '2': 10,
+};
+
 const mockTranslations = {
-  selectThis: 'Select this',
-  votes: 'Votes',
+  selectThis: 'Select this logo',
+  votes: 'votes',
 };
 
 describe('LogoGrid', () => {
@@ -29,87 +43,101 @@ describe('LogoGrid', () => {
     mockOnLogoSelect.mockClear();
   });
 
-  it('renders all logos', () => {
+  it('renders all logos with correct vote counts', () => {
     render(
       <LogoGrid
         logos={mockLogos}
+        voteCount={mockVoteCount}
         selectedLogo={null}
-        voteCount={{}}
         onLogoSelect={mockOnLogoSelect}
-        translations={mockTranslations}
+        loading={false}
+        t={mockTranslations}
       />
     );
 
     mockLogos.forEach((logo) => {
-      expect(screen.getByAltText(logo.alt)).toBeInTheDocument();
+      const image = screen.getByTestId('logo-image');
+      expect(image).toHaveAttribute('src', logo.imageUrl);
+      expect(image).toHaveAttribute('alt', logo.name);
+      expect(
+        screen.getByText(
+          `${mockTranslations.selectThis} (${mockVoteCount[logo.id]} ${mockTranslations.votes})`
+        )
+      ).toBeInTheDocument();
     });
   });
 
-  it('shows correct vote counts', () => {
-    const voteCount = { '1': 5, '2': 3 };
+  it('handles logo selection correctly', () => {
     render(
       <LogoGrid
         logos={mockLogos}
+        voteCount={mockVoteCount}
         selectedLogo={null}
-        voteCount={voteCount}
         onLogoSelect={mockOnLogoSelect}
-        translations={mockTranslations}
+        loading={false}
+        t={mockTranslations}
       />
     );
 
-    expect(screen.getByText(`Select this (5 Votes)`)).toBeInTheDocument();
-    expect(screen.getByText(`Select this (3 Votes)`)).toBeInTheDocument();
+    const firstLogo = screen.getByRole('radio', { name: new RegExp(mockLogos[0].name, 'i') });
+    fireEvent.click(firstLogo);
+    expect(mockOnLogoSelect).toHaveBeenCalledWith(mockLogos[0]);
   });
 
-  it('handles logo selection', () => {
+  it('disables interaction when loading', () => {
     render(
       <LogoGrid
         logos={mockLogos}
-        selectedLogo="1"
-        voteCount={{}}
+        voteCount={mockVoteCount}
+        selectedLogo={null}
         onLogoSelect={mockOnLogoSelect}
-        translations={mockTranslations}
+        loading={true}
+        t={mockTranslations}
       />
     );
 
-    const logoContainer = screen.getByRole('button', { name: /Test Logo 2/ });
-    fireEvent.click(logoContainer);
-    expect(mockOnLogoSelect).toHaveBeenCalledWith('2');
+    const logos = screen.getAllByRole('radio');
+    logos.forEach((logo) => {
+      fireEvent.click(logo);
+      expect(mockOnLogoSelect).not.toHaveBeenCalled();
+    });
   });
 
-  it('supports keyboard navigation', () => {
+  it('handles keyboard navigation', () => {
     render(
       <LogoGrid
         logos={mockLogos}
+        voteCount={mockVoteCount}
         selectedLogo={null}
-        voteCount={{}}
         onLogoSelect={mockOnLogoSelect}
-        translations={mockTranslations}
+        loading={false}
+        t={mockTranslations}
       />
     );
 
-    const logoContainer = screen.getByRole('button', { name: /Test Logo 1/ });
-    fireEvent.keyDown(logoContainer, { key: 'Enter', code: 'Enter' });
-    expect(mockOnLogoSelect).toHaveBeenCalledWith('1');
+    const firstLogo = screen.getAllByRole('radio')[0];
+    firstLogo.focus();
+    fireEvent.keyDown(firstLogo, { key: 'Enter' });
+    expect(mockOnLogoSelect).toHaveBeenCalledWith(mockLogos[0]);
 
     mockOnLogoSelect.mockClear();
-    fireEvent.keyDown(logoContainer, { key: ' ', code: 'Space' });
-    expect(mockOnLogoSelect).toHaveBeenCalledWith('1');
+    fireEvent.keyDown(firstLogo, { key: ' ' });
+    expect(mockOnLogoSelect).toHaveBeenCalledWith(mockLogos[0]);
   });
 
-  it('marks selected logo as checked', () => {
+  it('shows selected logo correctly', () => {
     render(
       <LogoGrid
         logos={mockLogos}
-        selectedLogo="1"
-        voteCount={{}}
+        voteCount={mockVoteCount}
+        selectedLogo={mockLogos[0]}
         onLogoSelect={mockOnLogoSelect}
-        translations={mockTranslations}
+        loading={false}
+        t={mockTranslations}
       />
     );
 
-    const radioInputs = screen.getAllByRole('radio');
-    expect(radioInputs[0]).toBeChecked();
-    expect(radioInputs[1]).not.toBeChecked();
+    const selectedLogo = screen.getByRole('radio', { checked: true });
+    expect(selectedLogo).toHaveAttribute('aria-checked', 'true');
   });
 });
