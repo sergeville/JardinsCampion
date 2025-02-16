@@ -8,17 +8,29 @@ interface ErrorMessageProps {
   showIcon?: boolean;
   showAction?: boolean;
   inline?: boolean;
+  isUserMessage?: boolean;
 }
 
-export const ErrorMessage: React.FC<ErrorMessageProps> = ({
+const ErrorMessage: React.FC<ErrorMessageProps> = ({
   error,
   className = '',
   showIcon = true,
   showAction = true,
   inline = false,
+  isUserMessage = false,
 }) => {
   // Get error metadata
   const getErrorMetadata = (error: Error | string): ErrorMetadata => {
+    if (isUserMessage) {
+      return {
+        severity: ErrorSeverity.INFO,
+        category: 'USER_MESSAGE',
+        recoverable: true,
+        userMessage: error instanceof Error ? error.message : error,
+        icon: '💬',
+      };
+    }
+
     // First check if error has metadata attached
     if (error instanceof Error && 'metadata' in error) {
       return error.metadata as ErrorMetadata;
@@ -41,6 +53,10 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
 
   // Get severity-based styles
   const getSeverityClass = (): string => {
+    if (isUserMessage) {
+      return styles.userMessage;
+    }
+
     switch (metadata.severity) {
       case ErrorSeverity.FATAL:
         return styles.fatal;
@@ -66,7 +82,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   };
 
   return (
-    <div className={containerClass}>
+    <div className={containerClass} role={isUserMessage ? 'status' : 'alert'}>
       {showIcon && metadata.icon && <div className={styles.icon}>{metadata.icon}</div>}
 
       <div className={styles.content}>
@@ -81,3 +97,6 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
     </div>
   );
 };
+
+export { ErrorMessage };
+export default ErrorMessage;

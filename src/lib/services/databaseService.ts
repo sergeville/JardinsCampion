@@ -1,146 +1,108 @@
-'use server';
-import { Model, Document } from 'mongoose';
-import { connectToDatabase } from '@/lib/mongodb';
-import { Logo, ILogo } from '@/models/Logo';
-import { User, IUser } from '@/models/User';
-import { Vote, IVote } from '@/models/Vote';
+import { Model, Document, ClientSession } from 'mongoose';
+import connectDB, { withRetry } from '@/lib/mongodb';
+import UserModelSchema, { IUser } from '@/models/User';
+import VoteModelSchema, { IVote } from '@/models/Vote';
+import LogoModelSchema, { ILogo } from '@/models/Logo';
+import type { VoteData, VoteStats, LogoStats } from '@/types/vote';
+import { DatabaseError, ErrorCategory, ErrorSeverity } from '@/lib/errors/types';
+import { withTransaction, TransactionError } from '@/lib/utils/transactionManager';
+import { validateUserVotes, validateLogoVotes } from '@/lib/dataConsistency';
 import { DatabaseDocument, DatabaseInfo, DatabaseStats } from '@/types/database';
-import { resolveVoteConflict, validateUserVotes, validateLogoVotes } from '../dataConsistency';
+import { resolveVoteConflict } from '../dataConsistency';
+import mongoose from 'mongoose';
+import { InvalidVoteError, DuplicateVoteError } from '@/lib/errors';
+import { DB_CONSTANTS } from '@/constants/db';
+import { withNetwork } from '@/lib/utils/networkManager';
+import { DatabaseCollections } from '@/types/database';
 
 type CollectionName = 'users' | 'votes' | 'logos';
-type DocumentType = IUser | IVote | ILogo;
 
-interface VoteData {
-  userId: string;
-  logoId: string;
-  ownerId?: string;
+type CollectionToType = {
+  users: IUser;
+  votes: IVote;
+  logos: ILogo;
+};
+
+type CollectionModels = {
+  [K in CollectionName]: Model<CollectionToType[K]>;
+};
+
+const collections: CollectionModels = {
+  users: UserModelSchema,
+  votes: VoteModelSchema,
+  logos: LogoModelSchema,
+};
+
+interface Models {
+  User: mongoose.Model<IUser>;
+  Vote: mongoose.Model<IVote>;
+  Logo: mongoose.Model<ILogo>;
 }
 
-interface VoteStats {
-  totalVotes: number;
-  uniqueVoters: number;
-}
+let UserModel: mongoose.Model<IUser>;
+let VoteModel: mongoose.Model<IVote>;
+let LogoModel: mongoose.Model<ILogo>;
 
-interface LogoStats extends VoteStats {
-  logoId: string;
-}
-
-const collections = {
-  users: User,
-  votes: Vote,
-  logos: Logo,
-} as const;
-
-export async function getDatabaseInfo(): Promise<DatabaseInfo> {
-  const { db } = await connectToDatabase();
-  const stats = await db.stats();
-
-  const collectionStats = await Promise.all(
-    Object.keys(collections).map(async (name) => {
-      const collection = db.collection(name);
-      const stats = await collection.stats();
-      return [name, stats] as [string, DatabaseStats];
-    })
-  );
-
-  const collectionsData = await Promise.all(
-    Object.entries(collections).map(async ([name, model]) => {
-      const documents = await model.find().lean();
-      return [name, documents] as [string, DocumentType[]];
-    })
-  );
-
-  return {
-    collections: Object.fromEntries(collectionsData),
-    stats: {
-      collections: Object.fromEntries(
-        collectionStats.map(([name, stats]) => [
-          name,
-          {
-            count: stats.count,
-            avgSize: stats.avgObjSize,
-            totalSize: stats.size,
-          },
-        ])
-      ),
-      totalSize: stats.dataSize,
-      avgObjSize: stats.avgObjSize,
-    },
-  };
-}
-
-export async function createDocument<T extends DocumentType>(
-  collectionName: CollectionName,
-  data: Partial<T>
-): Promise<DatabaseDocument<T>> {
-  const Model = collections[collectionName];
-  if (!Model) {
-    throw new Error(`Collection ${collectionName} not found`);
+async function getModels(): Promise<Models> {
+  if (!UserModel || !VoteModel || !LogoModel) {
+    const db = await connectDB();
+    UserModel = mongoose.models.User || mongoose.model('User', UserModelSchema.schema);
+    VoteModel = mongoose.models.Vote || mongoose.model('Vote', VoteModelSchema.schema);
+    LogoModel = mongoose.models.Logo || mongoose.model('Logo', LogoModelSchema.schema);
   }
-
-  const document = new Model(data);
-  await document.save();
-  return document.toObject();
+  return { User: UserModel, Vote: VoteModel, Logo: LogoModel };
 }
 
-export async function updateDocument<T extends DocumentType>(
-  collectionName: CollectionName,
-  id: string,
-  data: Partial<T>
-): Promise<DatabaseDocument<T>> {
-  const Model = collections[collectionName];
-  if (!Model) {
-    throw new Error(`Collection ${collectionName} not found`);
-  }
-
-  const document = await Model.findByIdAndUpdate(
-    id,
-    { $set: data },
-    { new: true }
-  );
-
-  if (!document) {
-    throw new Error('Document not found');
-  }
-
-  return document.toObject();
-}
-
-export async function deleteDocument(
-  collectionName: CollectionName,
-  id: string
-): Promise<void> {
-  const Model = collections[collectionName];
-  if (!Model) {
-    throw new Error(`Collection ${collectionName} not found`);
-  }
-
-  const result = await Model.findByIdAndDelete(id);
-  if (!result) {
-    throw new Error('Document not found');
-  }
-}
-
-export async function getCollection<T extends DocumentType>(
-  collectionName: CollectionName
-): Promise<DatabaseDocument<T>[]> {
-  const Model = collections[collectionName];
-  if (!Model) {
-    throw new Error(`Collection ${collectionName} not found`);
-  }
-
-  const documents = await Model.find().lean();
-  return documents;
+interface DatabaseLog {
+  timestamp: string;
+  operation: string;
+  collection?: string;
+  details?: string;
+  success: boolean;
+  error?: string;
 }
 
 export class DatabaseService {
+  private static logs: DatabaseLog[] = [];
+
+  static addLog(log: Omit<DatabaseLog, 'timestamp'>) {
+    const timestamp = new Date().toISOString();
+    this.logs.push({
+      timestamp,
+      ...log,
+    });
+
+    // Keep only the last 1000 logs
+    if (this.logs.length > 1000) {
+      this.logs = this.logs.slice(-1000);
+    }
+  }
+
+  static async getLogs(): Promise<DatabaseLog[]> {
+    return this.logs;
+  }
+
   static async connect(): Promise<void> {
     try {
-      console.log('DatabaseService: Attempting to connect to database...');
-      await connectToDatabase();
-      console.log('DatabaseService: Connected successfully');
+      this.addLog({
+        operation: 'connect',
+        details: 'Attempting to connect to database',
+        success: true,
+      });
+      await connectDB();
+      await getModels();
+      this.addLog({
+        operation: 'connect',
+        details: 'Connected successfully',
+        success: true,
+      });
     } catch (error) {
-      console.error('DatabaseService: Connection error:', error);
+      this.addLog({
+        operation: 'connect',
+        details: 'Connection failed',
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
       throw error;
     }
   }
@@ -152,7 +114,7 @@ export class DatabaseService {
     try {
       const userId = name.toLowerCase().replace(/\s+/g, '-');
 
-      const user = new User({
+      const user = new UserModel({
         name,
         userId,
         voteCount: 0,
@@ -171,82 +133,241 @@ export class DatabaseService {
   static async getUser(userId: string): Promise<IUser | null> {
     console.log('DatabaseService: Getting user:', userId);
     await this.connect();
-    const user = await User.findByUserId(userId);
+    const user = await UserModel.findOne({ userId });
     console.log('DatabaseService: User found:', user);
     return user;
   }
 
   static async submitVote(voteData: VoteData): Promise<IVote> {
-    console.log('DatabaseService: Submitting vote:', voteData);
-    await this.connect();
-
     try {
-      // Check if user exists or create new user
-      let user = await User.findByUserId(voteData.userId);
-      if (!user) {
-        console.log('DatabaseService: Creating new user for vote');
-        user = await this.createUser(voteData.userId);
-      }
+      this.addLog({
+        operation: 'submitVote',
+        collection: 'votes',
+        details: `User ${voteData.userId} voting for logo ${voteData.logoId}`,
+        success: true,
+      });
+      const startTime = performance.now();
+      console.log(
+        'DatabaseService: Starting vote submission process:',
+        JSON.stringify(voteData, null, 2)
+      );
 
-      // Create vote
-      const vote = new Vote({
-        userId: user.userId,
+      await this.connect();
+      console.log('DatabaseService: Connected to database, checking for existing vote');
+
+      // Check if user has already voted for this logo
+      const existingVote = await VoteModel.findOne({
+        userId: voteData.userId,
         logoId: voteData.logoId,
-        ownerId: voteData.ownerId,
       });
 
-      await vote.save();
-      console.log('DatabaseService: Vote submitted:', vote);
-      return vote;
+      if (existingVote) {
+        throw new Error('User has already voted for this logo');
+      }
+
+      console.log('DatabaseService: No existing vote found, proceeding with submission');
+      console.log('Starting transaction attempt 1/3');
+
+      // Start a transaction
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      console.log('DatabaseService: Starting vote transaction');
+
+      try {
+        // Create the vote
+        const vote = await VoteModel.create(
+          [
+            {
+              ...voteData,
+              status: 'confirmed',
+              version: 1,
+            },
+          ],
+          { session }
+        );
+
+        console.log('DatabaseService: Vote created in transaction:', {
+          voteId: vote[0]._id,
+          status: vote[0].status,
+        });
+
+        // Update user's vote count and voted logos
+        const updateResult = await UserModel.updateOne(
+          { userId: voteData.userId },
+          {
+            $inc: { voteCount: 1 },
+            $push: { votedLogos: voteData.logoId },
+          },
+          { session }
+        );
+
+        console.log('DatabaseService: Updated user vote count and voted logos:', {
+          userId: voteData.userId,
+          voteCount: updateResult.modifiedCount,
+        });
+
+        console.log('Committing transaction...');
+        await session.commitTransaction();
+        console.log('Transaction committed successfully');
+
+        console.log('DatabaseService: Vote submission completed successfully:', {
+          voteId: vote[0]._id,
+          status: vote[0].status,
+        });
+
+        return vote[0];
+      } catch (error) {
+        console.error('DatabaseService: Error in transaction, rolling back:', error);
+        await session.abortTransaction();
+        throw error;
+      } finally {
+        session.endSession();
+      }
     } catch (error) {
+      this.addLog({
+        operation: 'submitVote',
+        collection: 'votes',
+        details: `Failed vote submission for user ${voteData.userId}`,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
       console.error('DatabaseService: Error submitting vote:', error);
       throw error;
     }
   }
 
-  static async getUserVotes(userId: string): Promise<IVote[]> {
-    console.log('DatabaseService: Getting user votes:', userId);
-    await this.connect();
-    const votes = await Vote.findUserVotes(userId);
-    console.log('DatabaseService: Found votes:', votes);
-    return votes;
+  static async getUserVotes(userId: string) {
+    const startTime = performance.now();
+    console.log(`DatabaseService: Getting user votes: ${userId}`);
+
+    try {
+      await this.connect();
+      const votes = await VoteModel.find({ userId }).lean();
+
+      console.log('DatabaseService: Found votes:', JSON.stringify(votes, null, 2));
+      return votes;
+    } catch (error) {
+      console.error('DatabaseService: Error getting user votes:', error);
+      throw error;
+    }
   }
 
-  static async getVoteHistory(limit: number): Promise<IVote[]> {
-    console.log('DatabaseService: Getting vote history, limit:', limit);
-    await this.connect();
-    const votes = await Vote.find({ status: 'confirmed' })
-      .sort({ timestamp: -1 })
-      .limit(limit)
-      .populate('userId', 'name')
-      .lean();
-    console.log('DatabaseService: Found votes:', votes);
-    return votes;
+  static async getVoteHistory(limit: number = 10) {
+    const startTime = performance.now();
+    console.log(`DatabaseService: Getting vote history, limit: ${limit}`);
+
+    try {
+      await this.connect();
+      const votes = await VoteModel.find()
+        .sort({ timestamp: -1 })
+        .limit(limit)
+        .lean();
+
+      // Get unique user IDs from votes
+      const userIds = Array.from(new Set(votes.map(vote => vote.userId)));
+      
+      // Fetch users in a single query
+      const users = await UserModel.find({ userId: { $in: userIds } }).lean();
+      
+      // Create a map of userId to user name for quick lookup
+      const userMap = new Map(users.map(user => [user.userId, user.name]));
+      
+      // Add user names to votes
+      const votesWithNames = votes.map(vote => ({
+        ...vote,
+        userName: userMap.get(vote.userId) || vote.userId
+      }));
+
+      console.log('DatabaseService: Found votes:', JSON.stringify(votesWithNames, null, 2));
+      return votesWithNames;
+    } catch (error) {
+      console.error('DatabaseService: Error getting vote history:', error);
+      throw error;
+    }
   }
 
   static async getLogoStats(logoId: string): Promise<VoteStats> {
     console.log('DatabaseService: Getting logo stats:', logoId);
-    await this.connect();
-    const stats = await Vote.getVoteStats(logoId);
-    console.log('DatabaseService: Logo stats:', stats);
-    return stats[0] || { totalVotes: 0, uniqueVoters: 0 };
+    try {
+      await this.connect();
+      const stats = await VoteModel.aggregate([
+        {
+          $match: {
+            logoId,
+            status: 'confirmed',
+          },
+        },
+        {
+          $group: {
+            _id: '$logoId',
+            totalVotes: { $sum: 1 },
+            uniqueVoters: { $addToSet: '$userId' },
+            lastVoteAt: { $max: '$timestamp' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            totalVotes: 1,
+            uniqueVoters: { $size: '$uniqueVoters' },
+            lastVoteAt: 1,
+          },
+        },
+      ]);
+      console.log('DatabaseService: Logo stats:', stats);
+      return stats[0] || { totalVotes: 0, uniqueVoters: 0 };
+    } catch (error) {
+      console.error('Error getting logo stats:', error);
+      throw new Error('Database connection failed');
+    }
   }
 
-  static async getAllLogoStats(): Promise<LogoStats[]> {
+  static async getAllLogoStats() {
+    const startTime = performance.now();
     console.log('DatabaseService: Getting all logo stats');
-    await this.connect();
-    const logos = await Logo.find({ status: 'active' });
-    const stats = await Promise.all(
-      logos.map(async (logo) => {
-        const logoStats = await this.getLogoStats(logo.id);
+
+    try {
+      await this.connect();
+      
+      // Get all votes with confirmed status
+      const votes = await VoteModel.find({ status: 'confirmed' }).lean();
+      
+      // Create a map to count votes per logo
+      const voteCountMap = new Map();
+      const lastVoteMap = new Map();
+      
+      // Count votes and track last vote timestamp for each logo
+      votes.forEach(vote => {
+        // Simply use the logoId as is - it should be the numeric ID
+        const logoId = vote.logoId;
+        
+        // Update vote count
+        const currentCount = voteCountMap.get(logoId) || 0;
+        voteCountMap.set(logoId, currentCount + 1);
+        
+        // Update last vote timestamp
+        const currentLastVote = lastVoteMap.get(logoId);
+        if (!currentLastVote || new Date(vote.timestamp) > new Date(currentLastVote)) {
+          lastVoteMap.set(logoId, vote.timestamp);
+        }
+      });
+      
+      // Create stats for each logo ID (1 through 5)
+      const stats = Array.from({ length: 5 }, (_, i) => {
+        const logoId = (i + 1).toString();
         return {
-          ...logoStats,
-          logoId: logo.id,
+          logoId,
+          voteCount: voteCountMap.get(logoId) || 0,
+          lastVote: lastVoteMap.get(logoId) || null
         };
-      })
-    );
-    console.log('DatabaseService: All logo stats:', stats);
-    return stats;
+      });
+
+      console.log('DatabaseService: Logo stats:', JSON.stringify(stats, null, 2));
+      return stats;
+    } catch (error) {
+      console.error('DatabaseService: Error getting logo stats:', error);
+      throw error;
+    }
   }
 
   static async validateData(): Promise<{
@@ -255,8 +376,8 @@ export class DatabaseService {
     issues: string[];
   }> {
     await this.connect();
-    const users = await User.find();
-    const votes = await Vote.find({ status: 'confirmed' });
+    const users = await UserModel.find();
+    const votes = await VoteModel.find({ status: 'confirmed' });
     const issues: string[] = [];
 
     // Validate each user's votes
@@ -264,9 +385,7 @@ export class DatabaseService {
       const userVotes = votes.filter((v) => v.userId === user.userId);
       const validationResult = validateUserVotes(userVotes);
       if (!validationResult.valid) {
-        issues.push(
-          `User ${user.userId}: ${validationResult.reason}`
-        );
+        issues.push(`User ${user.userId}: ${validationResult.reason}`);
       }
     }
 
@@ -283,9 +402,7 @@ export class DatabaseService {
     logoVotes.forEach((votes, logoId) => {
       const validationResult = validateLogoVotes(votes);
       if (!validationResult.valid) {
-        issues.push(
-          `Logo ${logoId}: ${validationResult.reason}`
-        );
+        issues.push(`Logo ${logoId}: ${validationResult.reason}`);
       }
     });
 

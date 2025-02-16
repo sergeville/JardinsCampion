@@ -5,6 +5,7 @@ import Logo from '@/models/Logo';
 import { DB_CONSTANTS } from '@/constants/db';
 import { DuplicateVoteError, InvalidVoteError, TransactionError } from './errors';
 import { withRetry, validateVoteData, queryOptions } from './utils';
+import { ValidationError, ErrorSeverity, ErrorCategory } from '@/lib/errors/types';
 
 interface VoteSubmissionResult {
   status: 'confirmed' | 'rejected';
@@ -41,9 +42,7 @@ export function validateUserVotes(votes: IVote[]): ValidationResult {
   }
 
   // Check vote status
-  const invalidVotes = votes.filter(
-    (vote) => vote.status !== DB_CONSTANTS.VOTE_STATUS.CONFIRMED
-  );
+  const invalidVotes = votes.filter((vote) => vote.status !== DB_CONSTANTS.VOTE_STATUS.CONFIRMED);
   if (invalidVotes.length > 0) {
     return {
       valid: false,
@@ -60,16 +59,17 @@ export function validateLogoVotes(votes: IVote[]): ValidationResult {
   }
 
   // Check for duplicate votes from the same user
-  const userVotes = new Map<string, IVote[]>();
+  const userVotesMap = new Map<string, IVote[]>();
   votes.forEach((vote) => {
-    if (!userVotes.has(vote.userId)) {
-      userVotes.set(vote.userId, []);
+    if (!userVotesMap.has(vote.userId)) {
+      userVotesMap.set(vote.userId, []);
     }
-    userVotes.get(vote.userId)!.push(vote);
+    userVotesMap.get(vote.userId)!.push(vote);
   });
 
-  for (const [userId, userVotes] of userVotes.entries()) {
-    if (userVotes.length > 1) {
+  const userVoteEntries = Array.from(userVotesMap.entries());
+  for (const [userId, votes] of userVoteEntries) {
+    if (votes.length > 1) {
       return {
         valid: false,
         reason: `User ${userId} has multiple votes for this logo`,
@@ -78,9 +78,7 @@ export function validateLogoVotes(votes: IVote[]): ValidationResult {
   }
 
   // Check vote status
-  const invalidVotes = votes.filter(
-    (vote) => vote.status !== DB_CONSTANTS.VOTE_STATUS.CONFIRMED
-  );
+  const invalidVotes = votes.filter((vote) => vote.status !== DB_CONSTANTS.VOTE_STATUS.CONFIRMED);
   if (invalidVotes.length > 0) {
     return {
       valid: false,
@@ -95,31 +93,21 @@ export async function resolveVoteConflict(
   vote: Document<unknown, object, IVote> & IVote
 ): Promise<VoteConflictResolution> {
   // Check for existing votes from the same user for the same logo
-  const existingVote = await vote.model('Vote').findOne({
+  const existingVote = (await Vote.findOne({
     userId: vote.userId,
     logoId: vote.logoId,
     _id: { $ne: vote._id },
     status: DB_CONSTANTS.VOTE_STATUS.CONFIRMED,
-  });
+  }).lean()) as IVote;
 
   if (!existingVote) {
     return { resolved: true };
   }
 
-  // If there's an existing vote, we need to handle the conflict
-  if (vote.ownerId === existingVote.ownerId) {
-    // If voting for the same owner's logo, reject the new vote
-    return {
-      resolved: true,
-      action: 'reject',
-      originalVote: existingVote,
-    };
-  }
-
-  // If voting for a different owner's logo, override the old vote
+  // If there's an existing vote, reject the new vote
   return {
     resolved: true,
-    action: 'override',
+    action: 'reject',
     originalVote: existingVote,
   };
 }
@@ -199,13 +187,15 @@ export async function resolveVoteConflictWithRetry(
   return false;
 }
 
-export async function submitVote(
-  userId: string,
-  logoId: string,
-  ownerId: string
-): Promise<VoteSubmissionResult> {
-  if (!validateVoteData({ userId, logoId, ownerId })) {
-    throw new InvalidVoteError('Invalid vote data', { userId, logoId, ownerId });
+export async function submitVote(userId: string, logoId: string): Promise<VoteSubmissionResult> {
+  if (!validateVoteData({ userId, logoId })) {
+    throw new ValidationError('Invalid vote data', {
+      severity: ErrorSeverity.WARNING,
+      category: ErrorCategory.VALIDATION,
+      recoverable: true,
+      userMessage: `Invalid vote data: userId=${userId}, logoId=${logoId}`,
+      icon: '⚠️',
+    });
   }
 
   return withRetry(async () => {
@@ -217,7 +207,6 @@ export async function submitVote(
       const vote = new Vote({
         userId,
         logoId,
-        ownerId,
         status: DB_CONSTANTS.VOTE_STATUS.PENDING,
         timestamp: new Date(),
       });
@@ -246,7 +235,13 @@ export async function submitVote(
         await vote.save({ session });
 
         await session.commitTransaction();
-        throw new DuplicateVoteError(userId, logoId, existingVote._id?.toString() || 'unknown');
+        throw new ValidationError('Duplicate vote', {
+          severity: ErrorSeverity.WARNING,
+          category: ErrorCategory.VALIDATION,
+          recoverable: true,
+          userMessage: `User ${userId} has already voted for logo ${logoId}`,
+          icon: '⚠️',
+        });
       }
 
       // Confirm the vote and update user and logo stats
@@ -279,24 +274,24 @@ export async function submitVote(
       );
 
       await session.commitTransaction();
-      return { status: DB_CONSTANTS.VOTE_STATUS.CONFIRMED };
+      return {
+        status: 'confirmed',
+      };
     } catch (error) {
-      if (session.inTransaction()) {
-        await session.abortTransaction();
-      }
-      if (error instanceof DuplicateVoteError) {
+      await session.abortTransaction();
+      if (error instanceof ValidationError) {
         return {
-          status: DB_CONSTANTS.VOTE_STATUS.REJECTED,
+          status: 'rejected',
           conflictResolution: {
-            originalVote: error.details.originalVoteId,
-            resolutionType: DB_CONSTANTS.RESOLUTION_TYPE.REJECT,
+            originalVote: error.metadata.userMessage || 'unknown',
+            resolutionType: 'reject',
             resolvedAt: new Date(),
           },
         };
       }
-      throw new TransactionError('Vote submission failed', { cause: error });
+      throw error;
     } finally {
-      await session.endSession();
+      session.endSession();
     }
   });
 }

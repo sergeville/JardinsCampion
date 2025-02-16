@@ -225,6 +225,7 @@ interface ErrorMetadata {
    ```
 
 3. **Transaction Error Handling**
+
    ```typescript
    const session = await mongoose.startSession();
    try {
@@ -306,6 +307,7 @@ interface ErrorMetadata {
    ```
 
 2. **Boundary Testing**
+
    ```typescript
    it('should catch and handle database errors', () => {
      render(
@@ -345,9 +347,11 @@ interface ErrorMetadata {
    - Verify vote status in database
 
 3. **Transaction Failures**
+
    ```typescript
    TransactionError: Transaction failed
    ```
+
    - Check for concurrent operations
    - Verify collection locks
    - Check transaction timeout settings

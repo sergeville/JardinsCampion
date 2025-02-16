@@ -1,33 +1,60 @@
 import { DB_CONSTANTS } from '@/constants/db';
+import { DatabaseCollections } from '@/types/database';
+import { IVote } from '@/models/Vote';
+import { ILogo } from '@/models/Logo';
+
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+interface CacheOptions {
+  ttl?: number;
+  maxSize?: number;
+}
 
 class Cache<T> {
-  private cache: Map<string, { data: T; timestamp: number }>;
+  private cache: Map<string, CacheEntry<T>>;
   private ttl: number;
+  private maxSize: number;
 
-  constructor(ttl = 60000) {
-    // Default TTL: 1 minute
+  constructor(options: CacheOptions = {}) {
     this.cache = new Map();
-    this.ttl = ttl;
+    this.ttl = options.ttl || 5 * 60 * 1000; // 5 minutes default TTL
+    this.maxSize = options.maxSize || 1000;
   }
 
-  set(key: string, data: T): void {
+  set(key: string, value: T): void {
+    if (this.cache.size >= this.maxSize) {
+      this.evictOldest();
+    }
     this.cache.set(key, {
-      data,
+      data: value,
       timestamp: Date.now(),
     });
   }
 
-  get(key: string): T | null {
-    const item = this.cache.get(key);
-    if (!item) return null;
-
-    const isExpired = Date.now() - item.timestamp > this.ttl;
-    if (isExpired) {
+  get(key: string): T | undefined {
+    const entry = this.cache.get(key);
+    if (!entry) return undefined;
+    if (this.isExpired(entry)) {
       this.cache.delete(key);
-      return null;
+      return undefined;
     }
+    return entry.data;
+  }
 
-    return item.data;
+  private isExpired(entry: CacheEntry<T>): boolean {
+    return Date.now() - entry.timestamp > this.ttl;
+  }
+
+  private evictOldest(): void {
+    const oldestKey = Array.from(this.cache.entries()).sort(
+      ([, a], [, b]) => a.timestamp - b.timestamp
+    )[0]?.[0];
+    if (oldestKey) {
+      this.cache.delete(oldestKey);
+    }
   }
 
   delete(key: string): void {
@@ -39,10 +66,27 @@ class Cache<T> {
   }
 }
 
+export const caches: { [K in keyof DatabaseCollections]?: Cache<DatabaseCollections[K]> } = {};
+
+interface LogoStats {
+  voteCount: number;
+}
+
+interface LogoStatsWithId extends LogoStats {
+  logoId: string;
+}
+
+interface VoteHistory {
+  userName: string;
+  userId: string;
+  logoId: string;
+  timestamp: Date;
+}
+
 // Create cache instances for different data types
-export const logoStatsCache = new Cache<any>(30000); // 30 seconds TTL
-export const userVotesCache = new Cache<any>(60000); // 1 minute TTL
-export const voteHistoryCache = new Cache<any>(15000); // 15 seconds TTL
+export const logoStatsCache = new Cache<LogoStats | LogoStatsWithId[]>({ ttl: 30000 }); // 30 seconds TTL
+export const userVotesCache = new Cache<IVote[]>({ ttl: 60000 }); // 1 minute TTL
+export const voteHistoryCache = new Cache<IVote[]>({ ttl: 15000 }); // 15 seconds TTL
 
 // Cache keys
 export const CACHE_KEYS = {

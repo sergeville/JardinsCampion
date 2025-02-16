@@ -1,62 +1,107 @@
 import React from 'react';
 
+export type AuthErrorType =
+  | 'invalid_credentials'
+  | 'token_expired'
+  | 'network_error'
+  | 'unauthorized'
+  | 'invalid_token';
+
+export type ErrorCode =
+  | 'DUPLICATE_VOTE'
+  | 'INVALID_VOTE'
+  | 'TRANSACTION_ERROR'
+  | 'TIMEOUT_ERROR'
+  | 'DATABASE_ERROR';
+
 export enum ErrorSeverity {
-  FATAL = 'fatal',
-  CRITICAL = 'critical',
-  ERROR = 'error',
-  WARNING = 'warning',
-  INFO = 'info',
+  FATAL = 'FATAL',
+  CRITICAL = 'CRITICAL',
+  ERROR = 'ERROR',
+  WARNING = 'WARNING',
+  INFO = 'INFO',
 }
 
 export enum ErrorCategory {
-  SYSTEM = 'system',
-  DATABASE = 'database',
-  NETWORK = 'network',
-  VALIDATION = 'validation',
-  BUSINESS = 'business',
+  SYSTEM = 'SYSTEM',
+  DATABASE = 'DATABASE',
+  NETWORK = 'NETWORK',
+  VALIDATION = 'VALIDATION',
+  AUTHENTICATION = 'AUTHENTICATION',
+  AUTHORIZATION = 'AUTHORIZATION',
+}
+
+export interface ErrorAction {
+  label: string;
+  handler: () => void;
 }
 
 export interface ErrorMetadata {
   severity: ErrorSeverity;
   category: ErrorCategory;
   recoverable: boolean;
-  userMessage: string;
-  icon?: React.ReactNode;
-  action?: {
-    label: string;
-    handler: () => void;
-  };
+  userMessage?: string;
+  icon?: string;
+  action?: ErrorAction;
 }
 
-export type ErrorCode =
-  | 'NETWORK_ERROR'
-  | 'API_ERROR'
-  | 'VALIDATION_ERROR'
-  | 'DATABASE_ERROR'
-  | 'TIMEOUT_ERROR'
-  | 'DUPLICATE_VOTE'
-  | 'INVALID_VOTE'
-  | 'TRANSACTION_ERROR'
-  | 'DEFAULT_ERROR';
+export class DatabaseError extends Error {
+  constructor(
+    message: string,
+    public readonly metadata: ErrorMetadata
+  ) {
+    super(message);
+    this.name = 'DatabaseError';
+  }
+}
 
-export const ERROR_METADATA: Record<ErrorCode, ErrorMetadata> = {
-  NETWORK_ERROR: {
-    severity: ErrorSeverity.ERROR,
-    category: ErrorCategory.NETWORK,
+export class NetworkError extends Error {
+  constructor(
+    message: string,
+    public readonly metadata: ErrorMetadata
+  ) {
+    super(message);
+    this.name = 'NetworkError';
+  }
+}
+
+export class ValidationError extends Error {
+  constructor(
+    message: string,
+    public readonly metadata: ErrorMetadata
+  ) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
+
+export class AuthError extends Error {
+  constructor(
+    message: string,
+    public readonly type: AuthErrorType,
+    public readonly originalError?: Error
+  ) {
+    super(message);
+    this.name = 'AuthError';
+  }
+}
+
+export const ERROR_METADATA = {
+  DATABASE_ERROR: {
+    severity: ErrorSeverity.CRITICAL,
+    category: ErrorCategory.DATABASE,
     recoverable: true,
-    userMessage: 'Unable to connect to the server. Please check your internet connection.',
-    icon: '🌐',
+    icon: '🔴',
     action: {
       label: 'Retry',
       handler: () => window.location.reload(),
     },
   },
-  API_ERROR: {
+  NETWORK_ERROR: {
     severity: ErrorSeverity.ERROR,
-    category: ErrorCategory.SYSTEM,
+    category: ErrorCategory.NETWORK,
     recoverable: true,
-    userMessage: 'The server encountered an error. Please try again later.',
-    icon: '⚠️',
+    icon: '🌐',
     action: {
       label: 'Retry',
       handler: () => window.location.reload(),
@@ -66,57 +111,46 @@ export const ERROR_METADATA: Record<ErrorCode, ErrorMetadata> = {
     severity: ErrorSeverity.WARNING,
     category: ErrorCategory.VALIDATION,
     recoverable: true,
-    userMessage: 'Please check your input and try again.',
-    icon: '❗',
-  },
-  DATABASE_ERROR: {
-    severity: ErrorSeverity.CRITICAL,
-    category: ErrorCategory.DATABASE,
-    recoverable: false,
-    userMessage: 'A database error occurred. Please try again later.',
-    icon: '🔴',
-  },
-  TIMEOUT_ERROR: {
-    severity: ErrorSeverity.ERROR,
-    category: ErrorCategory.NETWORK,
-    recoverable: true,
-    userMessage: 'The request timed out. Please try again.',
-    icon: '⏱️',
-    action: {
-      label: 'Retry',
-      handler: () => window.location.reload(),
-    },
-  },
-  DUPLICATE_VOTE: {
-    severity: ErrorSeverity.WARNING,
-    category: ErrorCategory.BUSINESS,
-    recoverable: true,
-    userMessage: 'You have already voted for this logo.',
-    icon: '✋',
-  },
-  INVALID_VOTE: {
-    severity: ErrorSeverity.WARNING,
-    category: ErrorCategory.VALIDATION,
-    recoverable: true,
-    userMessage: 'This vote is not valid. Please try again.',
     icon: '⚠️',
   },
-  TRANSACTION_ERROR: {
+  AUTH_ERROR: {
     severity: ErrorSeverity.ERROR,
-    category: ErrorCategory.DATABASE,
+    category: ErrorCategory.AUTHENTICATION,
     recoverable: true,
-    userMessage: 'Failed to process your vote. Please try again.',
-    icon: '❌',
+    icon: '🔒',
     action: {
-      label: 'Retry',
-      handler: () => window.location.reload(),
+      label: 'Log In',
+      handler: () => (window.location.href = '/login'),
     },
   },
   DEFAULT_ERROR: {
     severity: ErrorSeverity.ERROR,
     category: ErrorCategory.SYSTEM,
     recoverable: false,
-    userMessage: 'An unexpected error occurred. Please try again later.',
+    icon: '❌',
+  },
+  DUPLICATE_VOTE: {
+    severity: ErrorSeverity.WARNING,
+    category: ErrorCategory.VALIDATION,
+    recoverable: true,
     icon: '⚠️',
+  },
+  INVALID_VOTE: {
+    severity: ErrorSeverity.WARNING,
+    category: ErrorCategory.VALIDATION,
+    recoverable: true,
+    icon: '⚠️',
+  },
+  TRANSACTION_ERROR: {
+    severity: ErrorSeverity.ERROR,
+    category: ErrorCategory.DATABASE,
+    recoverable: true,
+    icon: '🔴',
+  },
+  TIMEOUT_ERROR: {
+    severity: ErrorSeverity.ERROR,
+    category: ErrorCategory.NETWORK,
+    recoverable: true,
+    icon: '🌐',
   },
 };

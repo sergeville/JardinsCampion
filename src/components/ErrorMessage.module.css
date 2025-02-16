@@ -2,21 +2,20 @@
   display: flex;
   align-items: flex-start;
   padding: 1rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  gap: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
 }
 
 .inline {
   display: inline-flex;
   margin: 0;
-  padding: 0.5rem;
 }
 
 .icon {
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  margin-right: 1rem;
+  font-size: 1.2rem;
+  line-height: 1.5;
 }
 
 .content {
@@ -25,7 +24,6 @@
 
 .message {
   margin: 0;
-  font-size: 0.875rem;
   line-height: 1.5;
 }
 
@@ -33,95 +31,153 @@
   margin-top: 0.5rem;
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 0.25rem;
+  border-radius: 4px;
   font-size: 0.875rem;
-  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease;
 }
 
 /* Severity-based styles */
 .fatal {
-  background-color: #fef2f2;
-  border: 1px solid #fee2e2;
-}
-
-.critical {
-  background-color: #fff1f2;
-  border: 1px solid #ffe4e6;
-}
-
-.error {
-  background-color: #fef2f2;
-  border: 1px solid #fee2e2;
-}
-
-.warning {
-  background-color: #fffbeb;
-  border: 1px solid #fef3c7;
-}
-
-.info {
-  background-color: #f0f9ff;
-  border: 1px solid #e0f2fe;
-}
-
-.default {
-  background-color: #f9fafb;
-  border: 1px solid #f3f4f6;
-}
-
-/* Action button styles based on severity */
-.fatal .action {
-  background-color: #dc2626;
+  background-color: #ff1744;
   color: white;
+  border-left: 4px solid #d50000;
+}
+
+.fatal .action {
+  background-color: white;
+  color: #ff1744;
 }
 
 .fatal .action:hover {
-  background-color: #b91c1c;
+  background-color: #f5f5f5;
+}
+
+.critical {
+  background-color: #ff4444;
+  color: white;
+  border-left: 4px solid #cc0000;
 }
 
 .critical .action {
-  background-color: #e11d48;
-  color: white;
+  background-color: white;
+  color: #ff4444;
 }
 
 .critical .action:hover {
-  background-color: #be123c;
+  background-color: #f5f5f5;
+}
+
+.error {
+  background-color: #ff8800;
+  color: white;
+  border-left: 4px solid #cc6600;
 }
 
 .error .action {
-  background-color: #ef4444;
-  color: white;
+  background-color: white;
+  color: #ff8800;
 }
 
 .error .action:hover {
-  background-color: #dc2626;
+  background-color: #f5f5f5;
+}
+
+.warning {
+  background-color: #ffbb33;
+  color: #333;
+  border-left: 4px solid #cc9933;
 }
 
 .warning .action {
-  background-color: #f59e0b;
+  background-color: #333;
   color: white;
 }
 
 .warning .action:hover {
-  background-color: #d97706;
+  background-color: #444;
+}
+
+.info {
+  background-color: #33b5e5;
+  color: white;
+  border-left: 4px solid #0099cc;
 }
 
 .info .action {
-  background-color: #0ea5e9;
-  color: white;
+  background-color: white;
+  color: #33b5e5;
 }
 
 .info .action:hover {
-  background-color: #0284c7;
+  background-color: #f5f5f5;
 }
 
-.default .action {
-  background-color: #6b7280;
+/* Dark mode adjustments */
+:global(.dark) .container {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+:global(.dark) .action {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Animation for critical errors */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+.fatal, .critical {
+  animation: pulse 2s infinite;
+}
+
+/* Animation for user messages */
+@keyframes fadeInOut {
+  0% { 
+    opacity: 0; 
+    transform: translateY(20px) scale(0.95);
+  }
+  15% { 
+    opacity: 1; 
+    transform: translateY(0) scale(1.02);
+  }
+  25% {
+    transform: translateY(0) scale(1);
+  }
+  85% { 
+    opacity: 1; 
+    transform: translateY(0) scale(1);
+  }
+  100% { 
+    opacity: 0; 
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+
+/* User message styles */
+.userMessage {
+  background-color: var(--primary-color);
   color: white;
+  border-left: 4px solid var(--primary-hover);
+  animation: fadeInOut 3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 100%;
 }
 
-.default .action:hover {
-  background-color: #4b5563;
+.userMessage .action {
+  background-color: white;
+  color: var(--primary-color);
+}
+
+.userMessage .action:hover {
+  background-color: #f5f5f5;
+}
+
+/* Dark mode adjustments for user messages */
+:global(.dark) .userMessage {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 } 

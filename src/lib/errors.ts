@@ -12,10 +12,7 @@ export class VoteError extends Error {
 
 export class DuplicateVoteError extends VoteError {
   constructor(userId: string, logoId: string) {
-    super(
-      `User ${userId} has already voted for logo ${logoId}`,
-      'DUPLICATE_VOTE'
-    );
+    super(`User ${userId} has already voted for logo ${logoId}`, 'DUPLICATE_VOTE');
     this.name = 'DuplicateVoteError';
   }
 }
@@ -36,10 +33,7 @@ export class TransactionError extends VoteError {
 
 export class TimeoutError extends VoteError {
   constructor(timeout: number) {
-    super(
-      `Operation timed out after ${timeout}ms`,
-      'TIMEOUT_ERROR'
-    );
+    super(`Operation timed out after ${timeout}ms`, 'TIMEOUT_ERROR');
     this.name = 'TimeoutError';
   }
 }
