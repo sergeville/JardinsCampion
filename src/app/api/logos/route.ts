@@ -8,9 +8,12 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File;
     const name = formData.get('name') as string;
     const alt = formData.get('alt') as string;
+    const ownerId = formData.get('ownerId') as string;
 
-    if (!file || !name || !alt) {
-      return NextResponse.json({ error: 'File, name, and alt text are required' }, { status: 400 });
+    if (!file || !name || !alt || !ownerId) {
+      return NextResponse.json({ 
+        error: 'File, name, alt text, and owner ID are required' 
+      }, { status: 400 });
     }
 
     if (alt.length < 10) {
@@ -25,7 +28,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     const base64String = buffer.toString('base64');
 
-    // Generate src URL (you might want to adjust this based on your file storage strategy)
+    // Generate src URL
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
     const src = `/logos/${name.toLowerCase().replace(/\s+/g, '-')}.${fileExtension}`;
 
@@ -34,17 +37,12 @@ export async function POST(request: NextRequest) {
 
     // Create new logo document
     const logo = new LogoModel({
-      value: name,
       src,
       alt,
+      ownerId,
       status: 'active',
-      data: base64String,
       contentType: file.type,
-      uploadedAt: new Date(),
-      voteStats: {
-        totalVotes: 0,
-        uniqueVoters: 0,
-      },
+      data: base64String,
     });
 
     await logo.save();
@@ -52,10 +50,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: 'Logo uploaded successfully',
       logo: {
-        id: logo._id,
+        id: logo.id,
         src: logo.src,
         alt: logo.alt,
         status: logo.status,
+        ownerId: logo.ownerId,
         createdAt: logo.createdAt,
       },
     });
@@ -68,7 +67,7 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     await connectDB();
-    const logos = await LogoModel.find({}, { data: 0 }).sort({ uploadedAt: -1 });
+    const logos = await LogoModel.find({}, { data: 0 }).sort({ createdAt: -1 });
 
     return NextResponse.json(logos);
   } catch (error) {
@@ -87,7 +86,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     await connectDB();
-    const logo = await LogoModel.findById(id);
+    const logo = await LogoModel.findOne({ id });
 
     if (!logo) {
       return NextResponse.json({ error: 'Logo not found' }, { status: 404 });

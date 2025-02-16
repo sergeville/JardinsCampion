@@ -12,6 +12,7 @@ export function LogoUploadModal({ onClose, onSuccess }: LogoUploadModalProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [alt, setAlt] = useState('');
+  const [ownerId, setOwnerId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +46,7 @@ export function LogoUploadModal({ onClose, onSuccess }: LogoUploadModalProps) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!file || !name || !alt) {
+    if (!file || !name || !alt || !ownerId) {
       setError('Please fill in all required fields');
       return;
     }
@@ -58,6 +59,7 @@ export function LogoUploadModal({ onClose, onSuccess }: LogoUploadModalProps) {
       formData.append('file', file);
       formData.append('name', name);
       formData.append('alt', alt);
+      formData.append('ownerId', ownerId);
 
       const response = await fetch('/api/logos', {
         method: 'POST',
@@ -138,6 +140,18 @@ export function LogoUploadModal({ onClose, onSuccess }: LogoUploadModalProps) {
             />
           </div>
 
+          <div className={styles.formGroup}>
+            <label htmlFor="ownerId">Owner ID:</label>
+            <input
+              type="text"
+              id="ownerId"
+              value={ownerId}
+              onChange={(e) => setOwnerId(e.target.value)}
+              placeholder="Enter owner ID"
+              required
+            />
+          </div>
+
           {error && <div className={styles.error}>{error}</div>}
 
           <div className={styles.modalActions}>
@@ -152,7 +166,7 @@ export function LogoUploadModal({ onClose, onSuccess }: LogoUploadModalProps) {
             <button
               type="submit"
               className={styles.uploadButton}
-              disabled={loading || !file || !name || !alt}
+              disabled={loading || !file || !name || !alt || !ownerId}
             >
               {loading ? 'Uploading...' : 'Upload'}
             </button>

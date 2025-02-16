@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import CounterModel from './Counter';
 
 export interface ILogo extends Document {
   id: string;
@@ -59,6 +60,23 @@ const logoSchema = new Schema<ILogo>(
     timestamps: { createdAt: true, updatedAt: false },
   }
 );
+
+// Add pre-save middleware to auto-increment ID
+logoSchema.pre('save', async function(next) {
+  if (this.isNew) {
+    try {
+      const counter = await CounterModel.findByIdAndUpdate(
+        'logoId',
+        { $inc: { seq: 1 } },
+        { upsert: true, new: true }
+      );
+      this.id = counter.seq.toString();
+    } catch (error) {
+      return next(error as Error);
+    }
+  }
+  next();
+});
 
 // Static methods
 logoSchema.statics.findActiveLogo = function (id: string) {
