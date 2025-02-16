@@ -107,20 +107,23 @@ export default function ShowData() {
   const refreshData = async () => {
     try {
       const response = await fetch('/api/database-info', {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          action: 'stats',
-        }),
       });
 
       if (!response.ok) {
         throw new Error('Failed to refresh data');
       }
+
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to refresh data');
+      }
     } catch (error) {
       console.error('Error refreshing data:', error);
+      throw error; // Re-throw to be handled by the caller
     }
   };
 
@@ -227,17 +230,12 @@ export default function ShowData() {
     if (!editingItem?.type) return;
 
     try {
-      const response = await fetch('/api/database-info', {
-        method: 'POST',
+      const response = await fetch(`/api/${editingItem.type}/${updatedData._id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          action: 'update',
-          collectionName: editingItem.type,
-          id: updatedData._id,
-          data: updatedData,
-        }),
+        body: JSON.stringify(updatedData),
       });
 
       if (!response.ok) {
