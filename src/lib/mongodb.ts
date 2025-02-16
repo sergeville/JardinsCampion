@@ -7,12 +7,15 @@ const INITIAL_RETRY_DELAY = 1000;
 const MAX_RETRY_DELAY = 30000;
 const MAX_RETRIES = 3;
 
-const MONGODB_URI = process.env.NODE_ENV === 'production' 
-  ? process.env.MONGODB_URI_PROD 
-  : process.env.MONGODB_URI_DEV;
+const MONGODB_URI =
+  process.env.NODE_ENV === 'production'
+    ? process.env.MONGODB_URI_PROD
+    : process.env.MONGODB_URI_DEV;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI_DEV or MONGODB_URI_PROD environment variable inside .env.local');
+  throw new Error(
+    'Please define the MONGODB_URI_DEV or MONGODB_URI_PROD environment variable inside .env.local'
+  );
 }
 
 let cachedConnection: typeof mongoose | null = null;

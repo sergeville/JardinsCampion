@@ -92,7 +92,7 @@ export function LogoGrid({
                       setErrors((prev) => [...prev, errorMessage]);
                       // Remove the error after 3 seconds
                       setTimeout(() => {
-                        setErrors((prev) => prev.filter(e => e !== errorMessage));
+                        setErrors((prev) => prev.filter((e) => e !== errorMessage));
                       }, 3000);
                     }
                   }}

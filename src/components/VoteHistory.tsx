@@ -37,8 +37,7 @@ export default function VoteHistory({
             className="vote-item"
             aria-label={`${vote.userName} ${translations.votedFor} ${vote.logoId}`}
           >
-            <span className="voter-name">{vote.userName}</span>
-            {' '}{translations.votedFor}{' '}
+            <span className="voter-name">{vote.userName}</span> {translations.votedFor}{' '}
             <span className="logo-id">Logo #{vote.logoId}</span>
           </li>
         ))}

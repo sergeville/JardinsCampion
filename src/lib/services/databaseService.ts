@@ -258,24 +258,21 @@ export class DatabaseService {
 
     try {
       await this.connect();
-      const votes = await VoteModel.find()
-        .sort({ timestamp: -1 })
-        .limit(limit)
-        .lean();
+      const votes = await VoteModel.find().sort({ timestamp: -1 }).limit(limit).lean();
 
       // Get unique user IDs from votes
-      const userIds = Array.from(new Set(votes.map(vote => vote.userId)));
-      
+      const userIds = Array.from(new Set(votes.map((vote) => vote.userId)));
+
       // Fetch users in a single query
       const users = await UserModel.find({ userId: { $in: userIds } }).lean();
-      
+
       // Create a map of userId to user name for quick lookup
-      const userMap = new Map(users.map(user => [user.userId, user.name]));
-      
+      const userMap = new Map(users.map((user) => [user.userId, user.name]));
+
       // Add user names to votes
-      const votesWithNames = votes.map(vote => ({
+      const votesWithNames = votes.map((vote) => ({
         ...vote,
-        userName: userMap.get(vote.userId) || vote.userId
+        userName: userMap.get(vote.userId) || vote.userId,
       }));
 
       console.log('DatabaseService: Found votes:', JSON.stringify(votesWithNames, null, 2));
@@ -328,37 +325,37 @@ export class DatabaseService {
 
     try {
       await this.connect();
-      
+
       // Get all votes with confirmed status
       const votes = await VoteModel.find({ status: 'confirmed' }).lean();
-      
+
       // Create a map to count votes per logo
       const voteCountMap = new Map();
       const lastVoteMap = new Map();
-      
+
       // Count votes and track last vote timestamp for each logo
-      votes.forEach(vote => {
+      votes.forEach((vote) => {
         // Simply use the logoId as is - it should be the numeric ID
         const logoId = vote.logoId;
-        
+
         // Update vote count
         const currentCount = voteCountMap.get(logoId) || 0;
         voteCountMap.set(logoId, currentCount + 1);
-        
+
         // Update last vote timestamp
         const currentLastVote = lastVoteMap.get(logoId);
         if (!currentLastVote || new Date(vote.timestamp) > new Date(currentLastVote)) {
           lastVoteMap.set(logoId, vote.timestamp);
         }
       });
-      
+
       // Create stats for each logo ID (1 through 5)
       const stats = Array.from({ length: 5 }, (_, i) => {
         const logoId = (i + 1).toString();
         return {
           logoId,
           voteCount: voteCountMap.get(logoId) || 0,
-          lastVote: lastVoteMap.get(logoId) || null
+          lastVote: lastVoteMap.get(logoId) || null,
         };
       });
 

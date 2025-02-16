@@ -5,105 +5,111 @@ const dotenv = require('dotenv');
 dotenv.config({ path: '.env.local' });
 
 // Define schemas
-const userSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    index: true
+const userSchema = new mongoose.Schema(
+  {
+    id: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      index: true,
+    },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    userId: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    voteCount: {
+      type: Number,
+      default: 0,
+    },
+    votedLogos: {
+      type: [String],
+      default: [],
+    },
   },
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true
-  },
-  userId: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true
-  },
-  voteCount: {
-    type: Number,
-    default: 0
-  },
-  votedLogos: {
-    type: [String],
-    default: []
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
 const logoSchema = new mongoose.Schema({
   value: {
     type: String,
     required: true,
     unique: true,
-    trim: true
+    trim: true,
   },
   src: {
     type: String,
-    required: true
+    required: true,
   },
   alt: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   ownerId: {
     type: String,
     required: true,
-    ref: 'User'
+    ref: 'User',
   },
   status: {
     type: String,
     enum: ['active', 'inactive'],
-    default: 'active'
+    default: 'active',
   },
   voteStats: {
     totalVotes: {
       type: Number,
-      default: 0
+      default: 0,
     },
     uniqueVoters: {
       type: Number,
-      default: 0
+      default: 0,
     },
-    lastVoteAt: Date
-  }
+    lastVoteAt: Date,
+  },
 });
 
-const voteSchema = new mongoose.Schema({
-  userId: {
-    type: String,
-    required: true,
-    ref: 'User'
+const voteSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: String,
+      required: true,
+      ref: 'User',
+    },
+    logoId: {
+      type: String,
+      required: true,
+      ref: 'Logo',
+    },
+    timestamp: {
+      type: Date,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ['confirmed', 'rejected'],
+      default: 'confirmed',
+    },
   },
-  logoId: {
-    type: String,
-    required: true,
-    ref: 'Logo'
-  },
-  timestamp: {
-    type: Date,
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ['confirmed', 'rejected'],
-    default: 'confirmed'
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
 // Create models
 const User = mongoose.model('User', userSchema);
@@ -113,7 +119,9 @@ const Vote = mongoose.model('Vote', voteSchema);
 async function cleanupInvalidVotes() {
   try {
     console.log('Connecting to database...');
-    await mongoose.connect('mongodb://admin:devpassword@localhost:27019/jardins-campion-dev?authSource=admin&directConnection=true');
+    await mongoose.connect(
+      'mongodb://admin:devpassword@localhost:27019/jardins-campion-dev?authSource=admin&directConnection=true'
+    );
     console.log('Connected to database');
 
     // Get all users and their voted logos
@@ -125,28 +133,30 @@ async function cleanupInvalidVotes() {
     await session.withTransaction(async () => {
       for (const user of users) {
         console.log(`\nProcessing user: ${user.name}`);
-        
+
         // Get all logos owned by this user
         const ownedLogos = await Logo.find({ ownerId: user.userId });
         console.log(`User owns ${ownedLogos.length} logos`);
 
         // Get the values of owned logos
-        const ownedLogoValues = ownedLogos.map(logo => logo.value);
-        
+        const ownedLogoValues = ownedLogos.map((logo) => logo.value);
+
         // Check if user has voted for any of their own logos
-        const invalidVotes = user.votedLogos.filter(logoId => ownedLogoValues.includes(logoId));
-        
+        const invalidVotes = user.votedLogos.filter((logoId) => ownedLogoValues.includes(logoId));
+
         if (invalidVotes.length > 0) {
-          console.log(`Found ${invalidVotes.length} invalid votes where user voted for their own logos:`);
+          console.log(
+            `Found ${invalidVotes.length} invalid votes where user voted for their own logos:`
+          );
           for (const logoId of invalidVotes) {
             console.log(`- Logo ${logoId}`);
-            
+
             // Remove the logo from user's votedLogos
             await User.findByIdAndUpdate(
               user._id,
               {
                 $pull: { votedLogos: logoId },
-                $inc: { voteCount: -1 }
+                $inc: { voteCount: -1 },
               },
               { session }
             );
@@ -157,8 +167,8 @@ async function cleanupInvalidVotes() {
               {
                 $inc: {
                   'voteStats.totalVotes': -1,
-                  'voteStats.uniqueVoters': -1
-                }
+                  'voteStats.uniqueVoters': -1,
+                },
               },
               { session }
             );
@@ -168,16 +178,16 @@ async function cleanupInvalidVotes() {
               {
                 userId: user.userId,
                 logoId: logoId,
-                status: 'confirmed'
+                status: 'confirmed',
               },
               {
                 $set: {
                   status: 'rejected',
                   conflictResolution: {
                     resolutionType: 'reject',
-                    resolvedAt: new Date()
-                  }
-                }
+                    resolvedAt: new Date(),
+                  },
+                },
               },
               { session }
             );
@@ -193,25 +203,25 @@ async function cleanupInvalidVotes() {
     const orphanedVotes = await Vote.find({
       status: 'confirmed',
       $or: [
-        { userId: { $nin: users.map(u => u.userId) } },
-        { logoId: { $nin: (await Logo.find()).map(l => l.value) } }
-      ]
+        { userId: { $nin: users.map((u) => u.userId) } },
+        { logoId: { $nin: (await Logo.find()).map((l) => l.value) } },
+      ],
     });
 
     if (orphanedVotes.length > 0) {
       console.log(`Found ${orphanedVotes.length} orphaned votes to clean up`);
       await Vote.updateMany(
         {
-          _id: { $in: orphanedVotes.map(v => v._id) }
+          _id: { $in: orphanedVotes.map((v) => v._id) },
         },
         {
           $set: {
             status: 'rejected',
             conflictResolution: {
               resolutionType: 'reject',
-              resolvedAt: new Date()
-            }
-          }
+              resolvedAt: new Date(),
+            },
+          },
         }
       );
     } else {
@@ -227,4 +237,4 @@ async function cleanupInvalidVotes() {
 }
 
 // Run the cleanup
-cleanupInvalidVotes(); 
+cleanupInvalidVotes();

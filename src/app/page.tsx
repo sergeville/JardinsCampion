@@ -136,15 +136,18 @@ export default function Vote() {
   // Convert voteStats array to a Record<string, number> for the LogoGrid
   const voteCountMap = useMemo(() => {
     if (!voteStats || !Array.isArray(voteStats)) return {};
-    
-    return voteStats.reduce((acc, stat) => {
-      if (!stat || !stat.logoId) return acc;
-      
-      // Extract the numeric ID from the logoId
-      const numericId = stat.logoId.toString().replace(/.*?(\d+)$/, '$1');
-      acc[numericId] = stat.voteCount || 0;
-      return acc;
-    }, {} as Record<string, number>);
+
+    return voteStats.reduce(
+      (acc, stat) => {
+        if (!stat || !stat.logoId) return acc;
+
+        // Extract the numeric ID from the logoId
+        const numericId = stat.logoId.toString().replace(/.*?(\d+)$/, '$1');
+        acc[numericId] = stat.voteCount || 0;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
   }, [voteStats]);
 
   return (
@@ -160,10 +163,7 @@ export default function Vote() {
 
             {error && error.includes(t.alreadyVoted('', '').split('!')[0]) && (
               <div className={styles.userMessageContainer}>
-                <ErrorMessage 
-                  error={error} 
-                  isUserMessage={true}
-                />
+                <ErrorMessage error={error} isUserMessage={true} />
               </div>
             )}
 

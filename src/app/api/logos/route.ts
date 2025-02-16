@@ -11,9 +11,12 @@ export async function POST(request: NextRequest) {
     const ownerId = formData.get('ownerId') as string;
 
     if (!file || !name || !alt || !ownerId) {
-      return NextResponse.json({ 
-        error: 'File, name, alt text, and owner ID are required' 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'File, name, alt text, and owner ID are required',
+        },
+        { status: 400 }
+      );
     }
 
     if (alt.length < 10) {

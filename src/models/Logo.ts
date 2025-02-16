@@ -62,7 +62,7 @@ const logoSchema = new Schema<ILogo>(
 );
 
 // Add pre-save middleware to auto-increment ID
-logoSchema.pre('save', async function(next) {
+logoSchema.pre('save', async function (next) {
   if (this.isNew) {
     try {
       const counter = await CounterModel.findByIdAndUpdate(

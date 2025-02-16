@@ -245,7 +245,7 @@ export function useVoteManagement({ onError }: VoteManagementProps = {}): VoteMa
         if (result.success) {
           // Immediately refresh data from server to ensure accurate counts
           await loadVoteData(true);
-          
+
           // Update local state for immediate feedback
           const updatedStats = {
             ...voteStats,
@@ -270,7 +270,9 @@ export function useVoteManagement({ onError }: VoteManagementProps = {}): VoteMa
         const networkError = error instanceof NetworkError ? error : null;
         const errorMessage = networkError
           ? `Vote submission failed${networkError.isTimeout ? ' (timeout)' : ''}: ${networkError.message}`
-          : error instanceof Error ? error.message : 'Failed to record vote';
+          : error instanceof Error
+            ? error.message
+            : 'Failed to record vote';
 
         console.error('Error recording vote:', error);
         onError?.(error instanceof Error ? error : new Error(errorMessage));

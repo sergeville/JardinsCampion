@@ -427,35 +427,36 @@ export default function ShowData() {
                   </tr>
                 </thead>
                 <tbody>
-                  {collections.users.data
-                    .filter(hasId)
-                    .map((item) => (
-                      <tr key={item._id} className={styles.dataRow}>
-                        <td>
-                          <input
-                            type="checkbox"
-                            checked={selectedItems[item._id] || false}
-                            onChange={() => toggleItemSelection(item._id)}
-                            className={styles.checkbox}
-                          />
-                        </td>
-                        <td>
-                          <pre>{JSON.stringify(item, null, 2)}</pre>
-                        </td>
-                        <td className={styles.rowActions}>
-                          <button className={styles.editButton} onClick={() => handleEdit('users', item)}>
-                            Edit
-                          </button>
-                          <button
-                            className={styles.deleteButton}
-                            onClick={() => handleDelete('users', item._id)}
-                            disabled={isDeleting}
-                          >
-                            {isDeleting ? 'Deleting...' : 'Delete'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                  {collections.users.data.filter(hasId).map((item) => (
+                    <tr key={item._id} className={styles.dataRow}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedItems[item._id] || false}
+                          onChange={() => toggleItemSelection(item._id)}
+                          className={styles.checkbox}
+                        />
+                      </td>
+                      <td>
+                        <pre>{JSON.stringify(item, null, 2)}</pre>
+                      </td>
+                      <td className={styles.rowActions}>
+                        <button
+                          className={styles.editButton}
+                          onClick={() => handleEdit('users', item)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className={styles.deleteButton}
+                          onClick={() => handleDelete('users', item._id)}
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -521,35 +522,36 @@ export default function ShowData() {
                     </tr>
                   </thead>
                   <tbody>
-                    {collections.users.data
-                      .filter(hasId)
-                      .map((item) => (
-                        <tr key={item._id} className={styles.dataRow}>
-                          <td>
-                            <input
-                              type="checkbox"
-                              checked={selectedItems[item._id] || false}
-                              onChange={() => toggleItemSelection(item._id)}
-                              className={styles.checkbox}
-                            />
-                          </td>
-                          <td>
-                            <pre>{JSON.stringify(item, null, 2)}</pre>
-                          </td>
-                          <td className={styles.rowActions}>
-                            <button className={styles.editButton} onClick={() => handleEdit('users', item)}>
-                              Edit
-                            </button>
-                            <button
-                              className={styles.deleteButton}
-                              onClick={() => handleDelete('users', item._id)}
-                              disabled={isDeleting}
-                            >
-                              {isDeleting ? 'Deleting...' : 'Delete'}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                    {collections.users.data.filter(hasId).map((item) => (
+                      <tr key={item._id} className={styles.dataRow}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selectedItems[item._id] || false}
+                            onChange={() => toggleItemSelection(item._id)}
+                            className={styles.checkbox}
+                          />
+                        </td>
+                        <td>
+                          <pre>{JSON.stringify(item, null, 2)}</pre>
+                        </td>
+                        <td className={styles.rowActions}>
+                          <button
+                            className={styles.editButton}
+                            onClick={() => handleEdit('users', item)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className={styles.deleteButton}
+                            onClick={() => handleDelete('users', item._id)}
+                            disabled={isDeleting}
+                          >
+                            {isDeleting ? 'Deleting...' : 'Delete'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -600,7 +602,9 @@ export default function ShowData() {
 
   return (
     <div className={styles.container}>
-      <h1>Database Data - {process.env.NODE_ENV === 'production' ? 'Production' : 'Development'}</h1>
+      <h1>
+        Database Data - {process.env.NODE_ENV === 'production' ? 'Production' : 'Development'}
+      </h1>
 
       <div className={styles.controls}>
         <div className={styles.statusIndicator}>{!connected ? 'Connecting...' : 'Connected'}</div>

@@ -40,4 +40,4 @@ async function addUser() {
   }
 }
 
-addUser(); 
+addUser();
