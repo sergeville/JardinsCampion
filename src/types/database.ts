@@ -31,6 +31,12 @@ export interface DatabaseInfo {
     [K in keyof DatabaseCollections]: DatabaseCollections[K];
   };
   stats: DatabaseStats;
+  schemas: {
+    [key: string]: unknown;
+  };
+  counts: {
+    [key: string]: number;
+  };
 }
 
 export interface DatabaseSyncState {
@@ -58,4 +64,5 @@ export interface DatabaseEditModalProps {
   collectionName: keyof DatabaseCollections;
   initialData?: DatabaseDocument<Document>;
   onSave: (data: Record<string, unknown>) => Promise<void>;
-} 
+  onDelete?: () => Promise<void>;
+}

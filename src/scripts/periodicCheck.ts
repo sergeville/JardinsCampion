@@ -6,10 +6,12 @@ import { checkDatabaseConnection } from '@/lib/mongodb';
 // Load environment variables from .env.local
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
-// Set NODE_ENV if not set
-if (!process.env.NODE_ENV) {
-  process.env.NODE_ENV = 'development';
-}
+// Set default environment
+const env = {
+  ...process.env,
+  NODE_ENV: 'development' as 'development' | 'production' | 'test',
+};
+process.env = env;
 
 async function runCheck() {
   console.log('Starting periodic data consistency check...');

@@ -1,8 +1,11 @@
 // Set environment variables
-process.env.MONGODB_URI_DEV =
-  'mongodb://admin:devpassword@localhost:27019/jardins-campion-dev?authSource=admin&replicaSet=rs0&directConnection=true&retryWrites=true&w=majority';
-process.env.MONGODB_URI_PROD = process.env.MONGODB_URI_DEV;
-process.env.NODE_ENV = 'development';
+const env = {
+  ...process.env,
+  MONGODB_URI_DEV:
+    'mongodb://admin:devpassword@localhost:27019/jardins-campion-dev?authSource=admin&replicaSet=rs0&directConnection=true&retryWrites=true&w=majority',
+  NODE_ENV: 'development' as 'development' | 'production' | 'test',
+};
+process.env = env;
 
 import connectDB from '../lib/mongodb';
 import UserModel from '../models/User';

@@ -11,7 +11,7 @@ export const DB_CONSTANTS = {
     TIMESTAMP: 'timestamp_-1',
   },
   QUERY_OPTIONS: {
-    DEFAULT_TIMEOUT: 5000,
+    DEFAULT_TIMEOUT: 10000,
     MAX_LIMIT: 100,
   },
   VOTE_STATUS: {

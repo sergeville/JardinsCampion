@@ -2,14 +2,14 @@ import { DB_CONSTANTS } from '@/constants/db';
 
 export interface RetryOptions {
   maxRetries?: number;
-  timeout?: number;
   delay?: number;
+  timeout?: number;
 }
 
 const DEFAULT_RETRY_OPTIONS: Required<RetryOptions> = {
   maxRetries: 3,
   timeout: DB_CONSTANTS.QUERY_OPTIONS.DEFAULT_TIMEOUT,
-  delay: 1000,
+  delay: 2000,
 };
 
 class TimeoutError extends Error {
@@ -21,55 +21,50 @@ class TimeoutError extends Error {
 
 export async function withRetry<T>(
   operation: () => Promise<T>,
-  options: RetryOptions = {}
+  maxRetriesOrOptions: number | RetryOptions = 3
 ): Promise<T> {
-  const maxRetries = options.maxRetries ?? DEFAULT_RETRY_OPTIONS.maxRetries;
-  const timeout = options.timeout ?? DEFAULT_RETRY_OPTIONS.timeout;
-  const delay = options.delay ?? DEFAULT_RETRY_OPTIONS.delay;
+  const options =
+    typeof maxRetriesOrOptions === 'number'
+      ? { maxRetries: maxRetriesOrOptions }
+      : maxRetriesOrOptions;
 
+  const { maxRetries = 3, delay = 2000 } = options;
   let lastError: Error | null = null;
   let attempt = 0;
 
-  const executeWithTimeout = async (): Promise<T> => {
-    let timeoutId: NodeJS.Timeout;
-    
-    try {
-      const result = await Promise.race([
-        operation(),
-        new Promise<never>((_, reject) => {
-          timeoutId = setTimeout(() => {
-            reject(new TimeoutError(timeout));
-          }, timeout);
-        }),
-      ]);
-      
-      clearTimeout(timeoutId!);
-      return result;
-    } catch (error) {
-      clearTimeout(timeoutId!);
-      throw error;
-    }
-  };
-
   while (attempt < maxRetries) {
     try {
-      return await executeWithTimeout();
+      return await operation();
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error('Unknown error');
-      
-      if (error instanceof TimeoutError) {
-        throw error;
-      }
-
+      lastError = error instanceof Error ? error : new Error(String(error));
       attempt++;
-      
+
       if (attempt < maxRetries) {
-        await new Promise(resolve => setTimeout(resolve, delay));
+        const backoffDelay = delay * Math.pow(2, attempt - 1);
+        await new Promise((resolve) => setTimeout(resolve, backoffDelay));
       }
     }
   }
 
-  throw lastError;
+  throw lastError || new Error('Operation failed after retries');
+}
+
+export async function executeWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  let timeoutHandle: NodeJS.Timeout;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutHandle = setTimeout(() => {
+      reject(new Error('Operation timed out'));
+    }, timeoutMs);
+  });
+
+  try {
+    const result = await Promise.race([promise, timeoutPromise]);
+    clearTimeout(timeoutHandle!);
+    return result;
+  } catch (error) {
+    clearTimeout(timeoutHandle!);
+    throw error;
+  }
 }
 
 export function validateVoteData(data: Record<string, unknown>): boolean {

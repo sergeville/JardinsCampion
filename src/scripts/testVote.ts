@@ -1,8 +1,13 @@
 // Set environment variables
-process.env.MONGODB_URI_DEV =
+const MONGODB_URI =
   'mongodb://admin:devpassword@localhost:27019/jardins-campion-dev?authSource=admin&replicaSet=rs0&directConnection=true&retryWrites=true&w=majority';
-process.env.MONGODB_URI_PROD = process.env.MONGODB_URI_DEV;
-process.env.NODE_ENV = 'development';
+const env = {
+  ...process.env,
+  MONGODB_URI_DEV: MONGODB_URI,
+  MONGODB_URI_PROD: MONGODB_URI,
+  NODE_ENV: 'development' as 'development' | 'production' | 'test',
+};
+process.env = env;
 
 import { submitVote } from '@/app/actions';
 import '@/lib/mongodb';

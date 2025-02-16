@@ -19,10 +19,11 @@ async function checkDatabase() {
     console.log('Active logos:', logos.filter((l) => l.status === 'active').length);
     console.log('Logo details:');
     logos.forEach((logo) => {
-      console.log(`- Logo ${logo.value}:`, {
+      console.log(`- Logo ${logo.id}:`, {
         status: logo.status,
-        voteStats: logo.voteStats,
         src: logo.src,
+        alt: logo.alt,
+        createdAt: logo.createdAt,
       });
     });
 
@@ -43,7 +44,6 @@ async function checkDatabase() {
     console.log('Total votes:', votes.length);
     console.log('Vote status breakdown:', {
       confirmed: votes.filter((v) => v.status === 'confirmed').length,
-      pending: votes.filter((v) => v.status === 'pending').length,
       rejected: votes.filter((v) => v.status === 'rejected').length,
     });
     console.log('Vote details:');
@@ -61,9 +61,8 @@ async function checkDatabase() {
   }
 }
 
-// Set NODE_ENV if not set
-if (!process.env.NODE_ENV) {
-  process.env.NODE_ENV = 'development';
-}
+// Set default environment
+const NODE_ENV = process.env.NODE_ENV || 'development';
+process.env = { ...process.env, NODE_ENV };
 
 checkDatabase();

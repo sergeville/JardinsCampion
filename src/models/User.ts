@@ -1,24 +1,32 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IUser extends Document {
+  id: string;
   name: string;
+  email: string;
   userId: string;
-  createdAt: Date;
-  updatedAt: Date;
   lastVoteAt?: Date;
   voteCount: number;
   votedLogos: string[];
-  canVote: (logoId: string) => boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  canVote(logoId: string): boolean;
 }
 
 interface IUserModel extends Model<IUser> {
-  findByUserId(userId: string): Promise<IUser | null> & {
-    session(session: mongoose.ClientSession): Promise<IUser | null>;
-  };
+  findByEmail(email: string): Promise<IUser | null>;
+  findByUserId(userId: string): Promise<IUser | null>;
 }
 
 const userSchema = new Schema<IUser>(
   {
+    id: {
+      type: String,
+      required: [true, 'User ID is required'],
+      unique: true,
+      trim: true,
+      index: true,
+    },
     name: {
       type: String,
       required: [true, 'Name is required'],
@@ -26,18 +34,26 @@ const userSchema = new Schema<IUser>(
       minlength: [2, 'Name must be at least 2 characters long'],
       maxlength: [50, 'Name cannot exceed 50 characters'],
     },
-    userId: {
+    email: {
       type: String,
-      required: [true, 'UserId is required'],
+      required: [true, 'Email is required'],
       unique: true,
       trim: true,
       lowercase: true,
+      index: true,
       validate: {
         validator: function (v: string) {
-          return /^[a-z0-9-]+$/.test(v);
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
         },
-        message: 'UserId can only contain lowercase letters, numbers, and hyphens',
+        message: 'Invalid email format',
       },
+    },
+    userId: {
+      type: String,
+      required: [true, 'User ID is required'],
+      unique: true,
+      trim: true,
+      index: true,
     },
     lastVoteAt: {
       type: Date,
@@ -55,34 +71,25 @@ const userSchema = new Schema<IUser>(
   },
   {
     timestamps: true,
-    collection: 'user',
+    collection: 'users',
     optimisticConcurrency: true,
     versionKey: '__v',
-    methods: {
-      canVote(logoId: string) {
-        return !this.votedLogos.includes(logoId);
-      },
-    },
   }
 );
 
-// Indexes
-userSchema.index({ lastVoteAt: 1 });
-
-// Pre-save middleware
-userSchema.pre('save', function (next) {
-  if (this.isModified('name')) {
-    this.name = this.name.trim();
-  }
-  next();
-});
-
 // Static methods
-userSchema.statics.findByUserId = function (userId: string) {
-  return this.findOne({ userId: userId.toLowerCase() });
+userSchema.statics.findByEmail = function (email: string) {
+  return this.findOne({ email: email.toLowerCase() });
 };
 
-// Try to prevent errors during hot reloading
+userSchema.statics.findByUserId = function (userId: string) {
+  return this.findOne({ userId });
+};
+
+userSchema.methods.canVote = function (logoId: string): boolean {
+  return !this.votedLogos.includes(logoId);
+};
+
 const UserModel = (mongoose.models.User ||
   mongoose.model<IUser, IUserModel>('User', userSchema)) as IUserModel;
 
