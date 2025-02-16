@@ -1,7 +1,20 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import Vote from '../page';
 import { mockMatchMedia } from '../../test-utils/test-utils';
+import Image from 'next/image';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { VoteProvider } from '@/contexts/VoteContext';
+import { DatabaseProvider } from '@/contexts/DatabaseContext';
+import { Logo } from '@/types/database';
+import { User } from '@/types/auth';
+import { VoteData } from '@/types/vote';
+import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useVoteManagement } from '@/hooks/useVoteManagement';
+import { useTheme } from '@/hooks/useTheme';
+import type { ImageProps } from 'next/image';
 
 // Mock environment variables
 process.env.MONGODB_URI_DEV =
@@ -9,19 +22,28 @@ process.env.MONGODB_URI_DEV =
 process.env.MONGODB_URI_PROD =
   'mongodb://admin:prodpassword@localhost:27020/jardins-campion-prod?authSource=admin';
 
-// Mock the Image component since we're using Next.js Image
+// Mock next/image
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: 'img',
+  default: function MockImage(props: ImageProps) {
+    return <div data-testid="mock-image" alt={props.alt} {...props} />;
+  },
 }));
 
+interface MockVoteHistory {
+  userName: string;
+  userId: string;
+  logoId: string;
+  timestamp: Date;
+}
+
+let mockVoteHistory: MockVoteHistory[] = [];
+
 // Mock the useVoteManagement hook
-const mockRecordVote = jest.fn().mockImplementation(async (voteData) => {
+const mockRecordVote = jest.fn().mockImplementation(async (voteData: VoteData) => {
   alert(`Vote recorded for ${voteData.userName} on Logo #${voteData.logoId}`);
   return { status: 'confirmed' };
 });
-
-let mockVoteHistory: any[] = [];
 
 jest.mock('@/hooks/useVoteManagement', () => ({
   useVoteManagement: () => ({
@@ -34,10 +56,61 @@ jest.mock('@/hooks/useVoteManagement', () => ({
   }),
 }));
 
-describe('Page Component', () => {
-  let alertMock: jest.SpyInstance;
+interface MockContextProps {
+  children: React.ReactNode;
+  mockUser?: User | null;
+  mockIsAuthenticated?: boolean;
+  mockLoading?: boolean;
+}
+
+const MockAuthProvider: React.FC<MockContextProps> = ({
+  children,
+  mockUser = null,
+  mockIsAuthenticated = false,
+  mockLoading = false,
+}) => <AuthProvider>{children}</AuthProvider>;
+
+// Replace img with next/image
+const LogoImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) => (
+  <Image src={src} alt={alt} width={200} height={200} priority />
+);
+
+// Mock the hooks
+jest.mock('@/hooks/useAuth');
+jest.mock('@/hooks/useLanguage');
+jest.mock('@/hooks/useVoteManagement');
+
+describe('VotePage', () => {
+  const mockAuthHook = {
+    isAuthenticated: true,
+    loading: false,
+  };
+
+  const mockLanguageHook = {
+    t: {
+      selectThis: 'Select this logo',
+      votes: 'votes',
+      loginRequired: 'Please log in to vote',
+      alreadyVoted: 'You have already voted for this logo',
+    },
+  };
+
+  const mockVoteManagementHook = {
+    selectedLogo: null,
+    voteCount: {},
+    loading: false,
+    error: null,
+    handleLogoSelection: jest.fn(),
+    handleVoteSubmit: jest.fn(),
+    getUserPreviousVote: jest.fn(),
+  };
 
   beforeEach(() => {
+    jest.clearAllMocks();
+    (useAuth as jest.Mock).mockReturnValue(mockAuthHook);
+    (useLanguage as jest.Mock).mockReturnValue(mockLanguageHook);
+    (useVoteManagement as jest.Mock).mockReturnValue(mockVoteManagementHook);
+
     // Mock localStorage with a working implementation
     const localStorageData: { [key: string]: string } = {};
     const localStorageMock = {
@@ -80,9 +153,9 @@ describe('Page Component', () => {
     // Reset document body and cleanup any previous renders
     document.body.innerHTML = '';
     document.documentElement.removeAttribute('data-theme');
-    
+
     // Mock alert
-    alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    const alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});
     // Reset vote history
     mockVoteHistory = [];
   });
@@ -113,7 +186,7 @@ describe('Page Component', () => {
     // Wait for title to update
     await waitFor(() => {
       const titles = screen.getAllByRole('heading', { level: 1 });
-      const titleParts = titles[0].textContent?.split('\n').map(part => part.trim()) || [];
+      const titleParts = titles[0].textContent?.split('\n').map((part) => part.trim()) || [];
       expect(titleParts[1]).toBe('Logo Selection');
     });
 
@@ -143,7 +216,7 @@ describe('Page Component', () => {
     });
 
     // First vote
-    await act(async () => {
+    await waitFor(() => {
       const logos = screen.getAllByRole('img');
       fireEvent.click(logos[0]);
     });
@@ -155,11 +228,11 @@ describe('Page Component', () => {
     });
 
     const nameInput = screen.getByTestId('name-input');
-    await act(async () => {
+    await waitFor(() => {
       fireEvent.change(nameInput, { target: { value: 'Test User' } });
     });
 
-    await act(async () => {
+    await waitFor(() => {
       const submitButton = screen.getByRole('button', { name: /Submit|Soumettre/i });
       fireEvent.click(submitButton);
       await waitFor(() => {
@@ -175,7 +248,7 @@ describe('Page Component', () => {
     // Start with French (default)
     window.localStorage.removeItem('language'); // Ensure no language is set
     const { unmount } = render(<Vote />);
-    
+
     // Wait for initial render and effects to complete
     await waitFor(() => {
       expect(window.localStorage.getItem('language')).toBe('fr');
@@ -183,47 +256,48 @@ describe('Page Component', () => {
 
     await waitFor(() => {
       const title = screen.getAllByRole('heading', { level: 1 })[0];
-      const titleParts = title.textContent?.split('\n').map(part => part.trim()) || [];
+      const titleParts = title.textContent?.split('\n').map((part) => part.trim()) || [];
       expect(titleParts[0]).toBe('Jardins du Lac Campion');
       expect(titleParts[1]).toBe('Voté pour le plus beau logo');
     });
 
     // Switch to English
-    await act(async () => {
-      const languageToggle = screen.getByText('EN');
-      fireEvent.click(languageToggle);
-    });
+    const languageToggle = screen.getByText('EN');
+    fireEvent.click(languageToggle);
 
     // Wait for language effect to complete
     await waitFor(() => {
       expect(window.localStorage.getItem('language')).toBe('en');
     });
 
-    // Verify English state
+    // Wait for title to update
     await waitFor(() => {
       const title = screen.getAllByRole('heading', { level: 1 })[0];
-      const titleParts = title.textContent?.split('\n').map(part => part.trim()) || [];
-      expect(titleParts[0]).toBe('Jardins du Lac Campion');
-      expect(titleParts[1]).toBe('Logo Selection');
+      expect(title).toHaveTextContent('Jardins du Lac Campion');
+    });
+
+    await waitFor(() => {
+      const title = screen.getAllByRole('heading', { level: 1 })[0];
+      expect(title).toHaveTextContent('Logo Selection');
     });
 
     // Switch back to French
-    await act(async () => {
-      const languageToggle = screen.getByText('FR');
-      fireEvent.click(languageToggle);
-    });
+    fireEvent.click(languageToggle);
 
     // Wait for language effect to complete
     await waitFor(() => {
       expect(window.localStorage.getItem('language')).toBe('fr');
     });
 
-    // Verify French state again
+    // Wait for title to update
     await waitFor(() => {
       const title = screen.getAllByRole('heading', { level: 1 })[0];
-      const titleParts = title.textContent?.split('\n').map(part => part.trim()) || [];
-      expect(titleParts[0]).toBe('Jardins du Lac Campion');
-      expect(titleParts[1]).toBe('Voté pour le plus beau logo');
+      expect(title).toHaveTextContent('Jardins du Lac Campion');
+    });
+
+    await waitFor(() => {
+      const title = screen.getAllByRole('heading', { level: 1 })[0];
+      expect(title).toHaveTextContent('Voté pour le plus beau logo');
     });
 
     unmount();
@@ -238,29 +312,36 @@ describe('Page Component', () => {
     // Wait for initial render and effects to complete
     await waitFor(() => {
       expect(window.localStorage.getItem('theme')).toBe('dark');
+    });
+
+    await waitFor(() => {
       expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
     });
 
-    // Find and click theme toggle using aria-label
-    const themeToggle = screen.getAllByRole('button', { name: /Light Mode|Mode Clair|Dark Mode|Mode Sombre/i })[0];
-    await act(async () => {
-      fireEvent.click(themeToggle);
-    });
+    // Find and click theme toggle
+    const themeToggle = screen.getAllByRole('button', {
+      name: /Light Mode|Mode Clair|Dark Mode|Mode Sombre/i,
+    })[0];
+    fireEvent.click(themeToggle);
 
     // Wait for theme effect to complete
     await waitFor(() => {
       expect(window.localStorage.getItem('theme')).toBe('light');
+    });
+
+    await waitFor(() => {
       expect(document.documentElement.getAttribute('data-theme')).toBe('light');
     });
 
     // Click again to toggle back to dark mode
-    await act(async () => {
-      fireEvent.click(themeToggle);
-    });
+    fireEvent.click(themeToggle);
 
     // Wait for theme effect to complete
     await waitFor(() => {
       expect(window.localStorage.getItem('theme')).toBe('dark');
+    });
+
+    await waitFor(() => {
       expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
     });
 
@@ -277,12 +358,14 @@ describe('Page Component', () => {
       expect(window.localStorage.getItem('language')).toBe('en');
     });
 
-    // Wait for initial render and effects to complete
+    // Wait for initial render
     await waitFor(() => {
-      const logosContainer = screen.getByTestId('logos-container');
-      expect(logosContainer).toBeInTheDocument();
-      expect(logosContainer.classList.contains('loading')).toBe(false);
-    }, { timeout: 2000 });
+      expect(screen.getByTestId('logos-container')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('logos-container').classList.contains('loading')).toBe(false);
+    });
 
     // Update mock vote history before submitting vote
     mockVoteHistory = [
@@ -295,39 +378,80 @@ describe('Page Component', () => {
     ];
 
     // Click on a logo to vote
-    await act(async () => {
-      const logos = screen.getAllByRole('img');
-      fireEvent.click(logos[0]);
+    const logos = screen.getAllByRole('img');
+    fireEvent.click(logos[0]);
+
+    // Wait for the modal to appear
+    await waitFor(() => {
+      expect(screen.getByTestId('name-input')).toBeInTheDocument();
     });
 
-    // Wait for the modal to appear and be interactive
     await waitFor(() => {
-      const nameInput = screen.getByTestId('name-input');
-      expect(nameInput).not.toBeDisabled();
+      expect(screen.getByTestId('name-input')).not.toBeDisabled();
     });
 
     // Enter name in the modal
     const nameInput = screen.getByTestId('name-input');
-    await act(async () => {
-      fireEvent.change(nameInput, { target: { value: 'Test User' } });
-    });
+    fireEvent.change(nameInput, { target: { value: 'Test User' } });
 
     // Submit vote
-    await act(async () => {
-      const submitButton = screen.getByRole('button', { name: /Submit|Soumettre/i });
-      fireEvent.click(submitButton);
-      await waitFor(() => {
-        expect(alertMock).toHaveBeenCalledWith(expect.stringContaining('Test User'));
-      });
+    const submitButton = screen.getByRole('button', { name: /Submit|Soumettre/i });
+    fireEvent.click(submitButton);
+
+    // Wait for alert
+    await waitFor(() => {
+      expect(alertMock).toHaveBeenCalledWith(expect.stringContaining('Test User'));
     });
 
     // Wait for vote history to update
     await waitFor(() => {
-      const voteList = screen.getByTestId('vote-list');
-      expect(voteList).toHaveTextContent('Test User');
-      expect(voteList).toHaveTextContent(/Logo #1/);
-    }, { timeout: 2000 });
+      expect(screen.getByTestId('vote-list')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('vote-list')).toHaveTextContent('Test User');
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('vote-list')).toHaveTextContent(/Logo #1/);
+    });
+
+    // Wait for vote history to update
+    await waitFor(
+      () => {
+        const voteList = screen.getByTestId('vote-list');
+        expect(voteList).toHaveTextContent('Test User');
+        expect(voteList).toHaveTextContent(/Logo #1/);
+      },
+      { timeout: 2000 }
+    );
 
     unmount();
+  });
+
+  it('shows error message when present', () => {
+    const error = 'Test error message';
+    (useVoteManagement as jest.Mock).mockReturnValue({
+      ...mockVoteManagementHook,
+      error,
+    });
+
+    render(<Vote />);
+    expect(screen.getByText(error)).toBeInTheDocument();
+  });
+
+  it('calls getUserPreviousVote when selecting logo while not authenticated', () => {
+    (useAuth as jest.Mock).mockReturnValue({
+      ...mockAuthHook,
+      isAuthenticated: false,
+    });
+
+    (useVoteManagement as jest.Mock).mockReturnValue({
+      ...mockVoteManagementHook,
+      selectedLogo: { id: '1', name: 'Test Logo', imageUrl: '/test.png' },
+    });
+
+    render(<Vote />);
+    expect(mockVoteManagementHook.getUserPreviousVote).toHaveBeenCalled();
   });
 });

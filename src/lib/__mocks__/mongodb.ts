@@ -92,4 +92,4 @@ export async function connectDB() {
 export { mockMongoose as mongoose };
 
 // Export default connectDB
-export default connectDB; 
+export default connectDB;

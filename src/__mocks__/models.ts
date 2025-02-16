@@ -88,4 +88,4 @@ jest.mock('@/models/Vote', () => ({
 jest.mock('@/models/Logo', () => ({
   __esModule: true,
   default: mockLogoModel,
-})); 
+}));

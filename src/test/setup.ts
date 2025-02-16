@@ -1,72 +1,19 @@
-import React from 'react';
 import '@testing-library/jest-dom';
-import { TextEncoder, TextDecoder } from 'util';
-import { createElement } from 'react';
-import Image from 'next/image';
-import mongoose from 'mongoose';
+import { mockMongoose } from './setupMocks/mongoose';
+import './setupMocks/next';
+import './setupMocks/eventSource';
+import * as utils from './setupMocks/utils';
+import { mockModel, mockUserModel, mockVoteModel, mockLogoModel } from './setupMocks/models';
 
-// Mock Next.js router
-jest.mock('next/router', () => ({
-  useRouter() {
-    return {
-      route: '/',
-      pathname: '',
-      query: '',
-      asPath: '',
-      push: jest.fn(),
-      replace: jest.fn(),
-    };
-  },
-}));
-
-// Mock next/image
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: 'img',
-}));
-
-// Mock mongoose
-jest.mock('@/lib/mongodb', () => {
-  const mockMongoose = {
-    connect: jest.fn().mockResolvedValue({
-      connection: {
-        readyState: 1
-      }
-    }),
-    connection: {
-      readyState: 1
-    },
-    Schema: function() {
-      return {
-        pre: jest.fn(),
-        index: jest.fn(),
-      };
-    },
-    model: jest.fn(),
-    models: {},
-    Query: {
-      prototype: {
-        exec: jest.fn(),
-      }
-    }
-  };
-
-  return {
-    __esModule: true,
-    default: mockMongoose.connect,
-    mongoose: mockMongoose,
-  };
-});
-
-// Mock environment variables
-process.env.MONGODB_URI_DEV = 'mongodb://mock:27017/test';
-process.env.MONGODB_URI_PROD = 'mongodb://mock:27017/test';
-process.env.NODE_ENV = 'test';
+// Set up environment variables for testing
+process.env.MONGODB_URI_DEV = 'mongodb://localhost:27017/test-db';
+process.env.MONGODB_URI_PROD = 'mongodb://localhost:27017/test-db';
+Object.defineProperty(process.env, 'NODE_ENV', { value: 'test' });
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -78,48 +25,26 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// Mock window.alert
-window.alert = jest.fn();
+// Mock mongoose
+jest.mock('mongoose', () => mockMongoose);
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
-};
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+// Mock models
+jest.mock('@/models/User', () => mockUserModel);
+jest.mock('@/models/Vote', () => mockVoteModel);
+jest.mock('@/models/Logo', () => mockLogoModel);
 
-// Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-};
+// Mock utils
+jest.mock('@/lib/utils', () => utils);
 
-// Add TextEncoder/TextDecoder to global
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
-
-// Clear mocks between tests
-beforeEach(() => {
-  jest.clearAllMocks();
+// Mock Next.js API route handlers
+jest.mock('next/server', () => {
+  const actual = jest.requireActual('next/server');
+  return {
+    ...actual,
+    NextResponse: {
+      json: jest.fn((data) => ({
+        json: () => Promise.resolve(data),
+      })),
+    },
+  };
 });
-
-jest.mock('mongoose', () => ({
-  __esModule: true,
-  default: {
-    connect: jest.fn(),
-    connection: {
-      on: jest.fn(),
-      once: jest.fn(),
-      readyState: 1,
-    },
-    model: jest.fn(),
-    Schema: jest.fn(),
-    models: {},
-    prototype: {
-      save: jest.fn(),
-    },
-  },
-})); 
