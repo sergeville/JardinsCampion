@@ -4,35 +4,59 @@ import styles from './LogoModal.module.css';
 interface Logo {
   src: string;
   alt: string;
-  value: string;
+  title?: string;
+  details?: string;
 }
 
 interface LogoModalProps {
   logo: Logo;
   onClose: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+  showNavigation?: boolean;
 }
 
-export function LogoModal({ logo, onClose }: LogoModalProps) {
+export default function LogoModal({
+  logo,
+  onClose,
+  onPrev,
+  onNext,
+  showNavigation = false,
+}: LogoModalProps) {
   return (
-    <div className={styles.modalOverlay}>
+    <>
+      <div className={styles.overlay} onClick={onClose} />
       <div className={styles.modal}>
         <button className={styles.closeButton} onClick={onClose}>
           ×
         </button>
+        {logo.title && <h3 className={styles.title}>{logo.title}</h3>}
         <div className={styles.imageContainer}>
           <Image
             src={logo.src}
             alt={logo.alt}
-            width={500}
-            height={500}
-            style={{ objectFit: 'contain' }}
+            className={styles.image}
+            width={800}
+            height={600}
+            priority
           />
+          {showNavigation && (
+            <>
+              {onPrev && (
+                <button className={styles.prevButton} onClick={onPrev}>
+                  ‹
+                </button>
+              )}
+              {onNext && (
+                <button className={styles.nextButton} onClick={onNext}>
+                  ›
+                </button>
+              )}
+            </>
+          )}
         </div>
-        <div className={styles.logoInfo}>
-          <h3>{logo.value}</h3>
-          <p>{logo.alt}</p>
-        </div>
+        {logo.details && <p className={styles.details}>{logo.details}</p>}
       </div>
-    </div>
+    </>
   );
 }

@@ -1,385 +1,730 @@
 'use client';
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import styles from './styles.module.css';
 import LogoModal from './LogoModal';
 import DataEditModal from './DataEditModal';
 import { useDbSync } from '@/hooks/useDbSync';
-import { DatabaseInfo, DatabaseCollections, DatabaseDocument } from '@/types/database';
+import {
+  DatabaseInfo,
+  DatabaseCollections,
+  DatabaseDocument,
+  DatabaseSyncState,
+} from '@/types/database';
+import ErrorMessage from '@/components/ErrorMessage';
+import { Document } from 'mongoose';
+import { ILogo } from '@/models/Logo';
+import { IUser } from '@/models/User';
+import { IVote } from '@/models/Vote';
+import { LogoUploadModal } from './LogoUploadModal';
+import Image from 'next/image';
 
-interface Logo {
-  src: string;
-  alt: string;
-  value: string;
+type DataTab = keyof DatabaseCollections | 'all';
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
 }
 
-interface CollectionData {
-  [key: string]: DatabaseDocument<unknown>[];
+interface DataSummary {
+  total: number;
+  success: number;
+  error: number;
+  pending: number;
 }
+
+interface SelectedItems {
+  [key: string]: boolean;
+}
+
+interface CollectionItem {
+  _id: string;
+  [key: string]: any;
+}
+
+type Collections = DatabaseSyncState['collections'];
+type CollectionType = keyof DatabaseCollections;
+
+type DatabaseState = DatabaseSyncState;
+
+interface HasId {
+  _id: string;
+  [key: string]: any;
+}
+
+function hasId(item: any): item is HasId {
+  return item && typeof item._id === 'string';
+}
+
+const calculateSummary = (data: any[]): DataSummary => {
+  return {
+    total: data.length,
+    success: data.filter((item) => item.status === 'confirmed' || item.status === 'active').length,
+    error: data.filter((item) => item.status === 'rejected' || item.status === 'inactive').length,
+    pending: 0,
+  };
+};
+
+const SummaryRow = ({ summary }: { summary: DataSummary }) => (
+  <div className={styles.summaryRow}>
+    <div className={styles.summaryItem}>
+      <span className={styles.summaryLabel}>Total:</span>
+      <span className={styles.summaryValue}>{summary.total}</span>
+    </div>
+    <div className={styles.summaryItem}>
+      <span className={styles.summaryLabel}>Success:</span>
+      <span className={styles.summaryValue}>{summary.success}</span>
+    </div>
+    <div className={styles.summaryItem}>
+      <span className={styles.summaryLabel}>Error:</span>
+      <span className={styles.summaryValue}>{summary.error}</span>
+    </div>
+    <div className={styles.summaryItem}>
+      <span className={styles.summaryLabel}>Pending:</span>
+      <span className={styles.summaryValue}>{summary.pending}</span>
+    </div>
+  </div>
+);
+
+const formatDate = (date: string | Date | null | undefined) => {
+  if (!date) return 'N/A';
+  return new Date(date).toLocaleString();
+};
 
 export default function ShowData() {
-  const { dbState, error: syncError, status, isSyncing, sync } = useDbSync();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'schemas' | 'collections' | 'counts'>('schemas');
-  const [filterText, setFilterText] = useState('');
-  const [selectedLogo, setSelectedLogo] = useState<Logo | null>(null);
-  const [editModalState, setEditModalState] = useState({
-    isOpen: false,
-    mode: 'add' as const,
-    collectionName: '',
-    initialData: null as DatabaseDocument<unknown> | null,
-  });
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<DataTab>('all');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<SelectedItems>({});
+  const [editingItem, setEditingItem] = useState<{
+    data: any;
+    type: CollectionType | null;
+  } | null>(null);
+  const state = useDbSync();
+  const { connected, error, collections } = state as DatabaseState;
 
-  // Transform dbState to match the expected DatabaseInfo format
-  const data: DatabaseInfo | null = useMemo(() => {
-    if (!dbState) return null;
-
-    return {
-      schemas: dbState.schemas || {
-        User: {},
-        Vote: {},
-        Logo: {},
-      },
-      collections: {
-        users: dbState.users || [],
-        votes: dbState.votes || [],
-        logos: dbState.logos || [],
-      },
-      counts: {
-        users: (dbState.users || []).length,
-        votes: (dbState.votes || []).length,
-        logos: (dbState.logos || []).length,
-      },
-    };
-  }, [dbState]);
-
-  useEffect(() => {
-    if (data || syncError) {
-      setLoading(false);
-    }
-    if (syncError) {
-      setError(syncError);
-    }
-  }, [data, syncError]);
-
-  const handleExport = (type: 'json' | 'csv') => {
-    if (!data) return;
-
-    const exportData = {
-      timestamp: new Date().toISOString(),
-      ...data,
-    };
-
-    if (type === 'json') {
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `database-info-${new Date().toISOString()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } else if (type === 'csv') {
-      let csv = '';
-      // Handle collections
-      Object.entries(data.collections).forEach(([collectionName, items]) => {
-        if (items.length === 0) return;
-
-        // Headers
-        const headers = Object.keys(items[0]);
-        csv += `\n${collectionName}\n${headers.join(',')}\n`;
-
-        // Data
-        items.forEach((item) => {
-          const row = headers.map((header) => {
-            const value = item[header];
-            return typeof value === 'object' ? JSON.stringify(value) : value;
-          });
-          csv += row.join(',') + '\n';
-        });
+  const refreshData = async () => {
+    try {
+      const response = await fetch('/api/database-info', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'stats',
+        }),
       });
 
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `database-info-${new Date().toISOString()}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      if (!response.ok) {
+        throw new Error('Failed to refresh data');
+      }
+    } catch (error) {
+      console.error('Error refreshing data:', error);
     }
   };
 
-  const filterData = (items: any[]) => {
-    if (!filterText) return items;
+  const handleDelete = async (type: 'users' | 'votes' | 'logos', id: string) => {
+    if (!confirm(`Are you sure you want to delete this ${type.slice(0, -1)}?`)) {
+      return;
+    }
 
-    return items.filter((item) =>
-      Object.values(item).some((value) =>
-        JSON.stringify(value).toLowerCase().includes(filterText.toLowerCase())
-      )
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/${type}/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete ${type.slice(0, -1)}`);
+      }
+
+      // Clear the item from selected items after successful deletion
+      const newSelectedItems = { ...selectedItems };
+      delete newSelectedItems[id];
+      setSelectedItems(newSelectedItems);
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert(`Error deleting ${type.slice(0, -1)}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteSelected = async (type: 'users' | 'votes' | 'logos') => {
+    const itemsToDelete = Object.entries(selectedItems)
+      .filter(([_, isSelected]) => isSelected)
+      .map(([id]) => id);
+
+    if (itemsToDelete.length === 0) {
+      alert('No items selected for deletion');
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to delete ${itemsToDelete.length} selected ${type}?`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const results = await Promise.all(
+        itemsToDelete.map((id) =>
+          fetch(`/api/${type}/${id}`, {
+            method: 'DELETE',
+          })
+        )
+      );
+
+      const failedDeletions = results.filter((r) => !r.ok).length;
+      if (failedDeletions > 0) {
+        alert(`Failed to delete ${failedDeletions} items`);
+      }
+
+      // Clear all selected items after deletion
+      setSelectedItems({});
+    } catch (error) {
+      console.error('Bulk delete error:', error);
+      alert('Error during bulk deletion');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const toggleItemSelection = (id: string) => {
+    setSelectedItems((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const toggleAllItems = (type: CollectionType) => {
+    const items = collections[type].data;
+    const currentIds = items.filter(hasId).map((item) => item._id);
+
+    // Create new state object with toggled values
+    const newSelectedItems: SelectedItems = { ...selectedItems };
+
+    // Check if all items in this section are selected
+    const allSelected = currentIds.every((id) => {
+      const key = String(id);
+      return selectedItems[key] === true;
+    });
+
+    // If all are selected, unselect all. If some or none are selected, select all
+    currentIds.forEach((id) => {
+      const key = String(id);
+      newSelectedItems[key] = !allSelected;
+    });
+
+    setSelectedItems(newSelectedItems);
+  };
+
+  const handleEdit = async (type: 'users' | 'votes' | 'logos', data: any) => {
+    setEditingItem({ data, type });
+  };
+
+  const handleSaveEdit = async (updatedData: any) => {
+    if (!editingItem?.type) return;
+
+    try {
+      const response = await fetch('/api/database-info', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'update',
+          collectionName: editingItem.type,
+          id: updatedData._id,
+          data: updatedData,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Failed to update ${editingItem.type}`);
+      }
+
+      // Refresh data after successful update
+      await refreshData();
+
+      // The WebSocket connection will automatically update the UI when the database changes
+      setEditingItem(null);
+    } catch (error) {
+      console.error('Update error:', error);
+      alert(
+        `Error updating ${editingItem.type}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  };
+
+  const renderSectionHeader = (type: CollectionType, title: string) => {
+    const hasSelectedItems = Object.values(selectedItems).some((isSelected) => isSelected);
+    const items = collections[type].data;
+    const currentIds = items.filter(hasId).map((item) => item._id);
+    const allSelected =
+      currentIds.length > 0 &&
+      currentIds.every((id) => {
+        const key = String(id);
+        return selectedItems[key] === true;
+      });
+
+    return (
+      <div className={styles.sectionHeader}>
+        <h2>{title}</h2>
+        <div className={styles.headerActions}>
+          <button
+            className={styles.toggleButton}
+            onClick={() => toggleAllItems(type)}
+            disabled={items.length === 0}
+          >
+            {allSelected ? 'Unselect All' : 'Select All'}
+          </button>
+          <button
+            className={`${styles.deleteButton} ${styles.deleteAllButton}`}
+            onClick={() => handleDeleteSelected(type)}
+            disabled={isDeleting || !hasSelectedItems}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete Selected'}
+          </button>
+        </div>
+      </div>
     );
   };
 
-  const handleLogoRowClick = (logo: Logo) => {
-    setSelectedLogo(logo);
-  };
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <h1>Error</h1>
+        <p className={styles.error}>{error.message}</p>
+      </div>
+    );
+  }
 
-  const handleAdd = (collectionName: keyof DatabaseCollections) => {
-    const emptyData = collectionName === 'logos'
-      ? { src: '', alt: '', value: '' }
-      : Object.fromEntries(
-          Object.keys(data!.collections[collectionName][0]).map((key) => [key, ''])
-        );
-
-    setEditModalState({
-      isOpen: true,
-      mode: 'add',
-      collectionName,
-      initialData: emptyData as DatabaseDocument<unknown>,
-    });
-  };
-
-  const handleEdit = (
-    collectionName: keyof DatabaseCollections,
-    item: DatabaseDocument<unknown>
-  ) => {
-    setEditModalState({
-      isOpen: true,
-      mode: 'edit',
-      collectionName,
-      initialData: item,
-    });
-  };
-
-  const handleSave = async (formData: Record<string, unknown>) => {
-    const { collectionName, mode } = editModalState;
-    const endpoint = `/api/database-info/${mode === 'add' ? 'create' : 'update'}`;
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        collection: collectionName,
-        data: formData,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to save data');
+  const renderContent = () => {
+    if (!connected) {
+      return <div className={styles.loading}>Loading data...</div>;
     }
 
-    const result = await response.json();
-    setData((prev) => {
-      if (!prev) return null;
-      const collections = { ...prev.collections };
-      if (mode === 'add') {
-        collections[collectionName] = [
-          ...collections[collectionName],
-          result.data,
-        ];
-      } else {
-        collections[collectionName] = collections[collectionName].map((item) =>
-          item._id === result.data._id ? result.data : item
-        );
-      }
-      return { ...prev, collections };
-    });
-  };
-
-  const handleDelete = async () => {
-    const { collectionName, data: itemData } = editModalState;
-
-    const response = await fetch(`/api/database-info/delete`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        collectionName,
-        id: itemData._id,
-      }),
-    });
-
-    const result = await response.json();
-    if (!result.success) {
-      throw new Error(result.error);
-    }
-
-    // Refresh the data
-    await fetchData();
-  };
-
-  const renderControls = () => (
-    <div className={styles.controls}>
-      <div className={styles.syncStatus}>
-        <span className={`${styles.statusIndicator} ${styles[status]}`} />
-        Database Status: {status}
-        <button
-          onClick={sync}
-          disabled={isSyncing || status === 'connecting'}
-          className={styles.syncButton}
-        >
-          {isSyncing ? 'Syncing...' : 'Sync Now'}
-        </button>
+    const renderUserRow = (user: IUser & HasId) => (
+      <div key={user._id} className={styles.dataRow}>
+        <div className={styles.rowActions}>
+          <input
+            type="checkbox"
+            checked={selectedItems[user._id] || false}
+            onChange={() => toggleItemSelection(user._id)}
+            className={styles.checkbox}
+          />
+          <button className={styles.editButton} onClick={() => handleEdit('users', user)}>
+            Edit
+          </button>
+          <button
+            className={styles.deleteButton}
+            onClick={() => handleDelete('users', user._id)}
+            disabled={isDeleting}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete'}
+          </button>
+        </div>
+        <pre>{JSON.stringify(user, null, 2)}</pre>
       </div>
-      <div className={styles.filterControls}>
-        <input
-          type="text"
-          placeholder="Filter data..."
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
-          className={styles.filterInput}
-        />
-      </div>
-      <div className={styles.exportControls}>
-        <button onClick={() => handleExport('json')} className={styles.exportButton}>
-          Export JSON
-        </button>
-        <button onClick={() => handleExport('csv')} className={styles.exportButton}>
-          Export CSV
-        </button>
-      </div>
-    </div>
-  );
+    );
 
-  const renderCollections = () => (
-    <div className={styles.collections}>
-      <h2>Collection Data</h2>
-      {Object.entries(data.collections).map(([name, items]) => (
-        <div key={name} className={styles.collectionCard}>
-          <div className={styles.collectionHeader}>
-            <h3>{name.charAt(0).toUpperCase() + name.slice(1)}</h3>
-            <button className={styles.addButton} onClick={() => handleAdd(name as keyof DatabaseCollections)}>
-              Add New
-            </button>
-          </div>
-          <div className={styles.tableWrapper}>
-            {items.length > 0 ? (
+    const renderVoteRow = (vote: IVote & HasId) => (
+      <tr key={vote._id} className={styles.dataRow}>
+        <td>
+          <input
+            type="checkbox"
+            checked={selectedItems[vote._id] || false}
+            onChange={() => toggleItemSelection(vote._id)}
+          />
+        </td>
+        <td>{vote._id}</td>
+        <td>{vote.userId}</td>
+        <td>{vote.logoId}</td>
+        <td>{formatDate(vote.timestamp)}</td>
+        <td>{vote.status}</td>
+        <td>{formatDate(vote.createdAt)}</td>
+        <td className={styles.actions}>
+          <button onClick={() => handleEdit('votes', vote)} className={styles.editButton}>
+            Edit
+          </button>
+          <button
+            onClick={() => handleDelete('votes', vote._id)}
+            className={styles.deleteButton}
+            disabled={isDeleting}
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    );
+
+    const renderLogoCard = (logo: ILogo & HasId) => (
+      <div key={logo._id} className={styles.logoCard}>
+        <div className={styles.logoCheckbox}>
+          <input
+            type="checkbox"
+            checked={selectedItems[logo._id] || false}
+            onChange={() => toggleItemSelection(logo._id)}
+          />
+        </div>
+        <div className={styles.logoImage}>
+          <Image
+            src={logo.src}
+            alt={logo.alt}
+            width={100}
+            height={100}
+            className={styles.logoImg}
+          />
+        </div>
+        <div className={styles.logoInfo}>
+          <p>
+            <strong>ID:</strong> {logo.id}
+          </p>
+          <p>
+            <strong>Alt:</strong> {logo.alt}
+          </p>
+          <p>
+            <strong>Owner:</strong> {logo.ownerId}
+          </p>
+          <p>
+            <strong>Status:</strong> {logo.status}
+          </p>
+          <p>
+            <strong>Content Type:</strong> {logo.contentType || 'N/A'}
+          </p>
+          <p>
+            <strong>Created:</strong> {formatDate(logo.createdAt)}
+          </p>
+        </div>
+        <div className={styles.logoActions}>
+          <button onClick={() => handleEdit('logos', logo)} className={styles.editButton}>
+            Edit
+          </button>
+          <button
+            onClick={() => handleDelete('logos', logo._id)}
+            className={styles.deleteButton}
+            disabled={isDeleting}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    );
+
+    switch (activeTab) {
+      case 'users':
+        return (
+          <div className={styles.section}>
+            {renderSectionHeader('users', 'Users')}
+            <SummaryRow summary={calculateSummary(collections.users.data)} />
+            <div className={styles.dataTable}>
               <table>
                 <thead>
                   <tr>
-                    {Object.keys(items[0]).map((key) => (
-                      <th key={key}>{key}</th>
-                    ))}
-                    <th className={styles.actionColumn}>Actions</th>
+                    <th>Select</th>
+                    <th>Data</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filterData(items).map((item, index) => (
-                    <tr
-                      key={index}
-                      onClick={() => (name === 'logos' ? handleLogoRowClick(item as unknown as Logo) : undefined)}
-                      style={{ cursor: name === 'logos' ? 'pointer' : 'default' }}
-                    >
-                      {Object.values(item).map((value: any, i) => (
-                        <td key={i}>{JSON.stringify(value)}</td>
-                      ))}
-                      <td className={styles.actionColumn}>
-                        <button
-                          className={styles.editButton}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(name as keyof DatabaseCollections, item as DatabaseDocument<unknown>);
-                          }}
-                        >
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {collections.users.data
+                    .filter(hasId)
+                    .map((item) => (
+                      <tr key={item._id} className={styles.dataRow}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selectedItems[item._id] || false}
+                            onChange={() => toggleItemSelection(item._id)}
+                            className={styles.checkbox}
+                          />
+                        </td>
+                        <td>
+                          <pre>{JSON.stringify(item, null, 2)}</pre>
+                        </td>
+                        <td className={styles.rowActions}>
+                          <button className={styles.editButton} onClick={() => handleEdit('users', item)}>
+                            Edit
+                          </button>
+                          <button
+                            className={styles.deleteButton}
+                            onClick={() => handleDelete('users', item._id)}
+                            disabled={isDeleting}
+                          >
+                            {isDeleting ? 'Deleting...' : 'Delete'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
-            ) : (
-              <p>No data in collection</p>
-            )}
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
-  );
+        );
+      case 'votes':
+        return (
+          <div className={styles.section}>
+            {renderSectionHeader('votes', 'Votes')}
+            <SummaryRow summary={calculateSummary(collections.votes.data)} />
+            <div className={styles.dataTable}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Select</th>
+                    <th>ID</th>
+                    <th>User ID</th>
+                    <th>Logo ID</th>
+                    <th>Timestamp</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {collections.votes.data
+                    .filter(hasId)
+                    .map((item) => renderVoteRow(item as IVote & HasId))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      case 'logos':
+        return (
+          <div className={styles.section}>
+            {renderSectionHeader('logos', 'Logos')}
+            <SummaryRow summary={calculateSummary(collections.logos.data)} />
+            <div className={styles.logosGrid}>
+              {collections.logos.data
+                .filter(hasId)
+                .map((item) => renderLogoCard(item as ILogo & HasId))}
+              {collections.logos.data.length === 0 && (
+                <p className={styles.noData}>No logos available</p>
+              )}
+            </div>
+          </div>
+        );
+      case 'all':
+      default:
+        return (
+          <div className={styles.dataContainer}>
+            <div className={styles.section}>
+              {renderSectionHeader('users', 'Users')}
+              <SummaryRow summary={calculateSummary(collections.users.data)} />
+              <div className={styles.dataTable}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Select</th>
+                      <th>Data</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {collections.users.data
+                      .filter(hasId)
+                      .map((item) => (
+                        <tr key={item._id} className={styles.dataRow}>
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={selectedItems[item._id] || false}
+                              onChange={() => toggleItemSelection(item._id)}
+                              className={styles.checkbox}
+                            />
+                          </td>
+                          <td>
+                            <pre>{JSON.stringify(item, null, 2)}</pre>
+                          </td>
+                          <td className={styles.rowActions}>
+                            <button className={styles.editButton} onClick={() => handleEdit('users', item)}>
+                              Edit
+                            </button>
+                            <button
+                              className={styles.deleteButton}
+                              onClick={() => handleDelete('users', item._id)}
+                              disabled={isDeleting}
+                            >
+                              {isDeleting ? 'Deleting...' : 'Delete'}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-  if (loading && !data) {
-    return <div className={styles.loading}>Loading database information...</div>;
-  }
+            <div className={styles.section}>
+              {renderSectionHeader('votes', 'Votes')}
+              <SummaryRow summary={calculateSummary(collections.votes.data)} />
+              <div className={styles.dataTable}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Select</th>
+                      <th>ID</th>
+                      <th>User ID</th>
+                      <th>Logo ID</th>
+                      <th>Timestamp</th>
+                      <th>Status</th>
+                      <th>Created At</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {collections.votes.data
+                      .filter(hasId)
+                      .map((item) => renderVoteRow(item as IVote & HasId))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-  if (error) {
-    return <div className={styles.error}>{error}</div>;
-  }
-
-  if (!data) {
-    return <div className={styles.error}>No data available</div>;
-  }
+            <div className={styles.section}>
+              {renderSectionHeader('logos', 'Logos')}
+              <SummaryRow summary={calculateSummary(collections.logos.data)} />
+              <div className={styles.logosGrid}>
+                {collections.logos.data
+                  .filter(hasId)
+                  .map((item) => renderLogoCard(item as ILogo & HasId))}
+                {collections.logos.data.length === 0 && (
+                  <p className={styles.noData}>No logos available</p>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+    }
+  };
 
   return (
     <div className={styles.container}>
-      <h1>Database Information</h1>
+      <h1>Database Data - {process.env.NODE_ENV === 'production' ? 'Production' : 'Development'}</h1>
 
-      {renderControls()}
+      <div className={styles.controls}>
+        <div className={styles.statusIndicator}>{!connected ? 'Connecting...' : 'Connected'}</div>
 
-      <div className={styles.tabs}>
-        <button
-          className={`${styles.tab} ${activeTab === 'schemas' ? styles.active : ''}`}
-          onClick={() => setActiveTab('schemas')}
-        >
-          Schemas
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'collections' ? styles.active : ''}`}
-          onClick={() => setActiveTab('collections')}
-        >
-          Collections
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'counts' ? styles.active : ''}`}
-          onClick={() => setActiveTab('counts')}
-        >
-          Counts
-        </button>
+        <div className={styles.tabs}>
+          <button
+            className={`${styles.tab} ${activeTab === 'all' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('all')}
+            disabled={!connected}
+          >
+            All Data
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'users' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('users')}
+            disabled={!connected}
+          >
+            Users
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'votes' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('votes')}
+            disabled={!connected}
+          >
+            Votes
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'logos' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('logos')}
+            disabled={!connected}
+          >
+            Logos
+          </button>
+        </div>
+
+        <div className={styles.actions}>
+          <button
+            className={styles.uploadButton}
+            onClick={() => setIsUploadModalOpen(true)}
+            disabled={!connected}
+          >
+            Upload Logo
+          </button>
+
+          <button
+            className={styles.exportButton}
+            onClick={() => exportToJson(collections)}
+            disabled={!connected}
+          >
+            Export JSON
+          </button>
+
+          <button
+            className={styles.exportButton}
+            onClick={() => exportToCsv(collections)}
+            disabled={!connected}
+          >
+            Export CSV
+          </button>
+        </div>
       </div>
 
-      <div className={styles.content}>
-        {activeTab === 'schemas' && (
-          <div className={styles.schemas}>
-            <h2>Schema Definitions</h2>
-            {Object.entries(data.schemas).map(([name, schema]) => (
-              <div key={name} className={styles.schemaCard}>
-                <h3>{name} Schema</h3>
-                <pre>{JSON.stringify(schema, null, 2)}</pre>
-              </div>
-            ))}
-          </div>
-        )}
+      {renderContent()}
 
-        {activeTab === 'collections' && renderCollections()}
+      {editingItem && (
+        <DataEditModal
+          data={editingItem.data}
+          type={editingItem.type}
+          onClose={() => setEditingItem(null)}
+          onSave={handleSaveEdit}
+        />
+      )}
 
-        {activeTab === 'counts' && (
-          <div className={styles.counts}>
-            <h2>Collection Counts</h2>
-            <div className={styles.countsGrid}>
-              {Object.entries(data.counts).map(([name, count]) => (
-                <div key={name} className={styles.countCard}>
-                  <h3>{name.charAt(0).toUpperCase() + name.slice(1)}</h3>
-                  <p>{count}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <LogoModal
-        isOpen={selectedLogo !== null}
-        onClose={() => setSelectedLogo(null)}
-        logo={selectedLogo}
-      />
-
-      <DataEditModal
-        isOpen={editModalState.isOpen}
-        onClose={() => setEditModalState((prev) => ({ ...prev, isOpen: false }))}
-        onSave={handleSave}
-        onDelete={editModalState.mode === 'edit' ? handleDelete : undefined}
-        data={editModalState.initialData}
-        collectionName={editModalState.collectionName}
-        mode={editModalState.mode}
-      />
+      {isUploadModalOpen && (
+        <LogoUploadModal
+          onClose={() => setIsUploadModalOpen(false)}
+          onSuccess={() => {
+            setIsUploadModalOpen(false);
+            // The data will be automatically updated through the database sync
+          }}
+        />
+      )}
     </div>
   );
+}
+
+function exportToJson(data: any) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: 'application/json',
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `database-data-${new Date().toISOString()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportToCsv(collections: Collections) {
+  let csvContent = 'data:text/csv;charset=utf-8,';
+
+  for (const [name, collection] of Object.entries(collections)) {
+    if (Array.isArray(collection.data)) {
+      csvContent += `\n${name.toUpperCase()}\n`;
+      if (collection.data.length > 0) {
+        const headers = Object.keys(collection.data[0]).join(',');
+        csvContent += headers + '\n';
+        collection.data.filter(hasId).forEach((item) => {
+          const row = Object.values(item).join(',');
+          csvContent += row + '\n';
+        });
+      }
+    }
+  }
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', 'database_export.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }

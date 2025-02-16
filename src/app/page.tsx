@@ -1,172 +1,257 @@
 'use client';
-import React, { useState, Suspense } from 'react';
-import LogoGrid from '../components/LogoGrid';
+import React, { useState, Suspense, useEffect, useCallback, useMemo } from 'react';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useVoteManagement } from '@/hooks/useVoteManagement';
+import { LogoGrid } from '@/components/LogoGrid';
 import VoteHistory from '../components/VoteHistory';
-import NameInputModal from '../components/NameInputModal';
-import TempMessage from '../components/TempMessage';
-import { useVoteManagement } from '../hooks/useVoteManagement';
+import VoteModal from '../components/VoteModal';
 import { useTheme } from '../hooks/useTheme';
-import { useLanguage } from '../hooks/useLanguage';
 import ErrorBoundary from '../components/ErrorBoundary';
-import { DatabaseErrorBoundary } from '@/components/DatabaseErrorBoundary';
+import DatabaseErrorBoundary from '@/components/DatabaseErrorBoundary';
 import styles from './styles.module.css';
-
-const logos = [
-  {
-    src: '/logos/Logo2.png',
-    value: '1',
-    alt: 'Elegant floral logo with intertwined leaves and vines in a circular design',
-    ownerId: 'owner123',
-  },
-  {
-    src: '/logos/Logo3.png',
-    value: '2',
-    alt: 'Modern minimalist garden logo with stylized plant elements',
-    ownerId: 'owner456',
-  },
-  {
-    src: '/logos/Logo4.png',
-    value: '3',
-    alt: 'Nature-inspired logo featuring delicate leaf patterns',
-    ownerId: 'owner789',
-  },
-  {
-    src: '/logos/Logo1.jpeg',
-    value: '4',
-    alt: 'Classic garden design logo with ornate botanical details',
-    ownerId: 'owner012',
-  },
-];
+import ErrorMessage from '@/components/ErrorMessage';
+import { NetworkError } from '@/lib/errors/types';
+import { DB_CONSTANTS } from '@/constants/db';
 
 function LoadingFallback() {
   return <div className={styles.loading}>Loading...</div>;
 }
 
 export default function Vote() {
+  const { t, language, toggleLanguage } = useLanguage();
+  const {
+    voteHistory,
+    loading: voteLoading,
+    error: voteError,
+    recordVote,
+    refreshData,
+    selectedLogo,
+    voteCount,
+    handleLogoSelection,
+    voteStats,
+    loading: statsLoading,
+    error: statsError,
+  } = useVoteManagement();
+
   const [showModal, setShowModal] = useState(false);
-  const [selectedLogo, setSelectedLogo] = useState<string | null>(null);
-  const [showMessage, setShowMessage] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const { isDarkMode, toggleTheme } = useTheme();
-  const { language, toggleLanguage, t } = useLanguage();
+  const { language: currentLanguage, toggleLanguage: currentToggleLanguage } = useLanguage();
+  const [users, setUsers] = useState<Array<{ id: string; name: string }>>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
 
-  const { voteCount, voteHistory, recordVote, getUserPreviousVote, loading, error } =
-    useVoteManagement({
-      onError: (error) => {
-        console.error('Vote management error:', error);
-        if (error.message === 'already-voted') {
-          setErrorMessage(t.alreadyVoted);
-          setShowMessage(true);
-        } else {
-          setErrorMessage(error.message);
-          setShowMessage(true);
-        }
-      },
-    });
-
-  const handleLogoSelection = (logoId: string) => {
-    setSelectedLogo(logoId);
-    setShowModal(true);
-  };
-
-  const handleModalSubmit = async (userName: string) => {
-    if (selectedLogo) {
+  useEffect(() => {
+    const fetchUsers = async () => {
       try {
-        const trimmedUserName = userName.trim();
-        const generatedUserId = trimmedUserName.toLowerCase().replace(/\s+/g, '-');
-
-        const selectedLogoData = logos.find((logo) => logo.value === selectedLogo);
-
-        if (selectedLogoData?.ownerId === generatedUserId) {
-          setErrorMessage(t.cannotVoteOwn);
-          setShowMessage(true);
-          return;
+        const response = await fetch('/api/users');
+        if (!response.ok) {
+          throw new Error('Failed to fetch users');
         }
-
-        const previousVote = await getUserPreviousVote(generatedUserId);
-        console.log('Previous vote:', previousVote);
-
-        if (previousVote && previousVote.logoId === selectedLogo) {
-          setErrorMessage(t.alreadyVoted(trimmedUserName, selectedLogo));
-          setShowMessage(true);
-          return;
-        }
-
-        const voteData = {
-          userName: trimmedUserName,
-          userId: generatedUserId,
-          logoId: selectedLogo,
-          timestamp: new Date(),
-          ownerId: selectedLogoData?.ownerId,
-        };
-
-        console.log('Submitting vote:', voteData);
-        const result = await recordVote(voteData);
-        console.log('Vote result:', result);
-
-        if (result?.status === 'confirmed') {
-          setErrorMessage(t.voteRecorded(trimmedUserName, selectedLogo));
-        } else if (result?.conflictResolution) {
-          setErrorMessage(
-            t.voteChanged(trimmedUserName, result.conflictResolution.originalVote, selectedLogo)
-          );
-        }
-        setShowMessage(true);
-        setShowModal(false);
-        setSelectedLogo(null);
+        const data = await response.json();
+        setUsers(
+          data.map((user: any) => ({
+            id: user.userId,
+            name: user.name,
+          }))
+        );
       } catch (err) {
-        console.error('Error submitting vote:', err);
-        setErrorMessage(err instanceof Error ? err.message : t.voteFailed);
-        setShowMessage(true);
+        console.error('Error fetching users:', err);
+        setError(t.failedToLoadUsers);
+      } finally {
+        setLoadingUsers(false);
       }
-    }
-  };
+    };
 
-  if (error) {
-    return (
-      <div className={styles.errorMessage}>
-        <h2>{t.error}</h2>
-        <p>{error}</p>
-      </div>
-    );
-  }
+    fetchUsers();
+  }, [t.failedToLoadUsers]);
+
+  const [selectedUserId, setSelectedUserId] = useState('');
+
+  const handleModalSubmit = useCallback(async () => {
+    if (!selectedLogo) {
+      setError('No logo selected');
+      return;
+    }
+
+    if (!selectedUserId) {
+      setError(t.selectUserRequired);
+      return;
+    }
+
+    try {
+      const result = await recordVote({
+        userId: selectedUserId,
+        logoId: selectedLogo.id,
+        timestamp: new Date(),
+        ownerId: selectedLogo.ownerId,
+      });
+
+      if (!result) return;
+
+      if (result.status === 'confirmed') {
+        refreshData();
+        setShowModal(false);
+        setSelectedUserId('');
+      } else if (result.status === 'rejected' && result.conflictResolution) {
+        setError(t.alreadyVoted(selectedUserId, selectedLogo.id));
+        setTimeout(() => {
+          setError(null);
+          setShowModal(false);
+          setSelectedUserId('');
+        }, 3000);
+      }
+    } catch (err) {
+      if (err instanceof NetworkError) {
+        setError(err.message);
+      } else {
+        setError(t.voteFailed);
+      }
+      console.error('Error submitting vote:', err);
+    }
+  }, [selectedLogo, selectedUserId, recordVote, refreshData, t]);
+
+  const handleModalClose = useCallback(() => {
+    setShowModal(false);
+    setSelectedUserId('');
+    setError(null);
+  }, []);
+
+  useEffect(() => {
+    if (voteError) {
+      setError(voteError);
+    }
+  }, [voteError]);
+
+  const isLoading = voteLoading || loadingUsers;
+
+  const handleLanguageToggle = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      console.log('Language toggle button clicked');
+      toggleLanguage();
+    },
+    [toggleLanguage]
+  );
+
+  // Convert voteStats array to a Record<string, number> for the LogoGrid
+  const voteCountMap = useMemo(() => {
+    if (!voteStats || !Array.isArray(voteStats)) return {};
+    
+    return voteStats.reduce((acc, stat) => {
+      if (!stat || !stat.logoId) return acc;
+      
+      // Extract the numeric ID from the logoId
+      const numericId = stat.logoId.toString().replace(/.*?(\d+)$/, '$1');
+      acc[numericId] = stat.voteCount || 0;
+      return acc;
+    }, {} as Record<string, number>);
+  }, [voteStats]);
 
   return (
     <ErrorBoundary>
       <DatabaseErrorBoundary>
         <Suspense fallback={<LoadingFallback />}>
           <main className={styles.main}>
-            {showMessage && (
-              <TempMessage message={errorMessage} onClose={() => setShowMessage(false)} />
+            {error && !error.includes(t.alreadyVoted('', '').split('!')[0]) && (
+              <div className={styles.errorMessage}>
+                <ErrorMessage error={error} />
+              </div>
             )}
-            <div className={styles.mobileMessage}>{t.mobileMessage}</div>
-            <div className={styles.header}>
+
+            {error && error.includes(t.alreadyVoted('', '').split('!')[0]) && (
+              <div className={styles.userMessageContainer}>
+                <ErrorMessage 
+                  error={error} 
+                  isUserMessage={true}
+                />
+              </div>
+            )}
+
+            <div className={styles.mobileMessage} role="note">
+              {t.mobileMessage}
+            </div>
+
+            <header className={styles.header}>
               <h1>{t.title}</h1>
               <div className={styles.headerButtons}>
-                <button onClick={toggleLanguage} className={styles.languageToggle}>
+                <button
+                  onClick={handleLanguageToggle}
+                  className={styles.languageToggle}
+                  type="button"
+                  aria-label={language === 'en' ? 'Switch to French' : 'Switch to English'}
+                >
                   {language === 'en' ? 'FR' : 'EN'}
                 </button>
                 <button
                   onClick={toggleTheme}
                   className={styles.themeToggle}
+                  type="button"
                   aria-label={isDarkMode ? t.lightMode : t.darkMode}
                 >
                   {isDarkMode ? '☀️' : '🌙'}
                 </button>
               </div>
-            </div>
+            </header>
 
             <LogoGrid
-              logos={logos}
-              selectedLogo={selectedLogo}
+              logos={[
+                {
+                  id: '1',
+                  alt: 'Les Jardins du Lac Campion logo 1',
+                  imageUrl: '/logos/Logo1.jpeg',
+                  ownerId: 'user1',
+                },
+                {
+                  id: '2',
+                  alt: 'Les Jardins du Lac Campion logo 2',
+                  imageUrl: '/logos/Logo2.png',
+                  ownerId: 'user2',
+                },
+                {
+                  id: '3',
+                  alt: 'Les Jardins du Lac Campion logo 3',
+                  imageUrl: '/logos/Logo3.png',
+                  ownerId: 'user3',
+                },
+                {
+                  id: '4',
+                  alt: 'Les Jardins du Lac Campion logo 4',
+                  imageUrl: '/logos/Logo4.png',
+                  ownerId: 'user4',
+                },
+                {
+                  id: '5',
+                  alt: 'Les Jardins du Lac Campion logo 5',
+                  imageUrl: '/logos/Logo5.png',
+                  ownerId: 'user5',
+                },
+              ]}
               voteCount={voteCount}
-              onLogoSelect={handleLogoSelection}
-              translations={{
-                selectThis: t.selectThis,
-                votes: t.votes,
+              onLogoSelect={(logo) => {
+                handleLogoSelection(logo);
+                setShowModal(true);
               }}
-              loading={loading}
+              selectedLogo={selectedLogo}
+              loading={isLoading}
+              t={t}
             />
+
+            {showModal && (
+              <VoteModal
+                isOpen={showModal}
+                onClose={handleModalClose}
+                onSubmit={handleModalSubmit}
+                userName={selectedUserId}
+                onUserSelect={setSelectedUserId}
+                error={error}
+                users={users}
+                t={{
+                  selectUser: t.selectUser,
+                  submit: t.submit,
+                  cancel: t.cancel,
+                }}
+              />
+            )}
 
             <VoteHistory
               voteHistory={voteHistory}
@@ -174,24 +259,7 @@ export default function Vote() {
                 recentVotes: t.recentVotes,
                 votedFor: t.votedFor,
               }}
-              loading={loading}
-            />
-
-            <NameInputModal
-              isOpen={showModal}
-              onCancel={() => {
-                setShowModal(false);
-                setSelectedLogo(null);
-              }}
-              onSubmit={handleModalSubmit}
-              translations={{
-                enterName: t.enterName,
-                nameLabel: t.nameLabel,
-                namePlaceholder: t.namePlaceholder,
-                submit: t.submit,
-                cancel: t.cancel,
-              }}
-              loading={loading}
+              loading={voteLoading}
             />
           </main>
         </Suspense>

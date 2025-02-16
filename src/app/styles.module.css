@@ -1,97 +1,228 @@
-.main {
+.container {
+  padding: 1rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem;
-  margin: 2rem;
-  border-radius: 8px;
-}
-
-.error {
-  text-align: center;
-  padding: 2rem;
-  margin: 2rem;
-  border-radius: 8px;
-  background-color: #ffebee;
-  color: #c62828;
 }
 
 .header {
+  margin-bottom: 1rem;
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  margin-bottom: 2rem;
-}
-
-.header h1 {
-  font-size: 2rem;
-  white-space: pre-line;
-  margin: 2rem 0;
-  text-align: center;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  position: relative;
 }
 
 .headerButtons {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
 }
 
-.languageToggle, 
+.languageToggle,
 .themeToggle {
   padding: 0.5rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 48px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.languageToggle:hover,
+.themeToggle:hover {
+  background-color: var(--hover-bg);
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+}
+
+.languageToggle:active,
+.themeToggle:active {
+  transform: translateY(0);
+}
+
+.serverInfo {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.error {
+  color: #dc3545;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: #fff3f3;
+  border-radius: 4px;
+}
+
+.controls {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  background-color: var(--accent-color);
-  color: white;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.mobileMessage {
+.button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.resultItem {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.resultItem:hover {
+  border-color: #007bff;
+}
+
+.resultHeader {
+  padding: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+}
+
+.testName {
+  font-weight: 500;
+  color: #333;
+}
+
+.status {
+  font-family: monospace;
+  font-size: 1rem;
+  width: 24px;
   text-align: center;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  background-color: var(--card-bg);
-  border-radius: 8px;
-  display: none;
 }
 
-@media (max-width: 768px) {
-  .main {
-    padding: 1rem;
-  }
-
-  .mobileMessage {
-    display: block;
-  }
-
-  .header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .header h1 {
-    margin: 1rem 0;
-    font-size: 1.5rem;
-    padding-top: 2.5rem;
-  }
-
-  .headerButtons {
-    position: relative;
-    left: auto;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-  }
+.resultDetails {
+  padding: 0.75rem;
+  background-color: white;
+  border-top: 1px solid #eee;
 }
 
 .errorMessage {
-  text-align: center;
-  padding: 2rem;
-  margin: 2rem;
-  border-radius: 8px;
-  background-color: #ffebee;
-  color: #c62828;
+  margin: 1rem auto;
+  max-width: 600px;
+  width: 90%;
+}
+
+.details {
+  color: #666;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.response {
+  margin-top: 0.5rem;
+}
+
+.response pre {
+  background-color: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin: 0.5rem 0;
+}
+
+.expanded {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.checkboxGroup {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
+.checkbox input {
+  cursor: pointer;
+}
+
+.userMessageContainer {
+  position: fixed;
+  bottom: 4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  width: 90%;
+  max-width: 400px;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .userMessageContainer {
+    bottom: 2rem;
+    width: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  .userMessageContainer {
+    bottom: 1rem;
+    width: 100%;
+    padding: 0 1rem;
+  }
 } 
