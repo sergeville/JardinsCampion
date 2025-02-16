@@ -27,7 +27,6 @@ const nextConfig = {
     };
     return config;
   },
-  swcMinify: true,
   experimental: {
     forceSwcTransforms: true,
     esmExternals: true,
@@ -35,6 +34,33 @@ const nextConfig = {
   env: {
     MONGODB_URI_DEV: process.env.MONGODB_URI_DEV,
     MONGODB_URI_PROD: process.env.MONGODB_URI_PROD,
+  },
+  poweredByHeader: false,
+  generateEtags: false,
+  compress: true,
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+        ],
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/show-data',
+        destination: '/show-data',
+      },
+      {
+        source: '/api/:path*',
+        destination: '/api/:path*',
+      },
+    ];
   },
 };
 
