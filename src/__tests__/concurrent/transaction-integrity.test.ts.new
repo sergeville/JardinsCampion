@@ -1,0 +1,56 @@
+import { NextRequest } from 'next/server';
+import mongoose, { ClientSession } from 'mongoose';
+import { mockUserModel, mockVoteModel, mockLogoModel, resetMocks } from '@/test/setupMocks/models';
+
+interface MockResponse {
+  status: number;
+  json: (data: unknown) => void;
+  ok: boolean;
+}
+
+interface MockRequest {
+  method: string;
+  body: string;
+  params?: Record<string, string>;
+}
+
+interface VoteData {
+  userId: string;
+  logoId: string;
+  timestamp: Date;
+  ownerId?: string;
+}
+
+interface LogoData {
+  name: string;
+  value: string;
+  status: string;
+}
+
+let POST: (request: NextRequest, params: { params: { action: string } }) => Promise<MockResponse>;
+let VotePost: (request: NextRequest) => Promise<MockResponse>;
+
+// Mock mongoose
+jest.mock('mongoose', () => ({
+  startSession: jest.fn(),
+  connect: jest.fn(),
+  connection: {
+    readyState: 1,
+  },
+}));
+
+// Mock the models
+jest.mock('@/models/User', () => ({
+  __esModule: true,
+  default: mockUserModel,
+}));
+
+jest.mock('@/models/Vote', () => ({
+  __esModule: true,
+  default: mockVoteModel,
+}));
+
+jest.mock('@/models/Logo', () => ({
+  __esModule: true,
+  default: mockLogoModel,
+})); 

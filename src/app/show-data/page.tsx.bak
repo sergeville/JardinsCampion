@@ -1,0 +1,405 @@
+'use client';
+
+import { useEffect, useState, useMemo } from 'react';
+import styles from './styles.module.css';
+import LogoModal from './LogoModal';
+import DataEditModal from './DataEditModal';
+import { useDbSync } from '@/hooks/useDbSync';
+import { DatabaseInfo, DatabaseCollections, DatabaseDocument, DatabaseEditModalProps } from '@/types/database';
+import ErrorMessage from '@/components/ErrorMessage';
+import { Document } from 'mongoose';
+import { ILogo } from '@/models/Logo';
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+interface EditModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (data: DatabaseDocument<Document>) => void;
+  onDelete: () => void;
+  data: DatabaseDocument<Document>;
+  collectionName: keyof DatabaseCollections;
+}
+
+export default function ShowData() {
+  const state = useDbSync();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<DatabaseInfo | null>(null);
+  const [activeTab, setActiveTab] = useState<'schemas' | 'collections' | 'counts'>('schemas');
+  const [filterText, setFilterText] = useState('');
+  const [selectedLogo, setSelectedLogo] = useState<ILogo | null>(null);
+  const [editModalState, setEditModalState] = useState({
+    isOpen: false,
+    mode: 'add' as 'add' | 'edit',
+    collectionName: 'logos' as keyof DatabaseCollections,
+    initialData: null as DatabaseDocument<Document> | null,
+  });
+
+  const transformedData: DatabaseInfo | null = useMemo(() => {
+    if (!state.collections) return null;
+
+    return {
+      schemas: {
+        User: {},
+        Vote: {},
+        Logo: {},
+      },
+      collections: {
+        users: state.collections.users.data,
+        votes: state.collections.votes.data,
+        logos: state.collections.logos.data,
+      },
+      counts: {
+        users: state.collections.users.data.length,
+        votes: state.collections.votes.data.length,
+        logos: state.collections.logos.data.length,
+      },
+      stats: {
+        collections: {
+          users: { count: 0, avgSize: 0, totalSize: 0 },
+          votes: { count: 0, avgSize: 0, totalSize: 0 },
+          logos: { count: 0, avgSize: 0, totalSize: 0 },
+        },
+        totalSize: 0,
+        avgObjSize: 0,
+      },
+    };
+  }, [state.collections]);
+
+  useEffect(() => {
+    if (transformedData || state.error) {
+      setLoading(false);
+    }
+    if (state.error) {
+      setError(state.error.message);
+    }
+  }, [transformedData, state.error]);
+
+  const connectionStatus = state.error ? 'error' : state.connected ? 'connected' : 'disconnected';
+
+  const handleExport = (type: 'json' | 'csv') => {
+    if (!transformedData) return;
+
+    const exportData = {
+      timestamp: new Date().toISOString(),
+      ...transformedData,
+    };
+
+    if (type === 'json') {
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `database-info-${new Date().toISOString()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else if (type === 'csv') {
+      let csv = '';
+      // Handle collections
+      Object.entries(transformedData.collections).forEach(([collectionName, items]) => {
+        if (items.length === 0) return;
+
+        // Headers
+        const headers = Object.keys(items[0]);
+        csv += `\n${collectionName}\n${headers.join(',')}\n`;
+
+        // Data
+        items.forEach((item) => {
+          const row = headers.map((header) => {
+            const value = (item as unknown as { [key: string]: unknown })[header];
+            return typeof value === 'object' ? JSON.stringify(value) : value;
+          });
+          csv += row.join(',') + '\n';
+        });
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `database-info-${new Date().toISOString()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const filterData = (items: any[]) => {
+    if (!filterText) return items;
+
+    return items.filter((item) =>
+      Object.values(item).some((value) =>
+        JSON.stringify(value).toLowerCase().includes(filterText.toLowerCase())
+      )
+    );
+  };
+
+  const handleLogoRowClick = (logo: ILogo) => {
+    setSelectedLogo(logo);
+  };
+
+  const handleAdd = (collectionName: keyof DatabaseCollections) => {
+    const emptyData =
+      collectionName === 'logos'
+        ? { src: '', alt: '', value: '' }
+        : Object.fromEntries(
+            Object.keys(data!.collections[collectionName][0]).map((key) => [key, ''])
+          );
+
+    setEditModalState({
+      isOpen: true,
+      mode: 'add',
+      collectionName,
+      initialData: emptyData as DatabaseDocument<Document>,
+    });
+  };
+
+  const handleEdit = (
+    collectionName: keyof DatabaseCollections,
+    item: DatabaseDocument<Document>
+  ) => {
+    setEditModalState({
+      isOpen: true,
+      mode: 'edit',
+      collectionName,
+      initialData: item,
+    });
+  };
+
+  const handleDelete = async () => {
+    const { collectionName, initialData: itemData } = editModalState;
+
+    if (!itemData) return;
+
+    try {
+      const response = await fetch(`/api/database-info/delete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          collectionName,
+          id: itemData._id,
+        }),
+      });
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      // Update data with latest state
+      setData(transformedData);
+      setEditModalState((prev) => ({ ...prev, isOpen: false }));
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to delete item');
+    }
+  };
+
+  const handleSave = async (formData: Record<string, unknown>) => {
+    const { collectionName, mode } = editModalState;
+    try {
+      const endpoint = `/api/database-info/${mode === 'add' ? 'create' : 'update'}`;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          collection: collectionName,
+          data: formData,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save data');
+      }
+
+      const result = await response.json();
+      setData((prev) => {
+        if (!prev) return null;
+        const collections = { ...prev.collections };
+        if (mode === 'add') {
+          collections[collectionName as keyof DatabaseCollections] = [
+            ...collections[collectionName as keyof DatabaseCollections],
+            result.data,
+          ];
+        } else {
+          collections[collectionName as keyof DatabaseCollections] = collections[
+            collectionName as keyof DatabaseCollections
+          ].map((item) => (item._id === result.data._id ? result.data : item));
+        }
+        return { ...prev, collections };
+      });
+      setEditModalState((prev) => ({ ...prev, isOpen: false }));
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to save data');
+    }
+  };
+
+  const renderControls = () => (
+    <div className={styles.controls}>
+      <div className={styles.syncStatus}>
+        <span className={`${styles.statusIndicator} ${styles[connectionStatus]}`} />
+        Database Status: {connectionStatus}
+      </div>
+      <div className={styles.filterControls}>
+        <input
+          type="text"
+          placeholder="Filter data..."
+          value={filterText}
+          onChange={(e) => setFilterText(e.target.value)}
+          className={styles.filterInput}
+        />
+      </div>
+      <div className={styles.exportControls}>
+        <button onClick={() => handleExport('json')} className={styles.exportButton}>
+          Export JSON
+        </button>
+        <button onClick={() => handleExport('csv')} className={styles.exportButton}>
+          Export CSV
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderCollections = () => (
+    <div className={styles.collections}>
+      <h2>Collection Data</h2>
+      {Object.entries(data!.collections).map(([name, items]) => (
+        <div key={name} className={styles.collectionCard}>
+          <div className={styles.collectionHeader}>
+            <h3>{name.charAt(0).toUpperCase() + name.slice(1)}</h3>
+            <button
+              className={styles.addButton}
+              onClick={() => handleAdd(name as keyof DatabaseCollections)}
+            >
+              Add New
+            </button>
+          </div>
+          <div className={styles.tableWrapper}>
+            {items.length > 0 ? (
+              <table>
+                <thead>
+                  <tr>
+                    {Object.keys(items[0]).map((key) => (
+                      <th key={key}>{key}</th>
+                    ))}
+                    <th className={styles.actionColumn}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filterData(items).map((item, index) => (
+                    <tr
+                      key={index}
+                      onClick={() =>
+                        name === 'logos' ? handleLogoRowClick(item as unknown as ILogo) : undefined
+                      }
+                      style={{ cursor: name === 'logos' ? 'pointer' : 'default' }}
+                    >
+                      {Object.values(item).map((value: any, i) => (
+                        <td key={i}>{JSON.stringify(value)}</td>
+                      ))}
+                      <td className={styles.actionColumn}>
+                        <button
+                          className={styles.editButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(
+                              name as keyof DatabaseCollections,
+                              item as DatabaseDocument<Document>
+                            );
+                          }}
+                        >
+                          Edit
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>No data in collection</p>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  if (loading && !data) {
+    return <div className={styles.loading}>Loading database information...</div>;
+  }
+
+  if (error) {
+    return <ErrorMessage error={error} showIcon={true} />;
+  }
+
+  if (!data) {
+    return <div className={styles.error}>No data available</div>;
+  }
+
+  return (
+    <div className={styles.container}>
+      <h1>Database Information</h1>
+      {renderControls()}
+      <div className={styles.tabs}>
+        <button
+          className={`${styles.tab} ${activeTab === 'schemas' ? styles.active : ''}`}
+          onClick={() => setActiveTab('schemas')}
+        >
+          Schemas
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'collections' ? styles.active : ''}`}
+          onClick={() => setActiveTab('collections')}
+        >
+          Collections
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'counts' ? styles.active : ''}`}
+          onClick={() => setActiveTab('counts')}
+        >
+          Counts
+        </button>
+      </div>
+      {activeTab === 'schemas' && (
+        <pre className={styles.schemaDisplay}>
+          {JSON.stringify(data.schemas, null, 2)}
+        </pre>
+      )}
+      {activeTab === 'collections' && renderCollections()}
+      {activeTab === 'counts' && (
+        <div className={styles.countsDisplay}>
+          <h2>Collection Counts</h2>
+          {Object.entries(data.counts).map(([collection, count]) => (
+            <div key={collection} className={styles.countItem}>
+              <span className={styles.collectionName}>
+                {collection.charAt(0).toUpperCase() + collection.slice(1)}:
+              </span>
+              <span className={styles.countValue}>{count}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {selectedLogo && (
+        <LogoModal
+          logo={selectedLogo}
+          onClose={() => setSelectedLogo(null)}
+        />
+      )}
+      {editModalState.isOpen && editModalState.initialData && (
+        <DataEditModal
+          isOpen={editModalState.isOpen}
+          onClose={() => setEditModalState((prev) => ({ ...prev, isOpen: false }))}
+          onSave={handleSave}
+          onDelete={handleDelete}
+          data={editModalState.initialData}
+          collectionName={editModalState.collectionName}
+        />
+      )}
+    </div>
+  );
+}

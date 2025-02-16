@@ -102,22 +102,26 @@ fix(image-loading): Update image path handling
 ### Component Testing Best Practices
 
 1. **Async Effects**
+
    - Always wait for effects to complete using `waitFor`
    - Check both state changes and UI updates
    - Handle initial state setup properly
 
 2. **Component Cleanup**
+
    - Use the `unmount` function returned by `render`
    - Clean up after each test
    - Reset global state (localStorage, theme, etc.)
 
 3. **Language and Theme Testing**
+
    - Set initial state explicitly
    - Wait for state changes to propagate
    - Verify both state and UI updates
    - Handle transitions between states
 
 4. **Test Structure**
+
    ```typescript
    it('test description', async () => {
      // 1. Setup initial state

@@ -3,12 +3,14 @@
 ## [1.2.1] - 2025-02-13
 
 ### Fixed
+
 - Fixed test flakiness by properly handling async effects in language and theme tests
 - Improved test cleanup by properly unmounting components after each test
 - Fixed race conditions in language switching tests
 - Fixed theme toggle test reliability
 
 ### Changed
+
 - Updated test setup to better handle initial language and theme states
 - Improved test assertions to be more specific and reliable
 - Enhanced test cleanup to prevent state leakage between tests
@@ -180,12 +182,14 @@
 ## [Unreleased]
 
 ### Fixed
+
 - Fixed test flakiness by properly handling async effects in language and theme tests
 - Improved test cleanup by properly unmounting components after each test
 - Fixed race conditions in language switching tests
 - Fixed theme toggle test reliability
 
 ### Changed
+
 - Updated test setup to better handle initial language and theme states
 - Improved test assertions to be more specific and reliable
 - Enhanced test cleanup to prevent state leakage between tests

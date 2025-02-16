@@ -1,0 +1,100 @@
+/* Error Severity Levels - From Most Critical to Least Critical */
+
+/* 1. Database Connection Errors (Highest Probability) */
+.databaseConnectionError {
+  background-color: #ff4444;
+  color: white;
+  border-left: 6px solid #cc0000;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+/* 2. Transaction Errors (High Probability) */
+.transactionError {
+  background-color: #ff8800;
+  color: white;
+  border-left: 6px solid #cc6600;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+/* 3. Network Errors (Medium-High Probability) */
+.networkError {
+  background-color: #ffbb33;
+  color: #333;
+  border-left: 6px solid #cc9933;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+/* 4. Validation Errors (Medium Probability) */
+.validationError {
+  background-color: #00c851;
+  color: white;
+  border-left: 6px solid #007e33;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+/* 5. Business Logic Errors (Medium-Low Probability) */
+.businessError {
+  background-color: #33b5e5;
+  color: white;
+  border-left: 6px solid #0099cc;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+/* 6. UI/State Management Errors (Low Probability) */
+.uiError {
+  background-color: #2e2e2e;
+  color: white;
+  border-left: 6px solid #1a1a1a;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+/* Common Error Components */
+.errorContainer {
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.errorTitle {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.errorMessage {
+  margin-bottom: 8px;
+}
+
+.errorAction {
+  margin-top: 10px;
+}
+
+/* Error Icons */
+.errorIcon {
+  margin-right: 10px;
+  font-size: 1.2em;
+}
+
+/* Animation for Critical Errors */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.criticalError {
+  animation: pulse 2s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .errorContainer {
+    margin: 5px;
+    padding: 10px;
+  }
+} 

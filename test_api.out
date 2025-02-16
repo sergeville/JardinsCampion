@@ -1,0 +1,3344 @@
+
+[1;33mChecking for Next.js server...[0m
+Found server running on port [0;32m3000[0m
+Using port: [0;32m3000[0m
+
+[0;32mTesting API at: http://localhost:3000/api[0m
+
+
+[0;32m=== Testing Vote History ===[0m
+GET http://localhost:3000/api/votes?action=history
+Response:
+[0;32mStatus: Success[0m
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "67b0ed1af20362b3a19b5939",
+      "userId": "test-user-1739648282743",
+      "userName": "Test User",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:38:02.767Z",
+      "ownerId": "owner123",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:38:02.782Z",
+      "updatedAt": "2025-02-15T19:38:02.782Z",
+      "__v": 0
+    },
+    {
+      "_id": "67b0eb49f20362b3a19b58c1",
+      "userId": "test-user-1739647817841",
+      "userName": "Test User",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:30:17.864Z",
+      "ownerId": "owner123",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:30:17.881Z",
+      "updatedAt": "2025-02-15T19:30:17.881Z",
+      "__v": 0
+    },
+    {
+      "_id": "67b0eaacf20362b3a19b579e",
+      "userId": "test-user-1739647660435",
+      "userName": "Test User",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:27:40.454Z",
+      "ownerId": "owner123",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:27:40.471Z",
+      "updatedAt": "2025-02-15T19:27:40.471Z",
+      "__v": 0
+    },
+    {
+      "_id": "67b0e9ebf20362b3a19b567c",
+      "userId": "test-user-1739647467507",
+      "userName": "Test User",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:24:27.533Z",
+      "ownerId": "owner123",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:24:27.552Z",
+      "updatedAt": "2025-02-15T19:24:27.552Z",
+      "__v": 0
+    },
+    {
+      "_id": "67b0e967f20362b3a19b5640",
+      "userId": "test-user-1739647335413",
+      "userName": "Test User",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:22:15.436Z",
+      "ownerId": "owner123",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:22:15.452Z",
+      "updatedAt": "2025-02-15T19:22:15.452Z",
+      "__v": 0
+    },
+    {
+      "_id": "67b0e941f20362b3a19b560a",
+      "userId": "test-user-1739647297700",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:21:37.711Z",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:21:37.725Z",
+      "updatedAt": "2025-02-15T19:21:37.725Z",
+      "userName": "Test User",
+      "__v": 0
+    },
+    {
+      "_id": "67b0e941f20362b3a19b55f3",
+      "userId": "test-user-1739647297580",
+      "userName": "Test User",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:21:37.602Z",
+      "ownerId": "owner123",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:21:37.617Z",
+      "updatedAt": "2025-02-15T19:21:37.617Z",
+      "__v": 0
+    },
+    {
+      "_id": "67b0e8a1f20362b3a19b55bd",
+      "userId": "test-user-1739647137473",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:18:57.486Z",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:18:57.498Z",
+      "updatedAt": "2025-02-15T19:18:57.498Z",
+      "userName": "Test User",
+      "__v": 0
+    },
+    {
+      "_id": "67b0e8a1f20362b3a19b55a6",
+      "userId": "test-user-1739647137356",
+      "userName": "Test User",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:18:57.381Z",
+      "ownerId": "owner123",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:18:57.398Z",
+      "updatedAt": "2025-02-15T19:18:57.398Z",
+      "__v": 0
+    },
+    {
+      "_id": "67b0e839f20362b3a19b549e",
+      "userId": "test-user-1739647033476",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:17:13.492Z",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:17:13.506Z",
+      "updatedAt": "2025-02-15T19:17:13.506Z",
+      "userName": "Test User",
+      "__v": 0
+    }
+  ],
+  "trace": [
+    {
+      "timestamp": "2025-02-15T19:49:05.166Z",
+      "type": "request",
+      "method": "GET",
+      "url": "http://localhost:3000/api/votes?action=history",
+      "params": {
+        "action": "history",
+        "userId": null,
+        "limit": null
+      }
+    },
+    {
+      "timestamp": "2025-02-15T19:49:05.166Z",
+      "type": "operation",
+      "name": "getVoteHistory",
+      "params": {
+        "limit": "10"
+      }
+    },
+    {
+      "timestamp": "2025-02-15T19:49:05.186Z",
+      "type": "result",
+      "operation": "getVoteHistory",
+      "recordCount": 10,
+      "duration": "20.32ms",
+      "success": true
+    }
+  ]
+}
+----------------------------------------
+
+[0;32m=== Testing Vote History (with limit) ===[0m
+GET http://localhost:3000/api/votes?action=history&limit=5
+Response:
+[0;32mStatus: Success[0m
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "67b0ed1af20362b3a19b5939",
+      "userId": "test-user-1739648282743",
+      "userName": "Test User",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:38:02.767Z",
+      "ownerId": "owner123",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:38:02.782Z",
+      "updatedAt": "2025-02-15T19:38:02.782Z",
+      "__v": 0
+    },
+    {
+      "_id": "67b0eb49f20362b3a19b58c1",
+      "userId": "test-user-1739647817841",
+      "userName": "Test User",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:30:17.864Z",
+      "ownerId": "owner123",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:30:17.881Z",
+      "updatedAt": "2025-02-15T19:30:17.881Z",
+      "__v": 0
+    },
+    {
+      "_id": "67b0eaacf20362b3a19b579e",
+      "userId": "test-user-1739647660435",
+      "userName": "Test User",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:27:40.454Z",
+      "ownerId": "owner123",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:27:40.471Z",
+      "updatedAt": "2025-02-15T19:27:40.471Z",
+      "__v": 0
+    },
+    {
+      "_id": "67b0e9ebf20362b3a19b567c",
+      "userId": "test-user-1739647467507",
+      "userName": "Test User",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:24:27.533Z",
+      "ownerId": "owner123",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:24:27.552Z",
+      "updatedAt": "2025-02-15T19:24:27.552Z",
+      "__v": 0
+    },
+    {
+      "_id": "67b0e967f20362b3a19b5640",
+      "userId": "test-user-1739647335413",
+      "userName": "Test User",
+      "logoId": "1",
+      "timestamp": "2025-02-15T19:22:15.436Z",
+      "ownerId": "owner123",
+      "status": "confirmed",
+      "version": 1,
+      "createdAt": "2025-02-15T19:22:15.452Z",
+      "updatedAt": "2025-02-15T19:22:15.452Z",
+      "__v": 0
+    }
+  ],
+  "trace": [
+    {
+      "timestamp": "2025-02-15T19:49:05.261Z",
+      "type": "request",
+      "method": "GET",
+      "url": "http://localhost:3000/api/votes?action=history&limit=5",
+      "params": {
+        "action": "history",
+        "userId": null,
+        "limit": "5"
+      }
+    },
+    {
+      "timestamp": "2025-02-15T19:49:05.261Z",
+      "type": "operation",
+      "name": "getVoteHistory",
+      "params": {
+        "limit": "5"
+      }
+    },
+    {
+      "timestamp": "2025-02-15T19:49:05.263Z",
+      "type": "result",
+      "operation": "getVoteHistory",
+      "recordCount": 5,
+      "duration": "2.86ms",
+      "success": true
+    }
+  ]
+}
+----------------------------------------
+
+[0;32m=== Testing Logo Stats ===[0m
+GET http://localhost:3000/api/votes?action=stats
+Response:
+[0;32mStatus: Success[0m
+{
+  "success": true,
+  "data": [
+    {
+      "logoId": "67ae03a92e395ae5c0a559f7",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67ae03a92e395ae5c0a559f8",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67ae03a92e395ae5c0a559f9",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67ae03a92e395ae5c0a559fa",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0b471849836be7eda07c1",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0b6bd849836be7eda38a6",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0b9e3689d770557c98369",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0b9f6689d770557c98dcb",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0ba08689d770557c98dea",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0ba1a689d770557c98e0a",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0ba44689d770557c98e58",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0bcf95015792897696c24",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0dc0ef20362b3a19b367e",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0e42af20362b3a19b5021",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0e477f20362b3a19b504d",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0e499f20362b3a19b5084",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0e4b5f20362b3a19b50bb",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0e5c5f20362b3a19b5200",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0e603f20362b3a19b525b",
+      "voteCount": 0,
+      "lastVote": null
+    },
+    {
+      "logoId": "67b0ed9ff20362b3a19b5962",
+      "voteCount": 0,
+      "lastVote": null
+    }
+  ],
+  "trace": [
+    {
+      "timestamp": "2025-02-15T19:49:05.314Z",
+      "type": "request",
+      "method": "GET",
+      "url": "http://localhost:3000/api/votes?action=stats",
+      "params": {
+        "action": "stats",
+        "userId": null,
+        "limit": null
+      }
+    },
+    {
+      "timestamp": "2025-02-15T19:49:05.315Z",
+      "type": "operation",
+      "name": "getAllLogoStats"
+    },
+    {
+      "timestamp": "2025-02-15T19:49:05.337Z",
+      "type": "result",
+      "operation": "getAllLogoStats",
+      "recordCount": 20,
+      "duration": "22.41ms",
+      "success": true
+    }
+  ]
+}
+----------------------------------------
+
+[0;32m=== Testing User Votes ===[0m
+GET http://localhost:3000/api/votes?action=userVotes&userId=test-user
+Response:
+[0;32mStatus: Success[0m
+{
+  "success": true,
+  "data": [],
+  "trace": [
+    {
+      "timestamp": "2025-02-15T19:49:05.384Z",
+      "type": "request",
+      "method": "GET",
+      "url": "http://localhost:3000/api/votes?action=userVotes&userId=test-user",
+      "params": {
+        "action": "userVotes",
+        "userId": "test-user",
+        "limit": null
+      }
+    },
+    {
+      "timestamp": "2025-02-15T19:49:05.384Z",
+      "type": "operation",
+      "name": "getUserVotes",
+      "params": {
+        "userId": "test-user"
+      }
+    },
+    {
+      "timestamp": "2025-02-15T19:49:05.387Z",
+      "type": "result",
+      "operation": "getUserVotes",
+      "recordCount": 0,
+      "duration": "2.46ms",
+      "success": true
+    }
+  ]
+}
+----------------------------------------
+
+[0;32m=== Testing Database Info ===[0m
+GET http://localhost:3000/api/database-info
+Response:
+[0;32mStatus: Success[0m
+{
+  "success": true,
+  "data": {
+    "schemas": {
+      "User": {
+        "name": {
+          "required": [
+            true,
+            "Name is required"
+          ],
+          "trim": true,
+          "minlength": [
+            2,
+            "Name must be at least 2 characters long"
+          ],
+          "maxlength": [
+            50,
+            "Name cannot exceed 50 characters"
+          ]
+        },
+        "userId": {
+          "required": [
+            true,
+            "UserId is required"
+          ],
+          "unique": true,
+          "trim": true,
+          "lowercase": true,
+          "validate": {
+            "message": "UserId can only contain lowercase letters, numbers, and hyphens"
+          }
+        },
+        "lastVoteAt": {
+          "default": null
+        },
+        "voteCount": {
+          "default": 0,
+          "min": [
+            0,
+            "Vote count cannot be negative"
+          ]
+        },
+        "votedLogos": {
+          "type": [
+            null
+          ],
+          "default": []
+        }
+      },
+      "Vote": {
+        "userId": {
+          "required": [
+            true,
+            "UserId is required"
+          ],
+          "validate": {
+            "message": "Referenced user does not exist"
+          }
+        },
+        "userName": {
+          "required": false
+        },
+        "logoId": {
+          "required": [
+            true,
+            "LogoId is required"
+          ],
+          "validate": {
+            "message": "Referenced logo does not exist or is not active"
+          }
+        },
+        "timestamp": {
+          "required": true
+        },
+        "ownerId": {},
+        "status": {
+          "enum": [
+            "pending",
+            "confirmed",
+            "rejected"
+          ],
+          "default": "pending"
+        },
+        "version": {
+          "default": 1
+        },
+        "conflictResolution": {
+          "originalVote": {},
+          "resolutionType": {
+            "enum": [
+              "override",
+              "merge",
+              "reject"
+            ]
+          }
+        }
+      },
+      "Logo": {
+        "value": {
+          "required": [
+            true,
+            "Logo value is required"
+          ],
+          "unique": true,
+          "trim": true
+        },
+        "src": {
+          "required": [
+            true,
+            "Logo source URL is required"
+          ],
+          "validate": {
+            "message": "Invalid logo URL format"
+          }
+        },
+        "alt": {
+          "required": [
+            true,
+            "Alt text is required"
+          ],
+          "trim": true,
+          "minlength": [
+            10,
+            "Alt text must be at least 10 characters long"
+          ]
+        },
+        "ownerId": {
+          "ref": "User"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "inactive"
+          ],
+          "default": "active"
+        },
+        "voteStats": {
+          "totalVotes": {
+            "default": 0,
+            "min": [
+              0,
+              "Total votes cannot be negative"
+            ]
+          },
+          "uniqueVoters": {
+            "default": 0,
+            "min": [
+              0,
+              "Unique voters cannot be negative"
+            ]
+          },
+          "lastVoteAt": {
+            "default": null
+          }
+        },
+        "data": {
+          "required": false
+        },
+        "contentType": {
+          "required": false
+        },
+        "uploadedAt": {
+          "required": false
+        }
+      }
+    },
+    "collections": {
+      "users": [
+        {
+          "_id": "67ae01d1a5a94c07089d93a0",
+          "name": "serge-villeneuve",
+          "userId": "serge-villeneuve",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-13T14:29:37.990Z",
+          "updatedAt": "2025-02-13T14:29:37.990Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0b55b849836be7eda07cf",
+          "name": "Test User",
+          "userId": "test-user",
+          "lastVoteAt": "2025-02-15T15:40:41.544Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T15:40:11.946Z",
+          "updatedAt": "2025-02-15T15:40:41.557Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0b5c0849836be7eda0823",
+          "name": "Test User",
+          "userId": "test-user-1739634112",
+          "lastVoteAt": "2025-02-15T15:41:53.112Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T15:41:52.046Z",
+          "updatedAt": "2025-02-15T15:41:53.128Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0b63d849836be7eda083e",
+          "name": "Test User",
+          "userId": "test-user-1739634237",
+          "lastVoteAt": "2025-02-15T15:43:58.633Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T15:43:57.577Z",
+          "updatedAt": "2025-02-15T15:43:58.646Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0b6bc849836be7eda389b",
+          "name": "Test User",
+          "userId": "test-user-1739634364",
+          "lastVoteAt": "2025-02-15T15:46:05.123Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T15:46:04.058Z",
+          "updatedAt": "2025-02-15T15:46:05.130Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0b9e1689d770557c9835e",
+          "name": "Test User",
+          "userId": "test-user-1739635169",
+          "lastVoteAt": "2025-02-15T15:59:31.028Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T15:59:29.955Z",
+          "updatedAt": "2025-02-15T15:59:31.057Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0b9f5689d770557c98dc0",
+          "name": "Test User",
+          "userId": "test-user-1739635189",
+          "lastVoteAt": "2025-02-15T15:59:50.207Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T15:59:49.154Z",
+          "updatedAt": "2025-02-15T15:59:50.231Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ba07689d770557c98ddf",
+          "name": "Test User",
+          "userId": "test-user-1739635207",
+          "lastVoteAt": "2025-02-15T16:00:08.292Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:00:07.231Z",
+          "updatedAt": "2025-02-15T16:00:08.313Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ba19689d770557c98dff",
+          "name": "Test User",
+          "userId": "test-user-1739635225",
+          "lastVoteAt": "2025-02-15T16:00:26.744Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:00:25.680Z",
+          "updatedAt": "2025-02-15T16:00:26.764Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ba43689d770557c98e4d",
+          "name": "Test User",
+          "userId": "test-user-1739635267",
+          "lastVoteAt": "2025-02-15T16:01:08.835Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:01:07.765Z",
+          "updatedAt": "2025-02-15T16:01:08.859Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0bcf85015792897696c19",
+          "name": "Test User",
+          "userId": "test-user-1739635960",
+          "lastVoteAt": "2025-02-15T16:12:41.594Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:12:40.503Z",
+          "updatedAt": "2025-02-15T16:12:41.619Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0bd385015792897696c3c",
+          "name": "Test User",
+          "userId": "test-user-1739636024401",
+          "lastVoteAt": "2025-02-15T16:13:44.439Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:13:44.419Z",
+          "updatedAt": "2025-02-15T16:13:44.462Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0bd515015792897696c49",
+          "name": "Test User",
+          "userId": "test-user-1739636049545",
+          "lastVoteAt": "2025-02-15T16:14:09.681Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:14:09.654Z",
+          "updatedAt": "2025-02-15T16:14:09.707Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0bd555015792897696c6e",
+          "name": "Test User",
+          "userId": "test-user-1739636053783",
+          "lastVoteAt": "2025-02-15T16:14:13.817Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:14:13.795Z",
+          "updatedAt": "2025-02-15T16:14:13.838Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0bd585015792897696c94",
+          "name": "Test User",
+          "userId": "test-user-1739636056737",
+          "lastVoteAt": "2025-02-15T16:14:16.760Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:14:16.746Z",
+          "updatedAt": "2025-02-15T16:14:16.775Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c18059c9fb769df482db",
+          "name": "Test User",
+          "userId": "test-user-1739637119",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T16:32:00.269Z",
+          "updatedAt": "2025-02-15T16:32:00.269Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c2785015792897696cd9",
+          "name": "Test User",
+          "userId": "test-user-1739637368850",
+          "lastVoteAt": "2025-02-15T16:36:08.900Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:36:08.874Z",
+          "updatedAt": "2025-02-15T16:36:08.921Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c592e45f38e3a0c6f8e7",
+          "name": "Test User",
+          "userId": "test-user-1739638162841",
+          "lastVoteAt": "2025-02-15T16:49:22.878Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:49:22.858Z",
+          "updatedAt": "2025-02-15T16:49:22.899Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c592e45f38e3a0c6f8f4",
+          "name": "Test User",
+          "userId": "test-user-1739638162949",
+          "lastVoteAt": "2025-02-15T16:49:22.971Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:49:22.958Z",
+          "updatedAt": "2025-02-15T16:49:22.987Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c5f6e45f38e3a0c6f925",
+          "name": "Test User",
+          "userId": "test-user-1739638262370",
+          "lastVoteAt": "2025-02-15T16:51:02.406Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:51:02.387Z",
+          "updatedAt": "2025-02-15T16:51:02.436Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c5f6e45f38e3a0c6f932",
+          "name": "Test User",
+          "userId": "test-user-1739638262478",
+          "lastVoteAt": "2025-02-15T16:51:02.501Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:51:02.489Z",
+          "updatedAt": "2025-02-15T16:51:02.511Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c791e45f38e3a0c72111",
+          "name": "Test User",
+          "userId": "test-user-1739638673438",
+          "lastVoteAt": "2025-02-15T16:57:53.485Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:57:53.461Z",
+          "updatedAt": "2025-02-15T16:57:53.510Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c791e45f38e3a0c7211e",
+          "name": "Test User",
+          "userId": "test-user-1739638673558",
+          "lastVoteAt": "2025-02-15T16:57:53.674Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T16:57:53.567Z",
+          "updatedAt": "2025-02-15T16:57:53.683Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c817e45f38e3a0c736c1",
+          "name": "Test User",
+          "userId": "test-user-1739638807822",
+          "lastVoteAt": "2025-02-15T17:00:07.848Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:00:07.834Z",
+          "updatedAt": "2025-02-15T17:00:07.864Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c818e45f38e3a0c736ce",
+          "name": "Test User",
+          "userId": "test-user-1739638808029",
+          "lastVoteAt": "2025-02-15T17:00:08.054Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:00:08.039Z",
+          "updatedAt": "2025-02-15T17:00:08.072Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c831e45f38e3a0c736ed",
+          "name": "Test User",
+          "userId": "test-user-1739638833942",
+          "lastVoteAt": "2025-02-15T17:00:33.985Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:00:33.968Z",
+          "updatedAt": "2025-02-15T17:00:34.005Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c832e45f38e3a0c736fa",
+          "name": "Test User",
+          "userId": "test-user-1739638834173",
+          "lastVoteAt": "2025-02-15T17:00:34.196Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:00:34.182Z",
+          "updatedAt": "2025-02-15T17:00:34.210Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c962e45f38e3a0c73986",
+          "name": "Test User",
+          "userId": "test-user-1739639138",
+          "lastVoteAt": "2025-02-15T17:05:39.925Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:05:38.835Z",
+          "updatedAt": "2025-02-15T17:05:39.950Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c98ae45f38e3a0c73a4d",
+          "name": "Test User",
+          "userId": "test-user-1739639178211",
+          "lastVoteAt": "2025-02-15T17:06:18.244Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:06:18.227Z",
+          "updatedAt": "2025-02-15T17:06:18.257Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c98ae45f38e3a0c73a5a",
+          "name": "Test User",
+          "userId": "test-user-1739639178420",
+          "lastVoteAt": "2025-02-15T17:06:18.464Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:06:18.445Z",
+          "updatedAt": "2025-02-15T17:06:18.484Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ca38046914d8e0b73f18",
+          "name": "Test User",
+          "userId": "test-user-1739639352172",
+          "lastVoteAt": "2025-02-15T17:09:12.230Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:09:12.205Z",
+          "updatedAt": "2025-02-15T17:09:12.260Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ca38046914d8e0b73f25",
+          "name": "Test User",
+          "userId": "test-user-1739639352467",
+          "lastVoteAt": "2025-02-15T17:09:12.527Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:09:12.489Z",
+          "updatedAt": "2025-02-15T17:09:12.555Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ca42046914d8e0b73f34",
+          "name": "Test User",
+          "userId": "test-user-1739639362477",
+          "lastVoteAt": "2025-02-15T17:09:22.517Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:09:22.494Z",
+          "updatedAt": "2025-02-15T17:09:22.535Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ca42046914d8e0b73f41",
+          "name": "Test User",
+          "userId": "test-user-1739639362674",
+          "lastVoteAt": "2025-02-15T17:09:22.703Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:09:22.688Z",
+          "updatedAt": "2025-02-15T17:09:22.718Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0cb9c046914d8e0b73f50",
+          "name": "Test User",
+          "userId": "test-user-1739639708121",
+          "lastVoteAt": "2025-02-15T17:15:08.154Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:15:08.136Z",
+          "updatedAt": "2025-02-15T17:15:08.176Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0cb9c046914d8e0b73f5d",
+          "name": "Test User",
+          "userId": "test-user-1739639708318",
+          "lastVoteAt": "2025-02-15T17:15:08.364Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:15:08.341Z",
+          "updatedAt": "2025-02-15T17:15:08.398Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d10712d934f875d0c002",
+          "name": "Test User",
+          "userId": "test-user-1739641095842",
+          "lastVoteAt": "2025-02-15T17:38:15.886Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:38:15.862Z",
+          "updatedAt": "2025-02-15T17:38:15.907Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d10712d934f875d0c00d",
+          "name": "Test User",
+          "userId": "test-user-1739641095930",
+          "lastVoteAt": "2025-02-15T17:38:15.958Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:38:15.941Z",
+          "updatedAt": "2025-02-15T17:38:15.969Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d54412d934f875d0c901",
+          "name": "Test User",
+          "userId": "test-user-1739642180406",
+          "lastVoteAt": "2025-02-15T17:56:20.449Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:56:20.426Z",
+          "updatedAt": "2025-02-15T17:56:20.467Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d54412d934f875d0c90c",
+          "name": "Test User",
+          "userId": "test-user-1739642180490",
+          "lastVoteAt": "2025-02-15T17:56:20.513Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T17:56:20.499Z",
+          "updatedAt": "2025-02-15T17:56:20.525Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d67812d934f875d0cd61",
+          "name": "Test User",
+          "userId": "test-user-1739642488747",
+          "lastVoteAt": "2025-02-15T18:01:28.788Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:01:28.766Z",
+          "updatedAt": "2025-02-15T18:01:28.805Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d67812d934f875d0cd6c",
+          "name": "Test User",
+          "userId": "test-user-1739642488831",
+          "lastVoteAt": "2025-02-15T18:01:28.858Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:01:28.842Z",
+          "updatedAt": "2025-02-15T18:01:28.866Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d9d012d934f875d0d182",
+          "name": "Test User",
+          "userId": "test-user-1739643344046",
+          "lastVoteAt": "2025-02-15T18:15:44.095Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:15:44.068Z",
+          "updatedAt": "2025-02-15T18:15:44.109Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d9d012d934f875d0d199",
+          "name": "Test User",
+          "userId": "test-user-1739643344205",
+          "lastVoteAt": "2025-02-15T18:15:44.228Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:15:44.216Z",
+          "updatedAt": "2025-02-15T18:15:44.234Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0da7712d934f875d0d1cb",
+          "name": "Test User",
+          "userId": "test-user-1739643511003",
+          "lastVoteAt": "2025-02-15T18:18:31.032Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:18:31.013Z",
+          "updatedAt": "2025-02-15T18:18:31.042Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0da7712d934f875d0d1e2",
+          "name": "Test User",
+          "userId": "test-user-1739643511065",
+          "lastVoteAt": "2025-02-15T18:18:31.088Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:18:31.072Z",
+          "updatedAt": "2025-02-15T18:18:31.097Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dc06f20362b3a19b364b",
+          "name": "Test User",
+          "userId": "test-user-1739643910373",
+          "lastVoteAt": "2025-02-15T18:25:10.543Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:25:10.485Z",
+          "updatedAt": "2025-02-15T18:25:10.582Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dc0ef20362b3a19b3668",
+          "name": "Test User",
+          "userId": "test-user-1739643918589",
+          "lastVoteAt": "2025-02-15T18:25:18.622Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:25:18.602Z",
+          "updatedAt": "2025-02-15T18:25:18.637Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dc0ef20362b3a19b3673",
+          "name": "Test User",
+          "userId": "test-user-1739643918663",
+          "lastVoteAt": "2025-02-15T18:25:18.696Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:25:18.676Z",
+          "updatedAt": "2025-02-15T18:25:18.707Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dce0f20362b3a19b3697",
+          "name": "Test User",
+          "userId": "test-user-1739644128064",
+          "lastVoteAt": "2025-02-15T18:28:48.100Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:28:48.078Z",
+          "updatedAt": "2025-02-15T18:28:48.111Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dce0f20362b3a19b36a2",
+          "name": "Test User",
+          "userId": "test-user-1739644128134",
+          "lastVoteAt": "2025-02-15T18:28:48.158Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:28:48.142Z",
+          "updatedAt": "2025-02-15T18:28:48.167Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dd86f20362b3a19b36f7",
+          "name": "Test User",
+          "userId": "test-user-1739644294460",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T18:31:34.478Z",
+          "updatedAt": "2025-02-15T18:31:34.478Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dd86f20362b3a19b36fc",
+          "name": "Test User",
+          "userId": "test-user-1739644294502",
+          "lastVoteAt": "2025-02-15T18:31:34.530Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:31:34.512Z",
+          "updatedAt": "2025-02-15T18:31:34.551Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dde8f20362b3a19b372c",
+          "name": "Test User",
+          "userId": "test-user-1739644392004",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T18:33:12.020Z",
+          "updatedAt": "2025-02-15T18:33:12.020Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dde8f20362b3a19b3731",
+          "name": "Test User",
+          "userId": "test-user-1739644392038",
+          "lastVoteAt": "2025-02-15T18:33:12.064Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:33:12.047Z",
+          "updatedAt": "2025-02-15T18:33:12.075Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0de1cf20362b3a19b374a",
+          "name": "Test User",
+          "userId": "test-user-1739644444510",
+          "lastVoteAt": "2025-02-15T18:34:04.604Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:34:04.561Z",
+          "updatedAt": "2025-02-15T18:34:04.618Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0de95f20362b3a19b377c",
+          "name": "Test User",
+          "userId": "test-user-1739644565484",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T18:36:05.496Z",
+          "updatedAt": "2025-02-15T18:36:05.496Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0de95f20362b3a19b3781",
+          "name": "Test User",
+          "userId": "test-user-1739644565518",
+          "lastVoteAt": "2025-02-15T18:36:05.542Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:36:05.526Z",
+          "updatedAt": "2025-02-15T18:36:05.553Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0df4ff20362b3a19b467f",
+          "name": "Test User",
+          "userId": "test-user-1739644751111",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T18:39:11.128Z",
+          "updatedAt": "2025-02-15T18:39:11.128Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0df4ff20362b3a19b4684",
+          "name": "Test User",
+          "userId": "test-user-1739644751148",
+          "lastVoteAt": "2025-02-15T18:39:11.176Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:39:11.158Z",
+          "updatedAt": "2025-02-15T18:39:11.192Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dfd1f20362b3a19b48b2",
+          "name": "Test User",
+          "userId": "test-user-1739644881980",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T18:41:21.993Z",
+          "updatedAt": "2025-02-15T18:41:21.993Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dfd2f20362b3a19b48b7",
+          "name": "Test User",
+          "userId": "test-user-1739644882011",
+          "lastVoteAt": "2025-02-15T18:41:22.041Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:41:22.020Z",
+          "updatedAt": "2025-02-15T18:41:22.052Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e03ef20362b3a19b4b03",
+          "name": "Test User",
+          "userId": "test-user-1739644990559",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T18:43:10.572Z",
+          "updatedAt": "2025-02-15T18:43:10.572Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e03ef20362b3a19b4b08",
+          "name": "Test User",
+          "userId": "test-user-1739644990593",
+          "lastVoteAt": "2025-02-15T18:43:10.620Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:43:10.602Z",
+          "updatedAt": "2025-02-15T18:43:10.636Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e0b6f20362b3a19b4d54",
+          "name": "Test User",
+          "userId": "test-user-1739645110930",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T18:45:10.942Z",
+          "updatedAt": "2025-02-15T18:45:10.942Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e0b6f20362b3a19b4d59",
+          "name": "Test User",
+          "userId": "test-user-1739645110958",
+          "lastVoteAt": "2025-02-15T18:45:10.994Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:45:10.967Z",
+          "updatedAt": "2025-02-15T18:45:11.004Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e178f20362b3a19b4f69",
+          "name": "Test User",
+          "userId": "test-user-1739645304533",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T18:48:24.547Z",
+          "updatedAt": "2025-02-15T18:48:24.547Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e178f20362b3a19b4f6e",
+          "name": "Test User",
+          "userId": "test-user-1739645304568",
+          "lastVoteAt": "2025-02-15T18:48:24.597Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:48:24.578Z",
+          "updatedAt": "2025-02-15T18:48:24.609Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e206f20362b3a19b4f9e",
+          "name": "Test User",
+          "userId": "test-user-1739645445978",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T18:50:46.014Z",
+          "updatedAt": "2025-02-15T18:50:46.014Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e206f20362b3a19b4fa3",
+          "name": "Test User",
+          "userId": "test-user-1739645446043",
+          "lastVoteAt": "2025-02-15T18:50:46.066Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:50:46.050Z",
+          "updatedAt": "2025-02-15T18:50:46.076Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e2a8f20362b3a19b4fd3",
+          "name": "Test User",
+          "userId": "test-user-1739645608289",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T18:53:28.299Z",
+          "updatedAt": "2025-02-15T18:53:28.299Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e2a8f20362b3a19b4fd8",
+          "name": "Test User",
+          "userId": "test-user-1739645608322",
+          "lastVoteAt": "2025-02-15T18:53:28.349Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:53:28.333Z",
+          "updatedAt": "2025-02-15T18:53:28.359Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e2c5f20362b3a19b4ff2",
+          "name": "Test User",
+          "userId": "test-user-1739645637497",
+          "lastVoteAt": "2025-02-15T18:53:57.550Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T18:53:57.517Z",
+          "updatedAt": "2025-02-15T18:53:57.563Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e429f20362b3a19b501c",
+          "name": "Test User",
+          "userId": "test-user-1739645993",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T18:59:53.345Z",
+          "updatedAt": "2025-02-15T18:59:53.345Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e476f20362b3a19b5044",
+          "name": "Test User",
+          "userId": "test-user-1739646070",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T19:01:10.308Z",
+          "updatedAt": "2025-02-15T19:01:10.308Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e498f20362b3a19b506e",
+          "name": "Test User",
+          "userId": "test-user-1739646104",
+          "lastVoteAt": "2025-02-15T19:01:45.000Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:01:44.190Z",
+          "updatedAt": "2025-02-15T19:01:45.363Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e4b4f20362b3a19b50a5",
+          "name": "Test User",
+          "userId": "test-user-1739646132",
+          "lastVoteAt": "2025-02-15T19:02:13.000Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:02:12.435Z",
+          "updatedAt": "2025-02-15T19:02:13.523Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e4c9f20362b3a19b5119",
+          "name": "Test User",
+          "userId": "test-user-1739646153456",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T19:02:33.470Z",
+          "updatedAt": "2025-02-15T19:02:33.470Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e4c9f20362b3a19b511e",
+          "name": "Test User",
+          "userId": "test-user-1739646153489",
+          "lastVoteAt": "2025-02-15T19:02:33.503Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:02:33.497Z",
+          "updatedAt": "2025-02-15T19:02:33.521Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e57ff20362b3a19b51b4",
+          "name": "Test User",
+          "userId": "test-user-1739646335272",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T19:05:35.287Z",
+          "updatedAt": "2025-02-15T19:05:35.287Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e57ff20362b3a19b51b9",
+          "name": "Test User",
+          "userId": "test-user-1739646335307",
+          "lastVoteAt": "2025-02-15T19:05:35.324Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:05:35.319Z",
+          "updatedAt": "2025-02-15T19:05:35.354Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e5c4f20362b3a19b51ea",
+          "name": "Test User",
+          "userId": "test-user-1739646404",
+          "lastVoteAt": "2025-02-15T19:06:45.000Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:06:44.655Z",
+          "updatedAt": "2025-02-15T19:06:45.742Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e602f20362b3a19b5245",
+          "name": "Test User",
+          "userId": "test-user-1739646466",
+          "lastVoteAt": "2025-02-15T19:07:47.000Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:07:46.654Z",
+          "updatedAt": "2025-02-15T19:07:47.746Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e6e8f20362b3a19b5366",
+          "name": "Test User",
+          "userId": "test-user-1739646696126",
+          "lastVoteAt": "2025-02-15T19:11:36.146Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:11:36.139Z",
+          "updatedAt": "2025-02-15T19:11:36.169Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e6e8f20362b3a19b537d",
+          "name": "Test User",
+          "userId": "test-user-1739646696238",
+          "lastVoteAt": "2025-02-15T19:11:36.256Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:11:36.251Z",
+          "updatedAt": "2025-02-15T19:11:36.270Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e7a0f20362b3a19b53b3",
+          "name": "Test User",
+          "userId": "test-user-1739646880431",
+          "lastVoteAt": "2025-02-15T19:14:40.451Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:14:40.443Z",
+          "updatedAt": "2025-02-15T19:14:40.474Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e7a0f20362b3a19b53ca",
+          "name": "Test User",
+          "userId": "test-user-1739646880542",
+          "lastVoteAt": "2025-02-15T19:14:40.559Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:14:40.554Z",
+          "updatedAt": "2025-02-15T19:14:40.574Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e839f20362b3a19b5481",
+          "name": "Test User",
+          "userId": "test-user-1739647033350",
+          "lastVoteAt": "2025-02-15T19:17:13.373Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:17:13.366Z",
+          "updatedAt": "2025-02-15T19:17:13.400Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e839f20362b3a19b5498",
+          "name": "Test User",
+          "userId": "test-user-1739647033476",
+          "lastVoteAt": "2025-02-15T19:17:13.492Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:17:13.486Z",
+          "updatedAt": "2025-02-15T19:17:13.511Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e8a1f20362b3a19b55a0",
+          "name": "Test User",
+          "userId": "test-user-1739647137356",
+          "lastVoteAt": "2025-02-15T19:18:57.381Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:18:57.371Z",
+          "updatedAt": "2025-02-15T19:18:57.405Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e8a1f20362b3a19b55b7",
+          "name": "Test User",
+          "userId": "test-user-1739647137473",
+          "lastVoteAt": "2025-02-15T19:18:57.486Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:18:57.481Z",
+          "updatedAt": "2025-02-15T19:18:57.503Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e941f20362b3a19b55ed",
+          "name": "Test User",
+          "userId": "test-user-1739647297580",
+          "lastVoteAt": "2025-02-15T19:21:37.602Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:21:37.594Z",
+          "updatedAt": "2025-02-15T19:21:37.625Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e941f20362b3a19b5604",
+          "name": "Test User",
+          "userId": "test-user-1739647297700",
+          "lastVoteAt": "2025-02-15T19:21:37.711Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:21:37.707Z",
+          "updatedAt": "2025-02-15T19:21:37.729Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e967f20362b3a19b563a",
+          "name": "Test User",
+          "userId": "test-user-1739647335413",
+          "lastVoteAt": "2025-02-15T19:22:15.436Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:22:15.428Z",
+          "updatedAt": "2025-02-15T19:22:15.460Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e967f20362b3a19b5651",
+          "name": "Test User",
+          "userId": "test-user-1739647335545",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T19:22:15.555Z",
+          "updatedAt": "2025-02-15T19:22:15.555Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e9ebf20362b3a19b5676",
+          "name": "Test User",
+          "userId": "test-user-1739647467507",
+          "lastVoteAt": "2025-02-15T19:24:27.533Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:24:27.524Z",
+          "updatedAt": "2025-02-15T19:24:27.560Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e9ebf20362b3a19b568d",
+          "name": "Test User",
+          "userId": "test-user-1739647467651",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T19:24:27.659Z",
+          "updatedAt": "2025-02-15T19:24:27.659Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0eaacf20362b3a19b5798",
+          "name": "Test User",
+          "userId": "test-user-1739647660435",
+          "lastVoteAt": "2025-02-15T19:27:40.454Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:27:40.448Z",
+          "updatedAt": "2025-02-15T19:27:40.478Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0eaacf20362b3a19b57af",
+          "name": "Test User",
+          "userId": "test-user-1739647660550",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T19:27:40.559Z",
+          "updatedAt": "2025-02-15T19:27:40.559Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0eb49f20362b3a19b58bb",
+          "name": "Test User",
+          "userId": "test-user-1739647817841",
+          "lastVoteAt": "2025-02-15T19:30:17.864Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:30:17.856Z",
+          "updatedAt": "2025-02-15T19:30:17.887Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0eb49f20362b3a19b58d2",
+          "name": "Test User",
+          "userId": "test-user-1739647817968",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T19:30:17.978Z",
+          "updatedAt": "2025-02-15T19:30:17.978Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ed1af20362b3a19b5936",
+          "name": "Test User",
+          "userId": "test-user-1739648282743",
+          "lastVoteAt": "2025-02-15T19:38:02.767Z",
+          "voteCount": 2,
+          "votedLogos": [
+            "1"
+          ],
+          "createdAt": "2025-02-15T19:38:02.757Z",
+          "updatedAt": "2025-02-15T19:38:02.791Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ed1af20362b3a19b5941",
+          "name": "Test User",
+          "userId": "test-user-1739648282870",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T19:38:02.880Z",
+          "updatedAt": "2025-02-15T19:38:02.880Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ed9ef20362b3a19b5960",
+          "name": "Test User",
+          "userId": "test-user-1739648414",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-15T19:40:14.202Z",
+          "updatedAt": "2025-02-15T19:40:14.202Z",
+          "__v": 0
+        }
+      ],
+      "votes": [
+        {
+          "_id": "67b0bd385015792897696c40",
+          "userId": "test-user-1739636024401",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T16:13:44.439Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T16:13:44.449Z",
+          "updatedAt": "2025-02-15T16:13:44.449Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0bd515015792897696c4d",
+          "userId": "test-user-1739636049545",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T16:14:09.681Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T16:14:09.697Z",
+          "updatedAt": "2025-02-15T16:14:09.697Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0bd555015792897696c72",
+          "userId": "test-user-1739636053783",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T16:14:13.817Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T16:14:13.827Z",
+          "updatedAt": "2025-02-15T16:14:13.827Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0bd585015792897696c98",
+          "userId": "test-user-1739636056737",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T16:14:16.760Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T16:14:16.767Z",
+          "updatedAt": "2025-02-15T16:14:16.767Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c2785015792897696cdd",
+          "userId": "test-user-1739637368850",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T16:36:08.900Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T16:36:08.910Z",
+          "updatedAt": "2025-02-15T16:36:08.910Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c592e45f38e3a0c6f8eb",
+          "userId": "test-user-1739638162841",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T16:49:22.878Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T16:49:22.890Z",
+          "updatedAt": "2025-02-15T16:49:22.890Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c592e45f38e3a0c6f8f8",
+          "userId": "test-user-1739638162949",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T16:49:22.971Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T16:49:22.979Z",
+          "updatedAt": "2025-02-15T16:49:22.979Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c5f6e45f38e3a0c6f929",
+          "userId": "test-user-1739638262370",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T16:51:02.406Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T16:51:02.417Z",
+          "updatedAt": "2025-02-15T16:51:02.417Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c5f6e45f38e3a0c6f936",
+          "userId": "test-user-1739638262478",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T16:51:02.501Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T16:51:02.507Z",
+          "updatedAt": "2025-02-15T16:51:02.507Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c791e45f38e3a0c72115",
+          "userId": "test-user-1739638673438",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T16:57:53.485Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T16:57:53.499Z",
+          "updatedAt": "2025-02-15T16:57:53.499Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c791e45f38e3a0c72122",
+          "userId": "test-user-1739638673558",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T16:57:53.674Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T16:57:53.680Z",
+          "updatedAt": "2025-02-15T16:57:53.680Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c817e45f38e3a0c736c5",
+          "userId": "test-user-1739638807822",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:00:07.848Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:00:07.857Z",
+          "updatedAt": "2025-02-15T17:00:07.857Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c818e45f38e3a0c736d2",
+          "userId": "test-user-1739638808029",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:00:08.054Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:00:08.065Z",
+          "updatedAt": "2025-02-15T17:00:08.065Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c831e45f38e3a0c736f1",
+          "userId": "test-user-1739638833942",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:00:33.985Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:00:33.996Z",
+          "updatedAt": "2025-02-15T17:00:33.996Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c832e45f38e3a0c736fe",
+          "userId": "test-user-1739638834173",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:00:34.196Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:00:34.204Z",
+          "updatedAt": "2025-02-15T17:00:34.204Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c963e45f38e3a0c7398a",
+          "userId": "test-user-1739639138",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:05:39.925Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:05:39.936Z",
+          "updatedAt": "2025-02-15T17:05:39.936Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c98ae45f38e3a0c73a51",
+          "userId": "test-user-1739639178211",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:06:18.244Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:06:18.252Z",
+          "updatedAt": "2025-02-15T17:06:18.252Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0c98ae45f38e3a0c73a5e",
+          "userId": "test-user-1739639178420",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:06:18.464Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:06:18.477Z",
+          "updatedAt": "2025-02-15T17:06:18.477Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ca38046914d8e0b73f1c",
+          "userId": "test-user-1739639352172",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:09:12.230Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:09:12.247Z",
+          "updatedAt": "2025-02-15T17:09:12.247Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ca38046914d8e0b73f29",
+          "userId": "test-user-1739639352467",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:09:12.527Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:09:12.545Z",
+          "updatedAt": "2025-02-15T17:09:12.545Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ca42046914d8e0b73f38",
+          "userId": "test-user-1739639362477",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:09:22.517Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:09:22.527Z",
+          "updatedAt": "2025-02-15T17:09:22.527Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ca42046914d8e0b73f45",
+          "userId": "test-user-1739639362674",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:09:22.703Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:09:22.711Z",
+          "updatedAt": "2025-02-15T17:09:22.711Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0cb9c046914d8e0b73f54",
+          "userId": "test-user-1739639708121",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:15:08.154Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:15:08.165Z",
+          "updatedAt": "2025-02-15T17:15:08.165Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0cb9c046914d8e0b73f61",
+          "userId": "test-user-1739639708318",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:15:08.364Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:15:08.391Z",
+          "updatedAt": "2025-02-15T17:15:08.391Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d10712d934f875d0c005",
+          "userId": "test-user-1739641095842",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:38:15.886Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:38:15.894Z",
+          "updatedAt": "2025-02-15T17:38:15.894Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d10712d934f875d0c010",
+          "userId": "test-user-1739641095930",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:38:15.958Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:38:15.962Z",
+          "updatedAt": "2025-02-15T17:38:15.962Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d54412d934f875d0c904",
+          "userId": "test-user-1739642180406",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:56:20.449Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:56:20.454Z",
+          "updatedAt": "2025-02-15T17:56:20.454Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d54412d934f875d0c90f",
+          "userId": "test-user-1739642180490",
+          "logoId": "1",
+          "timestamp": "2025-02-15T17:56:20.513Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T17:56:20.517Z",
+          "updatedAt": "2025-02-15T17:56:20.517Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d67812d934f875d0cd64",
+          "userId": "test-user-1739642488747",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:01:28.788Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:01:28.794Z",
+          "updatedAt": "2025-02-15T18:01:28.794Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d67812d934f875d0cd6f",
+          "userId": "test-user-1739642488831",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:01:28.858Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:01:28.861Z",
+          "updatedAt": "2025-02-15T18:01:28.861Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d9d012d934f875d0d188",
+          "userId": "test-user-1739643344046",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:15:44.095Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:15:44.099Z",
+          "updatedAt": "2025-02-15T18:15:44.099Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0d9d012d934f875d0d19f",
+          "userId": "test-user-1739643344205",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:15:44.228Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:15:44.230Z",
+          "updatedAt": "2025-02-15T18:15:44.230Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0da7712d934f875d0d1d1",
+          "userId": "test-user-1739643511003",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:18:31.032Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:18:31.035Z",
+          "updatedAt": "2025-02-15T18:18:31.035Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0da7712d934f875d0d1e8",
+          "userId": "test-user-1739643511065",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:18:31.088Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:18:31.091Z",
+          "updatedAt": "2025-02-15T18:18:31.091Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dc06f20362b3a19b364e",
+          "userId": "test-user-1739643910373",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:25:10.543Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:25:10.563Z",
+          "updatedAt": "2025-02-15T18:25:10.563Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dc0ef20362b3a19b366b",
+          "userId": "test-user-1739643918589",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:25:18.622Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:25:18.628Z",
+          "updatedAt": "2025-02-15T18:25:18.628Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dc0ef20362b3a19b3676",
+          "userId": "test-user-1739643918663",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:25:18.696Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:25:18.699Z",
+          "updatedAt": "2025-02-15T18:25:18.699Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dce0f20362b3a19b369a",
+          "userId": "test-user-1739644128064",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:28:48.100Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:28:48.103Z",
+          "updatedAt": "2025-02-15T18:28:48.103Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dce0f20362b3a19b36a5",
+          "userId": "test-user-1739644128134",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:28:48.158Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:28:48.161Z",
+          "updatedAt": "2025-02-15T18:28:48.161Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dd86f20362b3a19b3702",
+          "userId": "test-user-1739644294502",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:31:34.530Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:31:34.534Z",
+          "updatedAt": "2025-02-15T18:31:34.534Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dde8f20362b3a19b3737",
+          "userId": "test-user-1739644392038",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:33:12.064Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:33:12.068Z",
+          "updatedAt": "2025-02-15T18:33:12.068Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0de1cf20362b3a19b3750",
+          "userId": "test-user-1739644444510",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:34:04.604Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:34:04.609Z",
+          "updatedAt": "2025-02-15T18:34:04.609Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0de95f20362b3a19b3787",
+          "userId": "test-user-1739644565518",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:36:05.542Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:36:05.545Z",
+          "updatedAt": "2025-02-15T18:36:05.545Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0df4ff20362b3a19b468a",
+          "userId": "test-user-1739644751148",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:39:11.176Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:39:11.181Z",
+          "updatedAt": "2025-02-15T18:39:11.181Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dfd2f20362b3a19b48bd",
+          "userId": "test-user-1739644882011",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:41:22.041Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:41:22.044Z",
+          "updatedAt": "2025-02-15T18:41:22.044Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e03ef20362b3a19b4b0e",
+          "userId": "test-user-1739644990593",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:43:10.620Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:43:10.625Z",
+          "updatedAt": "2025-02-15T18:43:10.625Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e0b6f20362b3a19b4d5f",
+          "userId": "test-user-1739645110958",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:45:10.994Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:45:10.997Z",
+          "updatedAt": "2025-02-15T18:45:10.997Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e178f20362b3a19b4f74",
+          "userId": "test-user-1739645304568",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:48:24.597Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:48:24.600Z",
+          "updatedAt": "2025-02-15T18:48:24.600Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e206f20362b3a19b4fa9",
+          "userId": "test-user-1739645446043",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:50:46.066Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:50:46.069Z",
+          "updatedAt": "2025-02-15T18:50:46.069Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e2a8f20362b3a19b4fde",
+          "userId": "test-user-1739645608322",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:53:28.349Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:53:28.352Z",
+          "updatedAt": "2025-02-15T18:53:28.352Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e2c5f20362b3a19b4ff8",
+          "userId": "test-user-1739645637497",
+          "logoId": "1",
+          "timestamp": "2025-02-15T18:53:57.550Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T18:53:57.554Z",
+          "updatedAt": "2025-02-15T18:53:57.554Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e499f20362b3a19b5074",
+          "userId": "test-user-1739646104",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:01:45.000Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:01:45.351Z",
+          "updatedAt": "2025-02-15T19:01:45.351Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e4b5f20362b3a19b50ab",
+          "userId": "test-user-1739646132",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:02:13.000Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:02:13.516Z",
+          "updatedAt": "2025-02-15T19:02:13.516Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e4c9f20362b3a19b5124",
+          "userId": "test-user-1739646153489",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:02:33.503Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:02:33.516Z",
+          "updatedAt": "2025-02-15T19:02:33.516Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e57ff20362b3a19b51bf",
+          "userId": "test-user-1739646335307",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:05:35.324Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:05:35.340Z",
+          "updatedAt": "2025-02-15T19:05:35.340Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e5c5f20362b3a19b51f0",
+          "userId": "test-user-1739646404",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:06:45.000Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:06:45.732Z",
+          "updatedAt": "2025-02-15T19:06:45.732Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e603f20362b3a19b524b",
+          "userId": "test-user-1739646466",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:07:47.000Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:07:47.737Z",
+          "updatedAt": "2025-02-15T19:07:47.737Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e6e8f20362b3a19b536c",
+          "userId": "test-user-1739646696126",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:11:36.146Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:11:36.163Z",
+          "updatedAt": "2025-02-15T19:11:36.163Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e6e8f20362b3a19b5383",
+          "userId": "test-user-1739646696238",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:11:36.256Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:11:36.267Z",
+          "updatedAt": "2025-02-15T19:11:36.267Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e7a0f20362b3a19b53b9",
+          "userId": "test-user-1739646880431",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:14:40.451Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:14:40.466Z",
+          "updatedAt": "2025-02-15T19:14:40.466Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e7a0f20362b3a19b53d0",
+          "userId": "test-user-1739646880542",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:14:40.559Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:14:40.571Z",
+          "updatedAt": "2025-02-15T19:14:40.571Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e839f20362b3a19b5487",
+          "userId": "test-user-1739647033350",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:17:13.373Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:17:13.391Z",
+          "updatedAt": "2025-02-15T19:17:13.391Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e839f20362b3a19b549e",
+          "userId": "test-user-1739647033476",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:17:13.492Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:17:13.506Z",
+          "updatedAt": "2025-02-15T19:17:13.506Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e8a1f20362b3a19b55a6",
+          "userId": "test-user-1739647137356",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:18:57.381Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:18:57.398Z",
+          "updatedAt": "2025-02-15T19:18:57.398Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e8a1f20362b3a19b55bd",
+          "userId": "test-user-1739647137473",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:18:57.486Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:18:57.498Z",
+          "updatedAt": "2025-02-15T19:18:57.498Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e941f20362b3a19b55f3",
+          "userId": "test-user-1739647297580",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:21:37.602Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:21:37.617Z",
+          "updatedAt": "2025-02-15T19:21:37.617Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e941f20362b3a19b560a",
+          "userId": "test-user-1739647297700",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:21:37.711Z",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:21:37.725Z",
+          "updatedAt": "2025-02-15T19:21:37.725Z",
+          "userName": "Test User",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e967f20362b3a19b5640",
+          "userId": "test-user-1739647335413",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:22:15.436Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:22:15.452Z",
+          "updatedAt": "2025-02-15T19:22:15.452Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e9ebf20362b3a19b567c",
+          "userId": "test-user-1739647467507",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:24:27.533Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:24:27.552Z",
+          "updatedAt": "2025-02-15T19:24:27.552Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0eaacf20362b3a19b579e",
+          "userId": "test-user-1739647660435",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:27:40.454Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:27:40.471Z",
+          "updatedAt": "2025-02-15T19:27:40.471Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0eb49f20362b3a19b58c1",
+          "userId": "test-user-1739647817841",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:30:17.864Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:30:17.881Z",
+          "updatedAt": "2025-02-15T19:30:17.881Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ed1af20362b3a19b5939",
+          "userId": "test-user-1739648282743",
+          "userName": "Test User",
+          "logoId": "1",
+          "timestamp": "2025-02-15T19:38:02.767Z",
+          "ownerId": "owner123",
+          "status": "confirmed",
+          "version": 1,
+          "createdAt": "2025-02-15T19:38:02.782Z",
+          "updatedAt": "2025-02-15T19:38:02.782Z",
+          "__v": 0
+        }
+      ],
+      "logos": [
+        {
+          "_id": "67ae03a92e395ae5c0a559f7",
+          "value": "1",
+          "src": "/logos/Logo2.png",
+          "alt": "Elegant floral logo with intertwined leaves and vines in a circular design",
+          "ownerId": "owner123",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 1,
+            "uniqueVoters": 1,
+            "lastVoteAt": "2025-02-13T14:47:44.122Z"
+          },
+          "__v": 0,
+          "createdAt": "2025-02-13T14:37:29.828Z",
+          "updatedAt": "2025-02-13T14:57:28.109Z"
+        },
+        {
+          "_id": "67ae03a92e395ae5c0a559f8",
+          "value": "2",
+          "src": "/logos/Logo3.png",
+          "alt": "Modern minimalist garden logo with stylized plant elements",
+          "ownerId": "owner456",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 1,
+            "uniqueVoters": 1,
+            "lastVoteAt": "2025-02-13T14:49:20.277Z"
+          },
+          "__v": 0,
+          "createdAt": "2025-02-13T14:37:29.828Z",
+          "updatedAt": "2025-02-13T14:57:28.114Z"
+        },
+        {
+          "_id": "67ae03a92e395ae5c0a559f9",
+          "value": "3",
+          "src": "/logos/Logo4.png",
+          "alt": "Nature-inspired logo featuring delicate leaf patterns",
+          "ownerId": "owner789",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 1,
+            "uniqueVoters": 1,
+            "lastVoteAt": "2025-02-13T14:57:10.175Z"
+          },
+          "__v": 0,
+          "createdAt": "2025-02-13T14:37:29.828Z",
+          "updatedAt": "2025-02-13T14:57:28.124Z"
+        },
+        {
+          "_id": "67ae03a92e395ae5c0a559fa",
+          "value": "4",
+          "src": "/logos/Logo1.jpeg",
+          "alt": "Classic garden design logo with ornate botanical details",
+          "ownerId": "owner012",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "__v": 0,
+          "createdAt": "2025-02-13T14:37:29.828Z",
+          "updatedAt": "2025-02-13T14:37:29.828Z"
+        },
+        {
+          "_id": "67b0b471849836be7eda07c1",
+          "value": "5",
+          "src": "/logos/Logo5.png",
+          "alt": "New test logo",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T15:36:17.597Z",
+          "updatedAt": "2025-02-15T15:36:17.597Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0b6bd849836be7eda38a6",
+          "value": "1739634364",
+          "src": "/logos/Logo1739634364.png",
+          "alt": "Test logo created during API testing with timestamp 1739634364",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T15:46:05.167Z",
+          "updatedAt": "2025-02-15T15:46:05.167Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0b9e3689d770557c98369",
+          "value": "1739635169",
+          "src": "/logos/Logo1739635169.png",
+          "alt": "Test logo created during API testing with timestamp 1739635169",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T15:59:31.086Z",
+          "updatedAt": "2025-02-15T15:59:31.086Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0b9f6689d770557c98dcb",
+          "value": "1739635189",
+          "src": "/logos/Logo1739635189.png",
+          "alt": "Test logo created during API testing with timestamp 1739635189",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T15:59:50.272Z",
+          "updatedAt": "2025-02-15T15:59:50.272Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ba08689d770557c98dea",
+          "value": "1739635207",
+          "src": "/logos/Logo1739635207.png",
+          "alt": "Test logo created during API testing with timestamp 1739635207",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T16:00:08.366Z",
+          "updatedAt": "2025-02-15T16:00:08.366Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ba1a689d770557c98e0a",
+          "value": "1739635225",
+          "src": "/logos/Logo1739635225.png",
+          "alt": "Test logo created during API testing with timestamp 1739635225",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T16:00:26.829Z",
+          "updatedAt": "2025-02-15T16:00:26.829Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ba44689d770557c98e58",
+          "value": "1739635267",
+          "src": "/logos/Logo1739635267.png",
+          "alt": "Test logo created during API testing with timestamp 1739635267",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T16:01:08.917Z",
+          "updatedAt": "2025-02-15T16:01:08.917Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0bcf95015792897696c24",
+          "value": "1739635960",
+          "src": "/logos/Logo1739635960.png",
+          "alt": "Test logo created during API testing with timestamp 1739635960",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T16:12:41.675Z",
+          "updatedAt": "2025-02-15T16:12:41.675Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0dc0ef20362b3a19b367e",
+          "value": "Test Logo",
+          "src": "/logos/test-logo.png",
+          "alt": "This is a test logo for API testing",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "data": "dGVzdA==",
+          "contentType": "image/png",
+          "uploadedAt": "2025-02-15T18:25:18.989Z",
+          "createdAt": "2025-02-15T18:25:18.991Z",
+          "updatedAt": "2025-02-15T18:25:18.991Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e42af20362b3a19b5021",
+          "value": "1739645993",
+          "src": "/logos/Logo1739645993.png",
+          "alt": "Test logo created during API testing with timestamp 1739645993",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T18:59:54.484Z",
+          "updatedAt": "2025-02-15T18:59:54.484Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e477f20362b3a19b504d",
+          "value": "1739646070",
+          "src": "/logos/Logo1739646070.png",
+          "alt": "Test logo created during API testing with timestamp 1739646070",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T19:01:11.899Z",
+          "updatedAt": "2025-02-15T19:01:11.899Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e499f20362b3a19b5084",
+          "value": "1739646104",
+          "src": "/logos/Logo1739646104.png",
+          "alt": "Test logo created during API testing with timestamp 1739646104",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T19:01:45.414Z",
+          "updatedAt": "2025-02-15T19:01:45.414Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e4b5f20362b3a19b50bb",
+          "value": "1739646132",
+          "src": "/logos/Logo1739646132.png",
+          "alt": "Test logo created during API testing with timestamp 1739646132",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T19:02:13.585Z",
+          "updatedAt": "2025-02-15T19:02:13.585Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e5c5f20362b3a19b5200",
+          "value": "1739646404",
+          "src": "/logos/Logo1739646404.png",
+          "alt": "Test logo created during API testing with timestamp 1739646404",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T19:06:45.798Z",
+          "updatedAt": "2025-02-15T19:06:45.798Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0e603f20362b3a19b525b",
+          "value": "1739646466",
+          "src": "/logos/Logo1739646466.png",
+          "alt": "Test logo created during API testing with timestamp 1739646466",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T19:07:47.801Z",
+          "updatedAt": "2025-02-15T19:07:47.801Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b0ed9ff20362b3a19b5962",
+          "value": "1739648414",
+          "src": "/logos/Logo1739648414.png",
+          "alt": "Test logo created during API testing with timestamp 1739648414",
+          "status": "active",
+          "voteStats": {
+            "totalVotes": 0,
+            "uniqueVoters": 0,
+            "lastVoteAt": null
+          },
+          "createdAt": "2025-02-15T19:40:15.341Z",
+          "updatedAt": "2025-02-15T19:40:15.341Z",
+          "__v": 0
+        }
+      ]
+    },
+    "stats": {
+      "users": {
+        "count": 104,
+        "size": 18902,
+        "avgObjSize": 181,
+        "totalSize": 155648,
+        "totalIndexSize": 110592
+      },
+      "votes": {
+        "count": 72,
+        "size": 15027,
+        "avgObjSize": 208,
+        "totalSize": 184320,
+        "totalIndexSize": 147456
+      },
+      "logos": {
+        "count": 20,
+        "size": 5580,
+        "avgObjSize": 279,
+        "totalSize": 184320,
+        "totalIndexSize": 147456
+      }
+    }
+  }
+}
+----------------------------------------
+
+[0;32m=== Creating Test User ===[0m
+POST http://localhost:3000/api/database-info
+Request Body: {
+    "action": "add",
+    "collectionName": "users",
+    "data": {
+        "name": "Test User",
+        "userId": "test-user-1739648945",
+        "email": "test@example.com",
+        "role": "user",
+        "status": "active",
+        "voteCount": 0,
+        "votedLogos": []
+    }
+}
+Response:
+[0;32mStatus: Success[0m
+{
+  "success": true,
+  "data": {
+    "name": "Test User",
+    "userId": "test-user-1739648945",
+    "lastVoteAt": null,
+    "voteCount": 0,
+    "votedLogos": [],
+    "_id": "67b0efb1f20362b3a19b5985",
+    "createdAt": "2025-02-15T19:49:05.517Z",
+    "updatedAt": "2025-02-15T19:49:05.517Z",
+    "__v": 0
+  }
+}
+----------------------------------------
+
+[0;32m=== Testing Submit Vote ===[0m
+POST http://localhost:3000/api/votes
+Request Body: {
+    "userId": "test-user-1739648945",
+    "logoId": "1",
+    "ownerId": "owner123",
+    "timestamp": "2025-02-15T19:49:06.000Z"
+}
+Response:
+[0;31mStatus: Failed[0m
+{
+  "success": false,
+  "error": "Missing required fields: userName",
+  "invalidFields": {
+    "userId": false,
+    "logoId": false,
+    "timestamp": false,
+    "userName": true,
+    "ownerId": false
+  },
+  "trace": [
+    {
+      "timestamp": "2025-02-15T19:49:06.623Z",
+      "type": "request",
+      "method": "POST",
+      "url": "http://localhost:3000/api/votes",
+      "body": {
+        "userId": "test-user-1739648945",
+        "logoId": "1",
+        "ownerId": "owner123",
+        "timestamp": "2025-02-15T19:49:06.000Z"
+      }
+    },
+    {
+      "timestamp": "2025-02-15T19:49:06.623Z",
+      "type": "error",
+      "message": "Validation failed: Missing required fields: userName",
+      "invalidFields": {
+        "userId": false,
+        "logoId": false,
+        "timestamp": false,
+        "userName": true,
+        "ownerId": false
+      },
+      "code": 400
+    }
+  ]
+}
+----------------------------------------
+
+[0;32m=== Testing Add Logo ===[0m
+POST http://localhost:3000/api/database-info
+Request Body: {
+    "action": "add",
+    "collectionName": "logos",
+    "data": {
+        "value": "1739648945",
+        "src": "/logos/Logo1739648945.png",
+        "alt": "Test logo created during API testing with timestamp 1739648945",
+        "status": "active"
+    }
+}
+Response:
+[0;32mStatus: Success[0m
+{
+  "success": true,
+  "data": {
+    "value": "1739648945",
+    "src": "/logos/Logo1739648945.png",
+    "alt": "Test logo created during API testing with timestamp 1739648945",
+    "status": "active",
+    "voteStats": {
+      "totalVotes": 0,
+      "uniqueVoters": 0,
+      "lastVoteAt": null
+    },
+    "_id": "67b0efb2f20362b3a19b5987",
+    "createdAt": "2025-02-15T19:49:06.702Z",
+    "updatedAt": "2025-02-15T19:49:06.702Z",
+    "__v": 0
+  }
+}
+----------------------------------------
+
+[0;32m=== Testing Collection Stats ===[0m
+POST http://localhost:3000/api/database-info
+Request Body: {
+    "action": "stats",
+    "collectionName": "logos"
+}
+Response:
+[0;32mStatus: Success[0m
+{
+  "success": true,
+  "stats": {
+    "count": 21,
+    "size": 5859,
+    "avgObjSize": 279,
+    "totalSize": 184320,
+    "totalIndexSize": 147456
+  }
+}
+----------------------------------------
+
+=== Storing IDs for deletion tests ===
+Created User ID: 67b0efb2f20362b3a19b5989
+Created Vote ID: null
+Created Logo ID: 67b0efb2f20362b3a19b598b
+
+=== Testing Delete Operations ===
+Deleting User with ID: 67b0efb2f20362b3a19b5989
+
+[0;32m=== Testing Delete User ===[0m
+DELETE http://localhost:3000/api/users/67b0efb2f20362b3a19b5989
+Response:
+[0;32mStatus: Success[0m
+User deleted successfully
+----------------------------------------
+Deleting Logo with ID: 67b0efb2f20362b3a19b598b
+
+[0;32m=== Testing Delete Logo ===[0m
+DELETE http://localhost:3000/api/logos/67b0efb2f20362b3a19b598b
+Response:
+[0;32mStatus: Success[0m
+Logo deleted successfully
+----------------------------------------
+
+=== Test Summary ===
+Total tests run: 11
+Successful tests: [0;32m10[0m
+Failed tests: [0;31m1[0m
+[0;31mSome tests failed. Please check the output above for details.[0m

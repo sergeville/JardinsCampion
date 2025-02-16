@@ -1,0 +1,156 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #0070f3;
+  box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.1);
+}
+
+.error {
+  color: #dc2626;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.submitButton,
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submitButton {
+  background-color: #0070f3;
+  color: white;
+  border: none;
+}
+
+.submitButton:hover {
+  background-color: #0051cc;
+}
+
+.cancelButton {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.cancelButton:hover {
+  background-color: #f5f5f5;
+}
+
+/* Dark mode styles */
+:global(.dark) .modal {
+  background-color: #1a1a1a;
+  color: white;
+}
+
+:global(.dark) .label {
+  color: #e5e5e5;
+}
+
+:global(.dark) .input {
+  background-color: #2a2a2a;
+  border-color: #404040;
+  color: white;
+}
+
+:global(.dark) .input:focus {
+  border-color: #0070f3;
+}
+
+:global(.dark) .cancelButton {
+  color: #e5e5e5;
+  border-color: #404040;
+}
+
+:global(.dark) .cancelButton:hover {
+  background-color: #2a2a2a;
+}
+
+.select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  background-color: white;
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #0070f3;
+  box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.1);
+}
+
+.select:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+/* Dark mode styles */
+:global(.dark) .select {
+  background-color: #2a2a2a;
+  border-color: #404040;
+  color: white;
+}
+
+:global(.dark) .select:focus {
+  border-color: #0070f3;
+}
+
+:global(.dark) .select:disabled {
+  background-color: #1a1a1a;
+} 

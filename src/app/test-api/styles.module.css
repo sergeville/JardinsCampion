@@ -1,0 +1,538 @@
+.container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.header {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.header h1 {
+  margin: 0 0 1rem 0;
+  font-size: 2rem;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header p {
+  margin: 0;
+  color: #666;
+  font-size: 1rem;
+}
+
+.error {
+  color: #dc3545;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #fff3f3;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.runButton {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  color: white;
+  background-color: #0066cc;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.runButton:hover:not(:disabled) {
+  background-color: #0052a3;
+  transform: translateY(-1px);
+}
+
+.runButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.results {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.resultItem {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.resultItem:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.resultHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.resultHeader:hover {
+  background-color: #e9ecef;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.expandIcon {
+  font-size: 0.8rem;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.expanded .expandIcon {
+  transform: rotate(90deg);
+}
+
+.successBadge,
+.failureBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+}
+
+.successBadge {
+  background-color: #e8f5e9;
+  color: #28a745;
+}
+
+.failureBadge {
+  background-color: #fff3f3;
+  color: #dc3545;
+}
+
+.resultHeader h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1a1a1a;
+}
+
+.timestamp {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.resultContent {
+  padding: 1.5rem;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.requestInfo {
+  margin-bottom: 1.5rem;
+}
+
+.requestInfo p {
+  margin: 0 0 1rem 0;
+  color: #1a1a1a;
+}
+
+.requestInfo strong {
+  color: #0066cc;
+  font-weight: 600;
+}
+
+.requestBody {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+.requestBody h4 {
+  margin: 0 0 0.5rem 0;
+  color: #1a1a1a;
+  font-size: 0.9rem;
+}
+
+.requestBody pre {
+  margin: 0;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  overflow-x: auto;
+}
+
+.responseInfo h4 {
+  margin: 0 0 1rem 0;
+  color: #1a1a1a;
+  font-size: 1rem;
+}
+
+.status {
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.successStatus {
+  color: #28a745;
+  background-color: #e8f5e9;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.errorStatus {
+  color: #dc3545;
+  background-color: #fff3f3;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.responseInfo pre {
+  margin: 0;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  overflow-x: auto;
+}
+
+.success {
+  border-left: 4px solid #28a745;
+}
+
+.failure {
+  border-left: 4px solid #dc3545;
+}
+
+.summary {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.summaryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.summaryHeader h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+}
+
+.summaryTime {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summaryCard {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.summaryCard:hover {
+  transform: translateY(-2px);
+}
+
+.summaryIcon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.summaryLabel {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.summaryValue {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.successCount {
+  color: #28a745;
+}
+
+.failureCount {
+  color: #dc3545;
+}
+
+.summaryDetails {
+  margin-top: 2rem;
+  display: grid;
+  gap: 2rem;
+}
+
+.summarySection {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.summarySection h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: #1a1a1a;
+}
+
+.breakdownList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.breakdownItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.breakdownItem span:first-child {
+  color: #666;
+}
+
+.breakdownItem span:last-child {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.failedList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.failedItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: #fff3f3;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.failedItem span:first-child {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.failedReason {
+  color: #dc3545;
+  font-size: 0.85rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background-color: #1a1a1a;
+    color: #e5e5e5;
+  }
+
+  .header {
+    background-color: #2d2d2d;
+  }
+
+  .header h1 {
+    color: #e5e5e5;
+  }
+
+  .header p {
+    color: #999;
+  }
+
+  .error {
+    background-color: #3d2525;
+  }
+
+  .resultItem {
+    background-color: #2d2d2d;
+    border-color: #404040;
+  }
+
+  .resultHeader {
+    background-color: #333;
+    border-bottom-color: #404040;
+  }
+
+  .resultHeader:hover {
+    background-color: #404040;
+  }
+
+  .expandIcon {
+    color: #999;
+  }
+
+  .successBadge {
+    background-color: #1b4332;
+  }
+
+  .failureBadge {
+    background-color: #3d2525;
+  }
+
+  .resultHeader h3 {
+    color: #e5e5e5;
+  }
+
+  .timestamp {
+    color: #999;
+  }
+
+  .requestInfo p {
+    color: #e5e5e5;
+  }
+
+  .requestBody {
+    background-color: #333;
+  }
+
+  .requestBody h4 {
+    color: #e5e5e5;
+  }
+
+  .requestBody pre {
+    background-color: #1a1a1a;
+    color: #e5e5e5;
+  }
+
+  .responseInfo h4 {
+    color: #e5e5e5;
+  }
+
+  .successStatus {
+    background-color: #1b4332;
+  }
+
+  .errorStatus {
+    background-color: #3d2525;
+  }
+
+  .responseInfo pre {
+    background-color: #1a1a1a;
+    color: #e5e5e5;
+  }
+
+  .summary {
+    background-color: #2d2d2d;
+  }
+
+  .summaryHeader h2 {
+    color: #e5e5e5;
+  }
+
+  .summaryTime {
+    color: #999;
+  }
+
+  .summaryCard {
+    background-color: #333;
+  }
+
+  .summaryLabel {
+    color: #999;
+  }
+
+  .summaryValue {
+    color: #e5e5e5;
+  }
+
+  .summarySection {
+    background-color: #333;
+  }
+
+  .summarySection h3 {
+    color: #e5e5e5;
+  }
+
+  .breakdownItem {
+    background-color: #2d2d2d;
+  }
+
+  .breakdownItem span:first-child {
+    color: #999;
+  }
+
+  .breakdownItem span:last-child {
+    color: #e5e5e5;
+  }
+
+  .failedItem {
+    background-color: #3d2525;
+  }
+
+  .failedItem span:first-child {
+    color: #e5e5e5;
+  }
+}
+
+.endpoint {
+  color: #2563eb; /* Blue color for the endpoint */
+  font-weight: 600;
+}
+
+.request {
+  color: #059669; /* Green color for the request parameters */
+  font-weight: normal;
+} 
