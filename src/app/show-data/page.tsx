@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import styles from './styles.module.css';
 import LogoModal from './LogoModal';
 import DataEditModal from './DataEditModal';
+import Image from 'next/image';
 
 interface DatabaseInfo {
   collections: {
@@ -165,9 +166,11 @@ export default function ShowData() {
           {data.collections.logos.map((logo) => (
             <div key={logo._id} className={styles.card}>
               <h3>Logo {logo.id}</h3>
-              <img
+              <Image
                 src={logo.src}
                 alt={logo.alt}
+                width={200}
+                height={200}
                 className={styles.logoImage}
                 onClick={() => setSelectedLogo(logo)}
               />
