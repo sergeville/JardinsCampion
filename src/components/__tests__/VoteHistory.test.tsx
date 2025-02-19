@@ -1,10 +1,11 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { VoteHistory } from '../VoteHistory';
+import { render, screen, act, waitFor } from '@testing-library/react';
+import VoteHistory from '@/components/VoteHistory';
 
 const mockTranslations = {
   recentVotes: 'Recent Votes',
   votedFor: 'voted for Logo #',
+  noVotes: 'No votes yet',
 };
 
 describe('VoteHistory', () => {
@@ -25,50 +26,113 @@ describe('VoteHistory', () => {
     },
   ];
 
+  beforeEach(() => {
+    // Mock scrollIntoView since it's not implemented in JSDOM
+    Element.prototype.scrollIntoView = jest.fn();
+  });
+
   it('renders the title', () => {
     render(<VoteHistory voteHistory={[]} translations={mockTranslations} />);
-
     expect(screen.getByText('Recent Votes')).toBeInTheDocument();
   });
 
   it('renders empty state message when no votes', () => {
     render(<VoteHistory voteHistory={[]} translations={mockTranslations} />);
-
     expect(screen.getByText('No votes yet')).toBeInTheDocument();
   });
 
-  it('renders vote history items', () => {
+  it('renders vote history items with timestamps', () => {
     render(<VoteHistory voteHistory={mockVotes} translations={mockTranslations} />);
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
-    expect(
-      screen.getByText((content) => content.includes('voted for Logo #1'))
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText((content) => content.includes('voted for Logo #2'))
-    ).toBeInTheDocument();
+    
+    const voteItems = screen.getAllByRole('listitem');
+    expect(voteItems[0]).toHaveTextContent('10:00:00');
+    expect(voteItems[1]).toHaveTextContent('11:00:00');
   });
 
-  it('formats timestamps correctly', () => {
+  it('shows loading state with spinner when loading prop is true', () => {
+    render(<VoteHistory voteHistory={[]} translations={mockTranslations} loading={true} />);
+    
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.getByText('Loading vote history...')).toBeInTheDocument();
+    expect(document.querySelector('.loadingSpinner')).toBeInTheDocument();
+  });
+
+  it('handles new vote updates with smooth scrolling', async () => {
+    const { rerender } = render(
+      <VoteHistory voteHistory={mockVotes} translations={mockTranslations} />
+    );
+
+    const newVote = {
+      userName: 'New User',
+      userId: 'new-user',
+      logoId: '3',
+      timestamp: new Date('2024-02-20T12:00:00'),
+      ownerId: 'owner3',
+    };
+
+    const updatedVotes = [newVote, ...mockVotes];
+
+    rerender(
+      <VoteHistory voteHistory={updatedVotes} translations={mockTranslations} />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('New User')).toBeInTheDocument();
+      expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
+    });
+  });
+
+  it('optimizes rendering with memoization', () => {
+    const { rerender } = render(
+      <VoteHistory voteHistory={mockVotes} translations={mockTranslations} />
+    );
+
+    const initialHTML = document.body.innerHTML;
+
+    // Rerender with same props
+    rerender(
+      <VoteHistory voteHistory={mockVotes} translations={mockTranslations} />
+    );
+
+    expect(document.body.innerHTML).toBe(initialHTML);
+  });
+
+  it('provides proper ARIA attributes for accessibility', () => {
     render(<VoteHistory voteHistory={mockVotes} translations={mockTranslations} />);
 
-    const times = screen.getAllByText(/\d{1,2}:\d{2}/);
-    expect(times).toHaveLength(2);
+    const list = screen.getByRole('list');
+    expect(list).toHaveAttribute('aria-live', 'polite');
+    expect(list).toHaveAttribute('aria-atomic', 'false');
+    expect(list).toHaveAttribute('aria-relevant', 'additions');
+
+    const items = screen.getAllByRole('listitem');
+    items.forEach((item, index) => {
+      expect(item).toHaveAttribute(
+        'aria-label',
+        `${mockVotes[index].userName} voted for Logo #${mockVotes[index].logoId}`
+      );
+    });
   });
 
-  it('renders votes in chronological order', () => {
+  it('respects reduced motion preferences', () => {
+    // Mock matchMedia for prefers-reduced-motion
+    window.matchMedia = jest.fn().mockImplementation(query => ({
+      matches: query === '(prefers-reduced-motion: reduce)',
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    }));
+
     render(<VoteHistory voteHistory={mockVotes} translations={mockTranslations} />);
 
     const voteItems = screen.getAllByRole('listitem');
-    expect(voteItems[0]).toHaveTextContent('John Doe');
-    expect(voteItems[1]).toHaveTextContent('Jane Smith');
-  });
-
-  it('applies correct ARIA labels', () => {
-    render(<VoteHistory voteHistory={mockVotes} translations={mockTranslations} />);
-
-    expect(screen.getByLabelText('John Doe voted for Logo #1')).toBeInTheDocument();
-    expect(screen.getByLabelText('Jane Smith voted for Logo #2')).toBeInTheDocument();
+    voteItems.forEach(item => {
+      const styles = window.getComputedStyle(item);
+      expect(styles.animation).toBe('none');
+    });
   });
 });

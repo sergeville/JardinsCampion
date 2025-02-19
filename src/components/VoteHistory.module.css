@@ -1,0 +1,152 @@
+.voteHistory {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.voteList {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar) var(--scrollbar-bg);
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.voteItem {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.voteItem:last-child {
+  margin-bottom: 0;
+}
+
+.emptyState {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 2rem;
+}
+
+.voterName {
+  font-weight: 600;
+  margin-right: 0.5rem;
+  color: var(--text-primary);
+}
+
+.voteAction {
+  color: var(--text-secondary);
+  margin-right: auto;
+}
+
+.logoId {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-left: 0.25rem;
+}
+
+.timestamp {
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+.loadingSpinner {
+  width: 24px;
+  height: 24px;
+  margin-right: 0.5rem;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Performance optimizations */
+.voteList {
+  contain: content;
+}
+
+.voteItem {
+  contain: layout style;
+}
+
+/* Scrollbar styles */
+.voteList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.voteList::-webkit-scrollbar-track {
+  background: var(--scrollbar-bg);
+  border-radius: 4px;
+}
+
+.voteList::-webkit-scrollbar-thumb {
+  background: var(--scrollbar);
+  border-radius: 4px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .voteItem {
+    animation: none;
+    opacity: 1;
+  }
+  
+  .loadingSpinner {
+    animation: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .voterName {
+    color: #fff;
+  }
+
+  .voteItem {
+    border-bottom-color: #333;
+  }
+
+  .emptyState,
+  .loading {
+    color: #999;
+  }
+} 
