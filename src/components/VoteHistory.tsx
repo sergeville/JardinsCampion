@@ -7,6 +7,7 @@ interface Vote {
   timestamp: Date;
   ownerId?: string;
   userName: string;
+  action?: 'increment' | 'decrement';
 }
 
 interface VoteHistoryProps {
@@ -15,6 +16,8 @@ interface VoteHistoryProps {
     recentVotes: string;
     votedFor: string;
     noVotes?: string;
+    ownerVoteError?: string;
+    voteChanged?: string;
   };
   loading?: boolean;
   onVoteUpdate?: (vote: Vote) => void;
@@ -30,6 +33,46 @@ export default function VoteHistory({
 }: VoteHistoryProps) {
   const voteListRef = useRef<HTMLUListElement>(null);
   const prevVoteCountRef = useRef(voteHistory.length);
+  const prevVotesRef = useRef<{ [key: string]: string }>({});
+
+  // Handle vote updates and restrictions
+  useEffect(() => {
+    if (voteHistory.length === 0) return;
+
+    const latestVote = voteHistory[0];
+    
+    // Check if owner is trying to vote for their own logo
+    if (latestVote.userId === latestVote.ownerId) {
+      onError?.(new Error(translations.ownerVoteError || 'Logo owners cannot vote for their own logos'));
+      return;
+    }
+
+    // Check for vote changes
+    const prevVote = prevVotesRef.current[latestVote.userId];
+    if (prevVote && prevVote !== latestVote.logoId) {
+      // Decrement previous vote
+      onVoteUpdate?.({
+        ...latestVote,
+        logoId: prevVote,
+        action: 'decrement',
+      });
+      
+      // Increment new vote
+      onVoteUpdate?.({
+        ...latestVote,
+        action: 'increment',
+      });
+    } else if (!prevVote) {
+      // New vote
+      onVoteUpdate?.({
+        ...latestVote,
+        action: 'increment',
+      });
+    }
+
+    // Update previous votes record
+    prevVotesRef.current[latestVote.userId] = latestVote.logoId;
+  }, [voteHistory, onVoteUpdate, onError, translations.ownerVoteError]);
 
   // Handle smooth scrolling when new votes are added
   useEffect(() => {
@@ -50,22 +93,39 @@ export default function VoteHistory({
       );
     }
 
-    return voteHistory.map((vote, index) => (
-      <li
-        key={`${vote.userId}-${vote.logoId}-${index}`}
-        className={styles.voteItem}
-        aria-label={`${vote.userName} voted for Logo #${vote.logoId}`}
-      >
-        <span className={styles.voterName}>{vote.userName}</span>
-        <span className={styles.voteAction}>
-          {translations.votedFor}
-          <span className={styles.logoId}>{vote.logoId}</span>
-        </span>
-        <span className={styles.timestamp}>
-          {new Date(vote.timestamp).toLocaleTimeString()}
-        </span>
-      </li>
-    ));
+    return voteHistory.map((vote, index) => {
+      const prevVote = index < voteHistory.length - 1 ? 
+        voteHistory[index + 1].logoId : null;
+      
+      const isVoteChange = prevVote && 
+        vote.userId === voteHistory[index + 1].userId &&
+        vote.logoId !== prevVote;
+
+      return (
+        <li
+          key={`${vote.userId}-${vote.logoId}-${index}`}
+          className={styles.voteItem}
+          aria-label={`${vote.userName} voted for Logo #${vote.logoId}`}
+        >
+          <span className={styles.voterName}>{vote.userName}</span>
+          <span className={styles.voteAction}>
+            {isVoteChange ? (
+              translations.voteChanged
+                ?.replace('{previous}', prevVote)
+                .replace('{current}', vote.logoId)
+            ) : (
+              <>
+                {translations.votedFor}
+                <span className={styles.logoId}>{vote.logoId}</span>
+              </>
+            )}
+          </span>
+          <span className={styles.timestamp}>
+            {new Date(vote.timestamp).toLocaleTimeString()}
+          </span>
+        </li>
+      );
+    });
   }, [voteHistory, translations]);
 
   if (loading) {
