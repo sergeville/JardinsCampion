@@ -1,114 +1,131 @@
-import React, { useState, useEffect } from 'react';
-import styles from './styles.module.css';
-import { ILogo } from '@/models/Logo';
-import { IVote } from '@/models/Vote';
-import { IUser } from '@/models/User';
-import { Document } from 'mongoose';
+'use client';
 
-type EditableData = Partial<ILogo | IVote | IUser>;
-type FormData = Record<string, any>;
+import { useState } from 'react';
+import styles from './styles.module.css';
 
 interface DataEditModalProps {
-  data: EditableData;
-  type: 'users' | 'votes' | 'logos' | null;
+  data: any;
+  type: 'user' | 'logo' | 'vote';
+  schema: any;
+  onSave: (editedData: any) => Promise<void>;
   onClose: () => void;
-  onSave: (updatedData: EditableData) => void;
 }
 
-const DataEditModal: React.FC<DataEditModalProps> = ({ data, type, onClose, onSave }) => {
-  const [formData, setFormData] = useState<FormData>(() => {
-    const plainData = JSON.parse(JSON.stringify(data));
-    return plainData;
-  });
-
-  useEffect(() => {
-    const plainData = JSON.parse(JSON.stringify(data));
-    setFormData(plainData);
-  }, [data]);
+export default function DataEditModal({ data, type, schema, onSave, onClose }: DataEditModalProps) {
+  const [editedData, setEditedData] = useState({ ...data });
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const handleChange = (key: string, value: any) => {
-    setFormData((prev: FormData) => ({ ...prev, [key]: value }));
+    setEditedData(prev => ({
+      ...prev,
+      [key]: value
+    }));
   };
 
-  const renderField = (key: string, value: any) => {
-    // Skip internal fields
-    if (key === '_id' || key === '__v' || key === 'createdAt') {
-      return null;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+
+    try {
+      await onSave(editedData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save changes');
+    } finally {
+      setSaving(false);
     }
+  };
 
-    // Handle different field types
-    if (key === 'status') {
-      const options =
-        type === 'votes'
-          ? ['confirmed', 'rejected']
-          : type === 'logos'
-            ? ['active', 'inactive']
-            : ['active', 'inactive'];
-
-      return (
-        <div key={key} className={styles.formField}>
-          <label>{key}:</label>
-          <select value={value} onChange={(e) => handleChange(key, e.target.value)}>
-            {options.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
-      );
-    }
-
-    // Handle date fields
-    if (key === 'timestamp') {
-      return (
-        <div key={key} className={styles.formField}>
-          <label>{key}:</label>
-          <input
-            type="datetime-local"
-            value={value ? new Date(value).toISOString().slice(0, 16) : ''}
-            onChange={(e) => handleChange(key, new Date(e.target.value))}
-          />
-        </div>
-      );
-    }
-
-    // Default text input
+  if (!schema || !schema.paths) {
     return (
-      <div key={key} className={styles.formField}>
-        <label>{key}:</label>
-        <input
-          type="text"
-          value={value || ''}
-          onChange={(e) => handleChange(key, e.target.value)}
-        />
+      <div className={styles.modalOverlay} onClick={onClose}>
+        <div className={styles.modal} onClick={e => e.stopPropagation()}>
+          <h2>Error</h2>
+          <p>Schema information is not available</p>
+          <div className={styles.modalActions}>
+            <button
+              type="button"
+              onClick={onClose}
+              className={styles.cancelButton}
+            >
+              Close
+            </button>
+          </div>
+        </div>
       </div>
     );
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
-  };
+  }
 
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modal}>
-        <h2>Edit {type}</h2>
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
+        <h2>Edit {type.charAt(0).toUpperCase() + type.slice(1)}</h2>
+        
         <form onSubmit={handleSubmit}>
-          {Object.entries(formData).map(([key, value]) => renderField(key, value))}
+          {Object.entries(schema.paths)
+            .filter(([key]) => !['_id', '__v', 'createdAt', 'updatedAt'].includes(key))
+            .map(([key, field]: [string, any]) => (
+              <div key={key} className={styles.formField}>
+                <label htmlFor={key}>
+                  {key.charAt(0).toUpperCase() + key.slice(1)}:
+                </label>
+                {field.instance === 'String' ? (
+                  <input
+                    type="text"
+                    id={key}
+                    value={editedData[key] || ''}
+                    onChange={e => handleChange(key, e.target.value)}
+                    required={field.isRequired}
+                  />
+                ) : field.instance === 'Number' ? (
+                  <input
+                    type="number"
+                    id={key}
+                    value={editedData[key] || 0}
+                    onChange={e => handleChange(key, Number(e.target.value))}
+                    required={field.isRequired}
+                  />
+                ) : field.instance === 'Boolean' ? (
+                  <input
+                    type="checkbox"
+                    id={key}
+                    checked={editedData[key] || false}
+                    onChange={e => handleChange(key, e.target.checked)}
+                  />
+                ) : field.instance === 'Date' ? (
+                  <input
+                    type="datetime-local"
+                    id={key}
+                    value={editedData[key] ? new Date(editedData[key]).toISOString().slice(0, 16) : ''}
+                    onChange={e => handleChange(key, new Date(e.target.value))}
+                    required={field.isRequired}
+                  />
+                ) : null}
+              </div>
+            ))}
+
+          {error && <div className={styles.error}>{error}</div>}
+
           <div className={styles.modalActions}>
-            <button type="submit" className={styles.saveButton}>
-              Save
-            </button>
-            <button type="button" onClick={onClose} className={styles.cancelButton}>
+            <button
+              type="button"
+              onClick={onClose}
+              className={styles.cancelButton}
+              disabled={saving}
+            >
               Cancel
+            </button>
+            <button
+              type="submit"
+              className={styles.saveButton}
+              disabled={saving}
+            >
+              {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-};
-
-export default DataEditModal;
+}

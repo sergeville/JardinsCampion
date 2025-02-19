@@ -4,6 +4,59 @@
   margin: 0 auto;
 }
 
+.container h1 {
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.container section {
+  margin-bottom: 3rem;
+}
+
+.container h2 {
+  margin-bottom: 1rem;
+  color: #444;
+}
+
+.dataGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.card p {
+  margin: 0.5rem 0;
+  color: #666;
+}
+
+.logoImage {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  margin: 1rem 0;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.logoImage:hover {
+  transform: scale(1.05);
+}
+
 .loading, .error {
   text-align: center;
   padding: 2rem;
@@ -225,19 +278,19 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
 }
 
 .modal {
   background: white;
-  padding: 24px;
+  padding: 2rem;
   border-radius: 8px;
-  width: 100%;
   max-width: 500px;
+  width: 90%;
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -249,119 +302,27 @@
 }
 
 .formField {
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
 }
 
 .formField label {
   display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
+  margin-bottom: 0.5rem;
   color: #333;
+  font-weight: 500;
 }
 
 .formField input,
 .formField select {
   width: 100%;
-  padding: 8px;
+  padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
-}
-
-.formField input:focus,
-.formField select:focus {
-  outline: none;
-  border-color: #4a90e2;
-}
-
-.modalActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 24px;
-}
-
-.saveButton {
-  background-color: #2ecc71;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-
-.saveButton:hover {
-  background-color: #27ae60;
-}
-
-.cancelButton {
-  background-color: #95a5a6;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-
-.cancelButton:hover {
-  background-color: #7f8c8d;
-}
-
-/* Make table rows clickable */
-.tableWrapper tbody tr {
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.tableWrapper tbody tr:hover {
-  background-color: var(--bg-color);
-}
-
-/* Edit Modal Styles */
-.editModal {
-  background: var(--card-bg);
-  padding: 2rem;
-  border-radius: 8px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.formGroup {
-  margin-bottom: 1rem;
-}
-
-.formGroup label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--text-color);
-}
-
-.formGroup input,
-.formGroup textarea {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--bg-color);
-  color: var(--text-color);
   font-size: 1rem;
 }
 
-.formGroup textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
-.formGroup input[type="checkbox"] {
+.formField input[type="checkbox"] {
+  width: auto;
   margin-right: 0.5rem;
 }
 
@@ -372,52 +333,74 @@
   margin-top: 1.5rem;
 }
 
-.cancelButton {
-  padding: 0.5rem 1.5rem;
-  border: 1px solid var(--border-color);
+.saveButton {
+  background-color: #28a745;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
   border-radius: 4px;
-  background: transparent;
-  color: var(--text-color);
   cursor: pointer;
-  transition: background-color 0.2s;
+}
+
+.saveButton:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.cancelButton {
+  background-color: #6c757d;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .cancelButton:hover:not(:disabled) {
-  background: var(--hover-bg);
+  background-color: #5a6268;
 }
 
 .error {
-  color: var(--error-color);
-  margin: 1rem 0;
-  padding: 0.5rem;
-  border-radius: 4px;
-  background: var(--error-bg);
+  color: #dc3545;
+  margin-top: 0.5rem;
 }
 
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
-  .formGroup label {
-    color: var(--dark-text-color);
+  .container h1,
+  .container h2 {
+    color: #e2e8f0;
   }
 
-  .formGroup input,
-  .formGroup textarea {
-    background: var(--dark-bg-color);
-    border-color: var(--dark-border-color);
-    color: var(--dark-text-color);
+  .card {
+    background: #1a202c;
+    border-color: #2d3748;
   }
 
-  .cancelButton {
-    border-color: var(--dark-border-color);
-    color: var(--dark-text-color);
+  .card h3 {
+    color: #e2e8f0;
   }
 
-  .cancelButton:hover:not(:disabled) {
-    background: var(--dark-hover-bg);
+  .card p {
+    color: #a0aec0;
   }
 
-  .error {
-    background: var(--dark-error-bg);
+  .modal {
+    background: #1a202c;
+  }
+
+  .formField label {
+    color: #e2e8f0;
+  }
+
+  .formField input,
+  .formField select {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+  }
+
+  .selectAll {
+    color: #e2e8f0;
   }
 }
 
@@ -1084,7 +1067,7 @@
 
 .headerActions {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
   align-items: center;
 }
 
@@ -1132,6 +1115,14 @@
   visibility: visible;
 }
 
+.selectAll {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
 .checkbox {
   width: 1.2rem;
   height: 1.2rem;
@@ -1140,7 +1131,12 @@
 
 .deleteAllButton {
   background-color: #dc3545;
-  margin-left: auto;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .deleteAllButton:hover:not(:disabled) {

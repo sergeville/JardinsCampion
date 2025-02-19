@@ -20,6 +20,7 @@
   "name": "jardins-campion",
   "version": "1.2.3",
   "private": true,
+  "type": "module",
   "description": "A simple HTML page for voting on JLC logo designs.",
   "main": "index.js",
   "scripts": {
@@ -30,7 +31,7 @@
     "lint:fix": "next lint --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "fix": "npm run format && npm run lint:fix",
-    "seed": "ts-node src/scripts/seedDatabase.ts",
+    "seed": "node src/scripts/seedDatabase.js",
     "show-data": "ts-node src/scripts/ShowMeTheData.ts",
     "pretest": "npm run lint",
     "test": "jest",

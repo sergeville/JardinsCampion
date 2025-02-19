@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import styles from './LogoModal.module.css';
 
@@ -26,7 +28,7 @@ export default function LogoModal({
   return (
     <>
       <div className={styles.overlay} onClick={onClose} />
-      <div className={styles.modal}>
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <button className={styles.closeButton} onClick={onClose}>
           ×
         </button>

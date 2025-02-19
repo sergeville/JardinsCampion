@@ -1,115 +1,119 @@
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: var(--background-color);
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 90vw;
-  max-height: 90vh;
-  width: auto;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 999;
-  cursor: pointer;
-}
-
-.imageContainer {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
+  z-index: 1000;
 }
 
-.image {
-  max-width: 100%;
-  max-height: 80vh;
-  object-fit: contain;
+.modal {
+  position: relative;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  z-index: 1001;
 }
 
 .closeButton {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: var(--background-color);
+  background: none;
   border: none;
-  border-radius: 50%;
+  font-size: 2rem;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
   width: 2rem;
   height: 2rem;
   display: flex;
-  justify-content: center;
   align-items: center;
-  cursor: pointer;
-  color: var(--text-color);
-  font-size: 1.2rem;
-  transition: background-color 0.2s;
+  justify-content: center;
+  transition: color 0.2s;
 }
 
 .closeButton:hover {
-  background-color: var(--hover-color);
+  color: #333;
 }
 
 .title {
-  color: var(--text-color);
-  margin-bottom: 1rem;
-  text-align: center;
-  font-size: 1.2rem;
-  font-weight: 600;
+  margin: 0 0 1rem;
+  color: #333;
+  font-size: 1.5rem;
 }
 
-.details {
-  margin-top: 1rem;
-  color: var(--text-color);
-  font-size: 0.9rem;
-  text-align: center;
+.imageContainer {
+  position: relative;
+  margin: 1rem 0;
 }
 
-.navigationButton {
+.image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.prevButton,
+.nextButton {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: var(--background-color);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
   border: none;
-  border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 1rem 0.75rem;
+  font-size: 2rem;
   cursor: pointer;
-  color: var(--text-color);
-  font-size: 1.5rem;
   transition: background-color 0.2s;
-  opacity: 0.8;
 }
 
-.navigationButton:hover {
-  opacity: 1;
-  background-color: var(--hover-color);
+.prevButton:hover,
+.nextButton:hover {
+  background: rgba(0, 0, 0, 0.7);
 }
 
 .prevButton {
-  composes: navigationButton;
   left: 1rem;
 }
 
 .nextButton {
-  composes: navigationButton;
   right: 1rem;
+}
+
+.details {
+  margin: 1rem 0 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .modal {
+    background: #1a1a1a;
+  }
+
+  .closeButton {
+    color: #999;
+  }
+
+  .closeButton:hover {
+    color: #fff;
+  }
+
+  .title {
+    color: #fff;
+  }
+
+  .details {
+    color: #999;
+  }
 } 
