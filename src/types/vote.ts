@@ -16,6 +16,7 @@ export interface VoteResult {
     resolution: 'keep-original' | 'use-new';
   };
   error?: string;
+  data?: any;
 }
 
 export interface UserVote {

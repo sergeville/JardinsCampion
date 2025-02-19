@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { getAllLogoStats, getVoteHistory, submitVote } from '@/app/actions';
 import type { VoteData, VoteResult, Logo } from '@/types/vote';
 import { networkRequest, NetworkError } from '@/lib/utils/networkManager';
+import { DB_CONSTANTS } from '@/constants/db';
 
 const REFRESH_INTERVAL = 60000; // 60 seconds
 const RATE_LIMIT = 10000; // 10 seconds
@@ -204,111 +205,52 @@ export function useVoteManagement({ onError }: VoteManagementProps = {}): VoteMa
     loadVoteData(true);
   }, [loadVoteData]);
 
-  const recordVote = useCallback(
-    async (voteData: VoteData) => {
-      if (!mounted.current) return;
+  const recordVote = async (voteData: VoteData): Promise<VoteResult | undefined> => {
+    try {
+      const response = await fetch('/api/votes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(voteData),
+      });
 
-      try {
-        const result = await networkRequest.standard(
-          async () => {
-            const response = await fetch('/api/votes', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(voteData),
-            });
+      const result = await response.json();
 
-            const data = await response.json();
-
-            if (!response.ok) {
-              // For 409 Conflict (already voted), return a special result
-              if (response.status === 409) {
-                return {
-                  success: false,
-                  status: 'rejected',
-                  conflictResolution: {
-                    originalVote: data.error,
-                    resolutionType: 'reject',
-                    resolvedAt: new Date(),
-                  },
-                };
-              }
-
-              // Handle other error cases
-              if (response.status === 401) {
-                throw new Error('Please ensure you are logged in before voting');
-              }
-              if (response.status === 408) {
-                throw new Error('Vote submission timed out. Please try again.');
-              }
-              throw new Error(data.error || 'Failed to submit vote');
-            }
-
-            return {
-              success: true,
-              status: 'confirmed',
-              data: data.data,
-            };
-          },
-          {
-            maxRetries: 2,
-            onRetry: (error, attempt) => {
-              console.warn(`Retrying vote submission (${attempt}/2):`, error);
-              setRequestState((prev) => ({
-                ...prev,
-                error: `Retrying vote submission (${attempt}/2)...`,
-                retryCount: attempt,
-              }));
-            },
-          }
-        );
-
-        setRequestState((prev) => ({
-          ...prev,
-          error: null,
-          retryCount: 0,
-        }));
-
-        if (result.success) {
-          // Immediately refresh data from server to ensure accurate counts
-          await loadVoteData(true);
-
-          // Update local state for immediate feedback
-          const updatedStats = {
-            ...voteStats,
-            [voteData.logoId]: (voteStats[voteData.logoId] || 0) + 1,
+      if (!response.ok) {
+        if (response.status === 409) {
+          // Handle duplicate vote
+          return {
+            status: DB_CONSTANTS.VOTE_STATUS.REJECTED,
+            error: 'Duplicate vote detected',
           };
-          setVoteStats(updatedStats);
-          setVoteCount(updatedStats);
-
-          setVoteHistory((prev) =>
-            [
-              {
-                ...voteData,
-                timestamp: new Date(voteData.timestamp),
-              },
-              ...prev,
-            ].slice(0, MAX_BATCH_SIZE)
-          );
         }
-
-        return result;
-      } catch (error) {
-        const networkError = error instanceof NetworkError ? error : null;
-        const errorMessage = networkError
-          ? `Vote submission failed${networkError.isTimeout ? ' (timeout)' : ''}: ${networkError.message}`
-          : error instanceof Error
-            ? error.message
-            : 'Failed to record vote';
-
-        console.error('Error recording vote:', error);
-        onError?.(error instanceof Error ? error : new Error(errorMessage));
-        throw error;
+        throw new Error(result.message || 'Vote submission failed');
       }
-    },
-    [onError, voteStats, loadVoteData]
-  );
+
+      if (result.conflictResolution) {
+        return {
+          status: DB_CONSTANTS.VOTE_STATUS.CONFIRMED,
+          conflictResolution: {
+            originalVote: result.conflictResolution.originalVote,
+            newVote: voteData,
+            resolution: 'keep-original',
+          },
+        };
+      }
+
+      return {
+        status: DB_CONSTANTS.VOTE_STATUS.CONFIRMED,
+        data: result.data,
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        onError?.(error);
+      }
+      return {
+        status: DB_CONSTANTS.VOTE_STATUS.REJECTED,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      };
+    }
+  };
 
   const resolveVoteConflict = async (newVote: VoteData, existingVote: VoteData) => {
     try {

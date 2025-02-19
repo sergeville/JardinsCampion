@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
-import { UserModel, LogoModel } from '../models';
+import UserModel from '../models/User';
+import LogoModel from '../models/Logo';
 
 // Get current file path
 const __filename = fileURLToPath(import.meta.url);
