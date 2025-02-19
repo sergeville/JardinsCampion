@@ -110,6 +110,96 @@ async function incrementVoteCount(logoId) {
 }
 ```
 
+### 4. Asset Loading Issues
+
+**Symptoms:**
+- 404 Not Found errors for logo files
+- Missing images in the UI
+- Incorrect file paths
+
+**Solutions:**
+
+```typescript
+// 1. Use proper path resolution
+const logoPath = path.join(process.cwd(), 'public', 'logos', filename);
+
+// 2. Validate file paths
+function validateLogoPath(path: string): boolean {
+  return /^\/logos\/.*\.(png|jpg|jpeg|svg)$/i.test(path);
+}
+
+// 3. Handle missing files gracefully
+function LogoImage({ src, alt }: LogoProps) {
+  const [error, setError] = useState(false);
+  
+  return error ? (
+    <FallbackImage alt={alt} />
+  ) : (
+    <img
+      src={src}
+      alt={alt}
+      onError={() => setError(true)}
+    />
+  );
+}
+```
+
+### 5. UI State Management
+
+**Symptoms:**
+- Checkbox selection not working
+- Inconsistent selection state
+- Multiple selection issues
+
+**Solutions:**
+
+```typescript
+// 1. Centralized selection state
+interface SelectionState {
+  selectedIds: Set<string>;
+  isAllSelected: boolean;
+}
+
+const [selection, setSelection] = useState<SelectionState>({
+  selectedIds: new Set(),
+  isAllSelected: false,
+});
+
+// 2. Type-safe selection handlers
+function handleSelect(id: string, checked: boolean) {
+  setSelection(prev => {
+    const newIds = new Set(prev.selectedIds);
+    if (checked) {
+      newIds.add(id);
+    } else {
+      newIds.delete(id);
+    }
+    return {
+      selectedIds: newIds,
+      isAllSelected: newIds.size === totalItems,
+    };
+  });
+}
+
+// 3. Batch operations with selection
+async function handleBatchDelete() {
+  if (selection.selectedIds.size === 0) return;
+  
+  try {
+    await withTransaction(async (session) => {
+      await Logo.deleteMany(
+        { _id: { $in: Array.from(selection.selectedIds) } },
+        { session }
+      );
+    });
+    
+    setSelection({ selectedIds: new Set(), isAllSelected: false });
+  } catch (error) {
+    handleError(error);
+  }
+}
+```
+
 ## Diagnostic Tools
 
 ### 1. Transaction Monitoring

@@ -4,11 +4,14 @@
 > This will cause a hydration error.
 
 ## Active Database
+
 The application at http://localhost:3000/show-data connects to:
+
 - Development: `jardins-campion-dev` (on port 27019)
 - Production: `jardins-campion-prod` (on port 27020)
 
 The active database is determined by the `NODE_ENV` environment variable:
+
 - If `NODE_ENV=production`: Uses `MONGODB_URI_PROD`
 - If `NODE_ENV` is not set or any other value: Uses `MONGODB_URI_DEV`
 
@@ -84,12 +87,14 @@ The active database is determined by the `NODE_ENV` environment variable:
 ## Key Features and Relationships
 
 1. **User Management**
+
    - Unique identification via `id`, `email`, and `userId`
    - Tracks voting history through `votedLogos` array
    - Maintains vote count and last vote timestamp
    - Full timestamp tracking (createdAt, updatedAt)
 
 2. **Vote System**
+
    - Unique compound index on `{userId, logoId}`
    - Indexed on `{logoId, status}` for efficient queries
    - Supports conflict resolution with optional metadata
@@ -106,25 +111,30 @@ The active database is determined by the `NODE_ENV` environment variable:
 ## Model Methods
 
 ### User Model
+
 - `findByEmail(email: string)`: Finds user by email (case-insensitive)
 - `findByUserId(userId: string)`: Finds user by userId
 - `canVote(logoId: string)`: Checks if user can vote for a logo
 
 ### Vote Model
+
 - `findUserVotes(userId: string)`: Gets confirmed votes for a user
 - `getVoteStats(logoId: string)`: Aggregates vote statistics for a logo
 
 ### Logo Model
+
 - `findActiveLogo(id: string)`: Finds active logo by ID
 
 ## Indexes and Performance Optimizations
 
 1. **Users Collection**
+
    - Indexed fields: `id`, `email`, `userId`
    - Optimistic concurrency enabled
    - Version tracking with `__v`
 
 2. **Vote Collection**
+
    - Compound unique index: `{userId, logoId}`
    - Performance index: `{logoId, status}`
    - No update tracking for better performance
@@ -136,11 +146,13 @@ The active database is determined by the `NODE_ENV` environment variable:
 ## Data Validation
 
 1. **User Model**
+
    - Email format validation
    - Name length constraints (2-50 chars)
    - Non-negative vote count
 
 2. **Logo Model**
+
    - URL format validation for logo sources
    - Minimum alt text length (10 chars)
    - Status enum validation
@@ -161,6 +173,7 @@ The active database is determined by the `NODE_ENV` environment variable:
 ### Model Mapping
 
 1. **Database Collections to Mongoose Models**
+
    - `users` collection → `UserModel` (`src/models/User.ts`)
    - `vote` collection → `VoteModel` (`src/models/Vote.ts`)
    - `logos` collection → `LogoModel` (`src/models/Logo.ts`)
@@ -176,11 +189,13 @@ The active database is determined by the `NODE_ENV` environment variable:
 ### Cross-Collection References
 
 1. **Vote References**
+
    - `Vote.userId` → `User.userId` (Foreign Key)
    - `Vote.logoId` → `Logo.id` (Foreign Key)
    - `Vote.ownerId` → `User.id` (Foreign Key)
 
 2. **Logo References**
+
    - `Logo.ownerId` → `User.id` (Foreign Key)
 
 3. **User References**
@@ -189,12 +204,14 @@ The active database is determined by the `NODE_ENV` environment variable:
 ### Data Flow and State Management
 
 1. **Vote Creation Flow**
+
    ```
    User Collection ←→ Vote Collection ←→ Logo Collection
    (validates user)    (creates vote)     (updates stats)
    ```
 
 2. **Logo Stats Calculation**
+
    ```
    Vote Collection → Logo Collection
    (aggregates votes) (updates voteCount)
@@ -209,11 +226,13 @@ The active database is determined by the `NODE_ENV` environment variable:
 ### Model-Specific Features
 
 1. **User Model**
+
    - Maintains vote history in `votedLogos` array
    - Tracks total votes through `voteCount`
    - Uses optimistic concurrency with `__v` version key
 
 2. **Vote Model**
+
    - Implements immutable vote records (no updates)
    - Uses compound indexing for `{userId, logoId}`
    - Supports conflict resolution metadata
@@ -226,11 +245,13 @@ The active database is determined by the `NODE_ENV` environment variable:
 ### Database Constraints
 
 1. **Uniqueness Constraints**
+
    - User: `id`, `email`, `userId`
    - Vote: Compound `{userId, logoId}`
    - Logo: `id`
 
 2. **Referential Integrity**
+
    - Vote → User (userId)
    - Vote → Logo (logoId)
    - Logo → User (ownerId)
@@ -293,6 +314,7 @@ Ref: "votes"."(userId, logoId)" [unique, note: 'Ensures one vote per user per lo
 ```
 
 This notation will generate a professional database diagram showing:
+
 - All tables and their fields
 - Primary and foreign key relationships
 - Field types and constraints
@@ -301,6 +323,7 @@ This notation will generate a professional database diagram showing:
 - Notes and documentation for fields
 
 You can view and modify the diagram by:
+
 1. Visit [dbdiagram.io](https://dbdiagram.io)
 2. Create a new diagram
 3. Copy and paste the above code

@@ -80,7 +80,7 @@ export function useVoteManagement({ onError }: VoteManagementProps = {}): VoteMa
       try {
         setRequestState((prev) => ({ ...prev, loading: true }));
 
-        const [stats, historyResponse] = await Promise.all([
+        const [stats, historyResponse, users] = await Promise.all([
           networkRequest.standard(
             async () => {
               const response = await fetch('/api/votes?action=stats');
@@ -117,9 +117,37 @@ export function useVoteManagement({ onError }: VoteManagementProps = {}): VoteMa
               },
             }
           ),
+          networkRequest.quick(
+            async () => {
+              const response = await fetch('/api/users');
+              if (!response.ok) {
+                throw new Error('Failed to fetch users');
+              }
+              const data = await response.json();
+              return data;
+            },
+            {
+              maxRetries: 2,
+              onRetry: (error, attempt) => {
+                console.warn(`Retrying users fetch (${attempt}/2):`, error);
+              },
+            }
+          ),
         ]);
 
         if (!mounted.current) return;
+
+        // Create a map of user IDs to user names
+        const userMap = users.reduce((acc: Record<string, string>, user: any) => {
+          acc[user.userId] = user.name;
+          return acc;
+        }, {});
+
+        // Add userName to each vote in the history
+        const voteHistoryWithUserNames = historyResponse.map((vote: VoteData) => ({
+          ...vote,
+          userName: userMap[vote.userId] || 'Unknown User',
+        }));
 
         setRequestState((prev) => ({
           ...prev,
@@ -128,7 +156,7 @@ export function useVoteManagement({ onError }: VoteManagementProps = {}): VoteMa
         }));
         setVoteStats(stats);
         setVoteCount(stats);
-        setVoteHistory(historyResponse);
+        setVoteHistory(voteHistoryWithUserNames);
         lastRefreshTime.current = now;
       } catch (error) {
         if (!mounted.current) return;

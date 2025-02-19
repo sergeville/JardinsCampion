@@ -218,10 +218,12 @@ async function seedDatabase() {
       },
     ];
 
-    const createdUsers = await Promise.all(users.map(async (userData) => {
-      const user = new User(userData);
-      return user.save();
-    }));
+    const createdUsers = await Promise.all(
+      users.map(async (userData) => {
+        const user = new User(userData);
+        return user.save();
+      })
+    );
     console.log('Created users:', createdUsers.length);
 
     // Create logos
@@ -270,10 +272,12 @@ async function seedDatabase() {
       },
     ];
 
-    const createdLogos = await Promise.all(logos.map(async (logoData) => {
-      const logo = new Logo(logoData);
-      return logo.save();
-    }));
+    const createdLogos = await Promise.all(
+      logos.map(async (logoData) => {
+        const logo = new Logo(logoData);
+        return logo.save();
+      })
+    );
     console.log('Created logos:', createdLogos.length);
 
     console.log('\nDatabase seeded successfully!');
@@ -293,4 +297,4 @@ async function seedDatabase() {
 }
 
 // Run the seeding function
-seedDatabase(); 
+seedDatabase();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ErrorMetadata, ERROR_METADATA, ErrorSeverity } from '@/lib/errors/types';
+import { ErrorMetadata, ERROR_METADATA, ErrorSeverity, ErrorCategory } from '@/lib/errors/types';
 import styles from './ErrorMessage.module.css';
 
 interface ErrorMessageProps {
@@ -24,7 +24,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
     if (isUserMessage) {
       return {
         severity: ErrorSeverity.INFO,
-        category: 'USER_MESSAGE',
+        category: ErrorCategory.USER_MESSAGE,
         recoverable: true,
         userMessage: error instanceof Error ? error.message : error,
         icon: '💬',

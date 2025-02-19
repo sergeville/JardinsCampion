@@ -78,12 +78,20 @@ export default function Vote() {
       return;
     }
 
+    // Find the selected user's name
+    const selectedUser = users.find((user) => user.id === selectedUserId);
+    if (!selectedUser) {
+      setError('Selected user not found');
+      return;
+    }
+
     try {
       const result = await recordVote({
         userId: selectedUserId,
         logoId: selectedLogo.id,
         timestamp: new Date(),
         ownerId: selectedLogo.ownerId,
+        userName: selectedUser.name,
       });
 
       if (!result) return;
@@ -108,7 +116,7 @@ export default function Vote() {
       }
       console.error('Error submitting vote:', err);
     }
-  }, [selectedLogo, selectedUserId, recordVote, refreshData, t]);
+  }, [selectedLogo, selectedUserId, recordVote, refreshData, t, users]);
 
   const handleModalClose = useCallback(() => {
     setShowModal(false);

@@ -50,6 +50,56 @@ try {
 }
 ```
 
+### 4. Type Safety and Runtime Checks
+
+```typescript
+// Always check for undefined before using Object.entries
+function processSchema(schema: Schema | undefined) {
+  if (!schema?.paths) {
+    throw new Error('Invalid schema: missing paths');
+  }
+
+  return Object.entries(schema.paths).map(([key, path]) => {
+    // Process schema paths safely
+  });
+}
+
+// Use type guards for safer error handling
+function isMongooseError(error: unknown): error is Error & { code?: string } {
+  return error instanceof Error && 'code' in error;
+}
+
+try {
+  await operation();
+} catch (error) {
+  if (isMongooseError(error) && error.code === 11000) {
+    // Handle duplicate key error
+  }
+}
+```
+
+### 5. Safe Model Operations
+
+```typescript
+// Type-safe model initialization
+function initializeModel<T extends Document, M extends Model<T>>(
+  name: string,
+  schema: Schema<T>
+): M {
+  return (mongoose.models[name] ||
+    mongoose.model<T, M>(name, schema)) as M;
+}
+
+// Safe schema access
+function getSchemaFields(schema: Schema | undefined): string[] {
+  if (!schema?.paths) {
+    return [];
+  }
+  
+  return Object.keys(schema.paths);
+}
+```
+
 ## Overview
 
 This document outlines our standardized approach to error handling across the application. We use a hierarchical system of error types, severities, and categories to provide consistent error handling and user feedback.
@@ -239,6 +289,43 @@ interface ErrorMetadata {
      await session.endSession();
    }
    ```
+
+## Best Practices for Error Prevention
+
+1. **Type Safety**
+   - Use TypeScript's strict mode
+   - Add type guards for runtime checks
+   - Validate data before operations
+
+2. **Null Checks**
+   - Always check for undefined/null values
+   - Use optional chaining and nullish coalescing
+   - Provide default values when appropriate
+
+3. **Error Boundaries**
+   - Implement component-level error boundaries
+   - Handle both sync and async errors
+   - Provide meaningful error messages
+
+```typescript
+class DatabaseErrorBoundary extends React.Component<Props, State> {
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log error to monitoring service
+    logError(error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorMessage error={this.state.error} />;
+    }
+    return this.props.children;
+  }
+}
+```
 
 ## Error Recovery Strategies
 

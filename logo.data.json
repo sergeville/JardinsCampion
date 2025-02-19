@@ -1,0 +1,282 @@
+{
+  "success": true,
+  "data": {
+    "schemas": {
+      "User": {
+        "id": {
+          "required": [true, "User ID is required"],
+          "unique": true,
+          "trim": true,
+          "index": true
+        },
+        "name": {
+          "required": [true, "Name is required"],
+          "trim": true,
+          "minlength": [2, "Name must be at least 2 characters long"],
+          "maxlength": [50, "Name cannot exceed 50 characters"]
+        },
+        "email": {
+          "required": [true, "Email is required"],
+          "unique": true,
+          "trim": true,
+          "lowercase": true,
+          "index": true,
+          "validate": { "message": "Invalid email format" }
+        },
+        "userId": {
+          "required": [true, "User ID is required"],
+          "unique": true,
+          "trim": true,
+          "index": true
+        },
+        "lastVoteAt": { "default": null },
+        "voteCount": { "default": 0, "min": [0, "Vote count cannot be negative"] },
+        "votedLogos": { "type": [null], "default": [] }
+      },
+      "Vote": {
+        "userId": { "required": [true, "User ID is required"], "ref": "User" },
+        "logoId": { "required": [true, "Logo ID is required"], "ref": "Logo" },
+        "timestamp": { "required": true },
+        "status": { "enum": ["confirmed", "rejected"], "default": "confirmed" },
+        "conflictResolution": {
+          "type": { "resolutionType": { "enum": ["reject"] } },
+          "required": false
+        }
+      },
+      "Logo": {
+        "id": {
+          "required": [true, "Logo ID is required"],
+          "unique": true,
+          "trim": true,
+          "index": true
+        },
+        "alt": {
+          "required": [true, "Alt text is required"],
+          "trim": true,
+          "minlength": [10, "Alt text must be at least 10 characters long"]
+        },
+        "src": {
+          "required": [true, "Logo source URL is required"],
+          "validate": { "message": "Invalid logo URL format" }
+        },
+        "ownerId": { "required": [true, "Owner ID is required"], "ref": "User" },
+        "status": { "enum": ["active", "inactive"], "default": "active", "index": true },
+        "contentType": { "required": false }
+      }
+    },
+    "collections": {
+      "users": [
+        {
+          "_id": "67b5f2806a4a0d58d1afc1a1",
+          "id": "marie-dubois",
+          "name": "Marie Dubois",
+          "email": "marie.dubois@example.com",
+          "userId": "marie-dubois",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-19T15:02:24.927Z",
+          "updatedAt": "2025-02-19T15:02:24.927Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1a2",
+          "id": "jean-tremblay",
+          "name": "Jean Tremblay",
+          "email": "jean.tremblay@example.com",
+          "userId": "jean-tremblay",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-19T15:02:24.927Z",
+          "updatedAt": "2025-02-19T15:02:24.927Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1a5",
+          "id": "isabelle-cote",
+          "name": "Isabelle Côté",
+          "email": "isabelle.cote@example.com",
+          "userId": "isabelle-cote",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-19T15:02:24.927Z",
+          "updatedAt": "2025-02-19T15:02:24.927Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1a6",
+          "id": "michel-bouchard",
+          "name": "Michel Bouchard",
+          "email": "michel.bouchard@example.com",
+          "userId": "michel-bouchard",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-19T15:02:24.927Z",
+          "updatedAt": "2025-02-19T15:02:24.927Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1a7",
+          "id": "claire-lemieux",
+          "name": "Claire Lemieux",
+          "email": "claire.lemieux@example.com",
+          "userId": "claire-lemieux",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-19T15:02:24.927Z",
+          "updatedAt": "2025-02-19T15:02:24.927Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1a8",
+          "id": "francois-roy",
+          "name": "François Roy",
+          "email": "francois.roy@example.com",
+          "userId": "francois-roy",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-19T15:02:24.927Z",
+          "updatedAt": "2025-02-19T15:02:24.927Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1a9",
+          "id": "anne-bergeron",
+          "name": "Anne Bergeron",
+          "email": "anne.bergeron@example.com",
+          "userId": "anne-bergeron",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-19T15:02:24.927Z",
+          "updatedAt": "2025-02-19T15:02:24.927Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1a3",
+          "id": "sophie-laurent",
+          "name": "Sophie Laurent",
+          "email": "sophie.laurent@example.com",
+          "userId": "sophie-laurent",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-19T15:02:24.927Z",
+          "updatedAt": "2025-02-19T15:02:24.927Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1a4",
+          "id": "pierre-gagnon",
+          "name": "Pierre Gagnon",
+          "email": "pierre.gagnon@example.com",
+          "userId": "pierre-gagnon",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-19T15:02:24.927Z",
+          "updatedAt": "2025-02-19T15:02:24.927Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1aa",
+          "id": "luc-morin",
+          "name": "Luc Morin",
+          "email": "luc.morin@example.com",
+          "userId": "luc-morin",
+          "lastVoteAt": null,
+          "voteCount": 0,
+          "votedLogos": [],
+          "createdAt": "2025-02-19T15:02:24.927Z",
+          "updatedAt": "2025-02-19T15:02:24.927Z",
+          "__v": 0
+        }
+      ],
+      "votes": [],
+      "logos": [
+        {
+          "_id": "67b5f2806a4a0d58d1afc1b6",
+          "id": "logo2",
+          "alt": "Elegant floral logo with intertwined leaves and vines in a circular design",
+          "src": "/logos/Logo2.png",
+          "ownerId": "marie-dubois",
+          "status": "active",
+          "createdAt": "2025-02-19T15:02:24.960Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1b7",
+          "id": "logo3",
+          "alt": "Modern minimalist garden logo with stylized plant elements",
+          "src": "/logos/Logo3.png",
+          "ownerId": "jean-tremblay",
+          "status": "active",
+          "createdAt": "2025-02-19T15:02:24.960Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1b8",
+          "id": "logo4",
+          "alt": "Nature-inspired logo featuring delicate leaf patterns",
+          "src": "/logos/Logo4.png",
+          "ownerId": "sophie-laurent",
+          "status": "active",
+          "createdAt": "2025-02-19T15:02:24.960Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1b5",
+          "id": "logo1",
+          "alt": "Classic garden design logo with ornate botanical details",
+          "src": "/logos/Logo1.png",
+          "ownerId": "pierre-gagnon",
+          "status": "active",
+          "createdAt": "2025-02-19T15:02:24.959Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1ba",
+          "id": "logo6",
+          "alt": "Sustainable garden design logo with eco-friendly elements",
+          "src": "/logos/Logo6.png",
+          "ownerId": "jean-tremblay",
+          "status": "active",
+          "createdAt": "2025-02-19T15:02:24.960Z",
+          "__v": 0
+        },
+        {
+          "_id": "67b5f2806a4a0d58d1afc1b9",
+          "id": "logo5",
+          "alt": "Contemporary garden logo with abstract plant motifs",
+          "src": "/logos/Logo5.png",
+          "ownerId": "marie-dubois",
+          "status": "active",
+          "createdAt": "2025-02-19T15:02:24.960Z",
+          "__v": 0
+        }
+      ]
+    },
+    "stats": {
+      "users": {
+        "count": 10,
+        "size": 2215,
+        "avgObjSize": 221,
+        "totalSize": 184320,
+        "totalIndexSize": 147456
+      },
+      "votes": { "count": 0, "size": 0, "totalSize": 16384, "totalIndexSize": 12288 },
+      "logos": {
+        "count": 6,
+        "size": 1224,
+        "avgObjSize": 204,
+        "totalSize": 147456,
+        "totalIndexSize": 110592
+      }
+    }
+  }
+}

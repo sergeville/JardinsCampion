@@ -29,6 +29,7 @@ export enum ErrorCategory {
   VALIDATION = 'VALIDATION',
   AUTHENTICATION = 'AUTHENTICATION',
   AUTHORIZATION = 'AUTHORIZATION',
+  USER_MESSAGE = 'USER_MESSAGE',
 }
 
 export interface ErrorAction {

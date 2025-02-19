@@ -5,6 +5,7 @@ export interface VoteData {
   logoId: string;
   timestamp: Date;
   ownerId?: string;
+  userName: string;
 }
 
 export interface VoteResult {

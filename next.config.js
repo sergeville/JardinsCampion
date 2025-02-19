@@ -20,10 +20,10 @@ const nextConfig = {
       dns: false,
       tls: false,
       assert: false,
-      crypto: require.resolve('crypto-browserify'),
-      stream: require.resolve('stream-browserify'),
-      buffer: require.resolve('buffer'),
-      util: require.resolve('util'),
+      crypto: 'crypto-browserify',
+      stream: 'stream-browserify',
+      buffer: 'buffer',
+      util: 'util',
     };
     return config;
   },
@@ -64,4 +64,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

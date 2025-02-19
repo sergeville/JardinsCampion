@@ -37,11 +37,11 @@ export default function ShowData() {
       try {
         const response = await fetch('/api/database-info');
         const result = await response.json();
-        
+
         if (!result.success) {
           throw new Error(result.error || 'Failed to fetch data');
         }
-        
+
         setData(result.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -74,11 +74,11 @@ export default function ShowData() {
       // Refresh data after deletion
       const updatedResponse = await fetch('/api/database-info');
       const result = await updatedResponse.json();
-      
+
       if (!result.success) {
         throw new Error(result.error || 'Failed to fetch updated data');
       }
-      
+
       setData(result.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while deleting');
@@ -104,11 +104,11 @@ export default function ShowData() {
       // Refresh data after update
       const updatedResponse = await fetch('/api/database-info');
       const result = await updatedResponse.json();
-      
+
       if (!result.success) {
         throw new Error(result.error || 'Failed to fetch updated data');
       }
-      
+
       setData(result.data);
       setEditModalOpen(false);
       setEditItem(null);
@@ -133,7 +133,7 @@ export default function ShowData() {
   return (
     <div className={styles.container}>
       <h1>Database Information</h1>
-      
+
       <section>
         <h2>Users ({data.collections.users.length})</h2>
         <div className={styles.dataGrid}>
@@ -144,13 +144,10 @@ export default function ShowData() {
               <p>Email: {user.email}</p>
               <p>Vote Count: {user.voteCount}</p>
               <div className={styles.actions}>
-                <button 
-                  onClick={() => handleEdit(user, 'user')}
-                  className={styles.editButton}
-                >
+                <button onClick={() => handleEdit(user, 'user')} className={styles.editButton}>
                   Edit
                 </button>
-                <button 
+                <button
                   onClick={() => handleDelete(user._id, 'user')}
                   className={styles.deleteButton}
                 >
@@ -168,22 +165,19 @@ export default function ShowData() {
           {data.collections.logos.map((logo) => (
             <div key={logo._id} className={styles.card}>
               <h3>Logo {logo.id}</h3>
-              <img 
-                src={logo.src} 
-                alt={logo.alt} 
+              <img
+                src={logo.src}
+                alt={logo.alt}
                 className={styles.logoImage}
                 onClick={() => setSelectedLogo(logo)}
               />
               <p>Owner ID: {logo.ownerId}</p>
               <p>Status: {logo.status}</p>
               <div className={styles.actions}>
-                <button 
-                  onClick={() => handleEdit(logo, 'logo')}
-                  className={styles.editButton}
-                >
+                <button onClick={() => handleEdit(logo, 'logo')} className={styles.editButton}>
                   Edit
                 </button>
-                <button 
+                <button
                   onClick={() => handleDelete(logo._id, 'logo')}
                   className={styles.deleteButton}
                 >
@@ -205,13 +199,10 @@ export default function ShowData() {
               <p>Logo ID: {vote.logoId}</p>
               <p>Status: {vote.status}</p>
               <div className={styles.actions}>
-                <button 
-                  onClick={() => handleEdit(vote, 'vote')}
-                  className={styles.editButton}
-                >
+                <button onClick={() => handleEdit(vote, 'vote')} className={styles.editButton}>
                   Edit
                 </button>
-                <button 
+                <button
                   onClick={() => handleDelete(vote._id, 'vote')}
                   className={styles.deleteButton}
                 >
@@ -223,18 +214,17 @@ export default function ShowData() {
         </div>
       </section>
 
-      {selectedLogo && (
-        <LogoModal
-          logo={selectedLogo}
-          onClose={() => setSelectedLogo(null)}
-        />
-      )}
+      {selectedLogo && <LogoModal logo={selectedLogo} onClose={() => setSelectedLogo(null)} />}
 
       {editModalOpen && editItem && editType && data?.schemas && (
         <DataEditModal
           data={editItem}
           type={editType}
-          schema={data.schemas[editType.charAt(0).toUpperCase() + editType.slice(1)]}
+          schema={
+            data.schemas[
+              (editType.charAt(0).toUpperCase() + editType.slice(1)) as keyof typeof data.schemas
+            ]
+          }
           onSave={handleSave}
           onClose={() => {
             setEditModalOpen(false);
