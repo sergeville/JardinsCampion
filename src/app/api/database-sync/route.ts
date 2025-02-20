@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server';
-import connectDB from '@/lib/mongodb';
+import { NextRequest, NextResponse } from 'next/server';
+import { connectDB } from '@/lib/mongodb';
 import UserModel from '@/models/User';
 import VoteModel from '@/models/Vote';
 import LogoModel from '@/models/Logo';
