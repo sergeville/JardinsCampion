@@ -46,11 +46,12 @@ const userSchema = new mongoose.Schema(
 );
 
 const logoSchema = new mongoose.Schema({
-  value: {
+  id: {
     type: String,
     required: true,
     unique: true,
     trim: true,
+    index: true,
   },
   src: {
     type: String,
@@ -138,11 +139,11 @@ async function cleanupInvalidVotes() {
         const ownedLogos = await Logo.find({ ownerId: user.userId });
         console.log(`User owns ${ownedLogos.length} logos`);
 
-        // Get the values of owned logos
-        const ownedLogoValues = ownedLogos.map((logo) => logo.value);
+        // Get the IDs of owned logos
+        const ownedLogoIds = ownedLogos.map((logo) => logo.id);
 
         // Check if user has voted for any of their own logos
-        const invalidVotes = user.votedLogos.filter((logoId) => ownedLogoValues.includes(logoId));
+        const invalidVotes = user.votedLogos.filter((logoId) => ownedLogoIds.includes(logoId));
 
         if (invalidVotes.length > 0) {
           console.log(
@@ -163,7 +164,7 @@ async function cleanupInvalidVotes() {
 
             // Update logo's vote stats
             await Logo.findOneAndUpdate(
-              { value: logoId },
+              { id: logoId },
               {
                 $inc: {
                   'voteStats.totalVotes': -1,
@@ -204,7 +205,7 @@ async function cleanupInvalidVotes() {
       status: 'confirmed',
       $or: [
         { userId: { $nin: users.map((u) => u.userId) } },
-        { logoId: { $nin: (await Logo.find()).map((l) => l.value) } },
+        { logoId: { $nin: (await Logo.find()).map((l) => l.id) } },
       ],
     });
 

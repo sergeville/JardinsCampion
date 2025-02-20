@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.4] - 2024-02-20
+
+### Fixed
+
+- MongoDB Connection Imports:
+  - Updated all API routes to use named imports for MongoDB connection
+  - Fixed import statements in database-sync and database-info routes
+  - Ensured consistent use of `{ connectDB }` import syntax
+  - Improved code consistency across database operations
+
+### Documentation
+
+- Updated MongoDB connection usage documentation
+- Enhanced import syntax guidelines in DatabaseSetup.md
+- Added examples of correct import patterns
+
 ## [1.2.1] - 2025-02-13
 
 ### Fixed
@@ -178,6 +194,22 @@
 - Dark/Light mode toggle
 - Responsive design
 - Vote history tracking
+
+## [1.2.3] - 2025-02-20
+
+### Fixed
+
+- MongoDB Connection Imports:
+  - Updated database connection imports to use named exports consistently
+  - Fixed build errors related to default exports in MongoDB connection
+  - Updated API routes to use correct import syntax
+  - Added documentation for proper MongoDB connection usage
+
+### Documentation
+
+- Added MongoDB connection import guidelines to DatabaseSetup.md
+- Updated troubleshooting section with import-related issues
+- Enhanced documentation clarity for database connection usage
 
 ## [Unreleased]
 

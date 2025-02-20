@@ -11,11 +11,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Filename is required' }, { status: 400 });
     }
 
-    // Extract the logo value from the filename
-    const value = filename.replace(/\.(png|jpg|jpeg|gif|svg)$/i, '');
+    // Extract the logo ID from the filename
+    const id = filename.replace(/\.(png|jpg|jpeg|gif|svg)$/i, '');
 
     // Find the logo in the database
-    const logo = await LogoModel.findActiveLogo(value);
+    const logo = await LogoModel.findActiveLogo(id);
 
     if (!logo) {
       return NextResponse.json({ error: 'Logo not found' }, { status: 404 });

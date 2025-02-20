@@ -33,7 +33,11 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
 
     // First check if error has metadata attached
     if (error instanceof Error && 'metadata' in error) {
-      return error.metadata as ErrorMetadata;
+      const errorWithMetadata = error as Error & { metadata: ErrorMetadata };
+      return {
+        ...errorWithMetadata.metadata,
+        userMessage: errorWithMetadata.metadata.userMessage || error.message,
+      };
     }
 
     const errorMessage = error instanceof Error ? error.message : error;
@@ -44,14 +48,15 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
       if (errorName.includes(errorType) || errorMessage.includes(errorType)) {
         return {
           ...metadata,
-          userMessage: metadata.userMessage || errorMessage,
+          userMessage: errorMessage,
         };
       }
     }
 
+    // Use default error metadata
     return {
       ...ERROR_METADATA.DEFAULT_ERROR,
-      userMessage: 'An unexpected error occurred. Please try again later.',
+      userMessage: errorMessage || 'An unexpected error occurred. Please try again later.',
     };
   };
 

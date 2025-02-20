@@ -6,7 +6,8 @@
 2. [Database Configuration](#database-configuration)
 3. [Initial Data Setup](#initial-data-setup)
 4. [Running the Application](#running-the-application)
-5. [Troubleshooting](#troubleshooting)
+5. [MongoDB Connection Usage](#mongodb-connection-usage)
+6. [Troubleshooting](#troubleshooting)
 
 ## Local Development Setup
 
@@ -211,6 +212,75 @@ npm run dev
 - Database info: `http://localhost:3000/show-data`
 - API endpoint: `http://localhost:3000/api`
 
+## MongoDB Connection Usage
+
+### Importing the MongoDB Connection
+When using the MongoDB connection in your code, it's crucial to use named imports correctly. The MongoDB connection utilities are exported as named exports from `@/lib/mongodb`:
+
+```typescript
+// ✅ Correct way to import
+import { connectDB } from '@/lib/mongodb';
+import { connectDB, disconnectFromDatabase, checkDatabaseConnection } from '@/lib/mongodb';
+
+// ❌ Incorrect ways (will cause build errors)
+import connectDB from '@/lib/mongodb';
+import * as mongodb from '@/lib/mongodb';
+```
+
+### Available Database Utilities
+The MongoDB connection module exports the following named functions:
+
+- `connectDB`: Main connection function that handles connection caching and retries
+- `disconnectFromDatabase`: Safely closes the database connection
+- `checkDatabaseConnection`: Verifies the current connection status
+- `withRetry`: Utility for retrying database operations with exponential backoff
+
+### Example Usage in API Routes
+
+```typescript
+import { connectDB } from '@/lib/mongodb';
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  try {
+    // Connect to the database
+    await connectDB();
+    
+    // Your database operations here
+    const result = await YourModel.find();
+    
+    return NextResponse.json({ data: result });
+  } catch (error) {
+    console.error('Database operation failed:', error);
+    return NextResponse.json(
+      { error: 'Database operation failed' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### Best Practices
+
+1. **Always use named imports**:
+   - Use `import { connectDB }` instead of default imports
+   - Import only the functions you need
+
+2. **Connection Management**:
+   - Let `connectDB` handle connection caching
+   - Don't create multiple connections manually
+   - Use `disconnectFromDatabase` for cleanup in tests
+
+3. **Error Handling**:
+   - Always wrap database operations in try-catch blocks
+   - Use the `withRetry` utility for operations that may fail
+   - Log errors appropriately before responding to clients
+
+4. **Testing**:
+   - Mock database connections in tests
+   - Clean up connections after tests
+   - Use test database URLs in test environment
+
 ## Troubleshooting
 
 ### Common Issues
@@ -226,7 +296,7 @@ static async getAllLogoStats() {
     const logos = await LogoModel.find({ status: 'active' }).lean();
     const stats = await Promise.all(
       logos.map(async (logo) => ({
-        logoId: `logo${logo.value}`, // Ensure logo.value exists
+        logoId: `logo${logo.id}`, // Use logo.id to construct the logoId
         voteCount: 0,
         lastVote: null
       }))
@@ -259,6 +329,20 @@ db.logos.find().pretty()
 # Verify logo IDs
 db.logos.distinct("value")
 ```
+
+#### 3. Import Errors
+If you see build errors related to MongoDB imports:
+
+```typescript
+// Error: Module '@/lib/mongodb' has no default export
+// Fix: Use named import instead
+import { connectDB } from '@/lib/mongodb';
+```
+
+Common import-related issues:
+- Using default import instead of named import
+- Missing curly braces in import statement
+- Incorrect path to mongodb utility file
 
 ### Quick Fixes
 

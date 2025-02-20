@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import type { RequestInit } from 'next/dist/server/web/spec-extension/request';
 
 // Mock Headers
 const mockHeaders = {
@@ -17,7 +18,24 @@ const mockHeaders = {
 const originalNextRequest = NextRequest;
 class MockNextRequest extends originalNextRequest {
   constructor(input: string | Request, init?: RequestInit) {
-    super(input, init);
+    // Create a minimal RequestInit object that matches Next.js requirements
+    const nextInit = init ? {
+      method: init.method,
+      headers: init.headers,
+      body: init.body,
+      signal: init.signal === null ? undefined : init.signal,
+      cache: init.cache,
+      credentials: init.credentials,
+      integrity: init.integrity,
+      keepalive: init.keepalive,
+      mode: init.mode,
+      redirect: init.redirect,
+      referrer: init.referrer,
+      referrerPolicy: init.referrerPolicy,
+      window: init.window,
+    } : {};
+
+    super(input, nextInit as RequestInit);
     Object.defineProperty(this, 'cookies', {
       get: () => ({
         get: jest.fn(),

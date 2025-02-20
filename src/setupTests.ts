@@ -7,8 +7,15 @@ global.Response = jest.fn() as any;
 global.Request = jest.fn() as any;
 
 // Mock TextEncoder/TextDecoder
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
+Object.defineProperty(global, 'TextEncoder', {
+  value: TextEncoder,
+  writable: true,
+});
+
+Object.defineProperty(global, 'TextDecoder', {
+  value: TextDecoder,
+  writable: true,
+});
 
 // Mock EventSource
 class MockEventSource {
@@ -54,12 +61,10 @@ class MockEventSource {
 
   mockMessage(data: any) {
     const event = {
+      data: JSON.stringify(data),
       type: 'message',
-      data: data,
-      origin: window.location.origin,
       lastEventId: '',
-      source: null,
-      ports: []
+      origin: this.url,
     };
     if (this.onmessage) this.onmessage(event);
     if (this.listeners.message) {
@@ -80,7 +85,11 @@ class MockEventSource {
   }
 }
 
-global.EventSource = MockEventSource as any;
+// Add MockEventSource to global
+Object.defineProperty(global, 'EventSource', {
+  value: MockEventSource,
+  writable: true,
+});
 
 // Mock environment variables
 process.env.MONGODB_URI_DEV = 'mongodb://localhost:27017/test';

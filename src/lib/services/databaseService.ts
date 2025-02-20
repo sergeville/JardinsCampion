@@ -353,9 +353,9 @@ export class DatabaseService {
 
       // Create stats for each logo using the actual logos from the database
       const stats = logos.map((logo) => ({
-        logoId: `logo${logo.value}`, // Use logo.value instead of logo.id
-        voteCount: voteCountMap.get(`logo${logo.value}`) || 0, // Match the format in vote records
-        lastVote: lastVoteMap.get(`logo${logo.value}`) || null,
+        logoId: `logo${logo.id}`, // Use logo.id instead of logo.value
+        voteCount: voteCountMap.get(`logo${logo.id}`) || 0, // Match the format in vote records
+        lastVote: lastVoteMap.get(`logo${logo.id}`) || null,
       }));
 
       console.log('DatabaseService: Logo stats:', JSON.stringify(stats, null, 2));
