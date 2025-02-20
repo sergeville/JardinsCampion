@@ -1,9 +1,9 @@
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
 import mongoose from 'mongoose';
-import connectDB from '../lib/mongodb';
-import VoteModel from '../models/Vote';
-import LogoModel from '../models/Logo';
+import { connectDB } from '@/lib/mongodb';
+import VoteModel from '@/models/Vote';
+import LogoModel from '@/models/Logo';
 
 // Load environment variables
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });

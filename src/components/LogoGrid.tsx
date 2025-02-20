@@ -1,110 +1,133 @@
-import { useCallback, useState } from 'react';
+import React, { useEffect, useState, useRef, KeyboardEvent } from 'react';
 import Image from 'next/image';
 import styles from './LogoGrid.module.css';
-import { Logo } from '@/types/vote';
-import ErrorMessage from './ErrorMessage';
+import type { Logo } from '@/types/vote';
 
 interface LogoGridProps {
   logos: Logo[];
   selectedLogo: Logo | null;
+  onSelectLogo: (logo: Logo) => void;
   voteCount: Record<string, number>;
-  loading: boolean;
-  onLogoSelect: (logo: Logo) => void;
+  loading?: boolean;
+  error?: string | null;
   t: {
     selectThis: string;
     votes: string;
   };
 }
 
-export function LogoGrid({
+export const LogoGrid: React.FC<LogoGridProps> = ({
   logos,
   selectedLogo,
+  onSelectLogo,
   voteCount,
-  loading,
-  onLogoSelect,
+  loading = false,
+  error = null,
   t,
-}: LogoGridProps) {
-  const [errors, setErrors] = useState<string[]>([]);
+}) => {
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [focusIndex, setFocusIndex] = useState(0);
+  const gridRef = useRef<HTMLDivElement>(null);
 
-  const handleLogoClick = useCallback(
-    (logo: Logo) => {
-      if (!loading) {
-        onLogoSelect(logo);
-      }
-    },
-    [loading, onLogoSelect]
-  );
+  useEffect(() => {
+    if (error) {
+      setErrorMessage(error);
+      const timer = setTimeout(() => {
+        setErrorMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>, logo: Logo) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        handleLogoClick(logo);
-      }
-    },
-    [handleLogoClick]
-  );
+  const handleImageError = (logoId: string) => {
+    setImageErrors((prev) => ({ ...prev, [logoId]: true }));
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>, index: number) => {
+    if (loading) return;
+
+    const validLogos = logos.filter((logo) => logo.id);
+    const maxIndex = validLogos.length - 1;
+
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        e.preventDefault();
+        setFocusIndex((prev) => Math.min(prev + 1, maxIndex));
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        e.preventDefault();
+        setFocusIndex((prev) => Math.max(prev - 1, 0));
+        break;
+      case 'Home':
+        e.preventDefault();
+        setFocusIndex(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        setFocusIndex(maxIndex);
+        break;
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        onSelectLogo(validLogos[index]);
+        break;
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    const gridElement = gridRef.current;
+    if (gridElement) {
+      const focusableElements = gridElement.querySelectorAll('[role="radio"]');
+      const elementToFocus = focusableElements[focusIndex] as HTMLElement;
+      elementToFocus?.focus();
+    }
+  }, [focusIndex, loading]);
+
+  const validLogos = logos.filter((logo) => logo.id);
 
   return (
-    <div>
-      {errors.length > 0 && (
-        <div className={styles.errorContainer}>
-          {errors.map((error, index) => (
-            <ErrorMessage
-              key={index}
-              error={error}
-              className={styles.error}
-              showIcon={true}
-              inline={true}
+    <div
+      ref={gridRef}
+      role="radiogroup"
+      aria-label="Select a logo to vote"
+      className={styles.grid}
+      aria-busy={loading}
+    >
+      {logos.map((logo, index) => (
+        <div
+          key={logo.id}
+          role="radio"
+          aria-checked={selectedLogo?.id === logo.id}
+          tabIndex={loading ? -1 : index === focusIndex ? 0 : -1}
+          className={`${styles.logoWrapper} ${selectedLogo?.id === logo.id ? styles.selected : ''}`}
+          onClick={() => !loading && onSelectLogo(logo)}
+          onKeyDown={(e) => handleKeyDown(e, index)}
+          aria-label={`${logo.alt} - ${t.selectThis} (${voteCount[logo.id] || 0} ${t.votes})`}
+        >
+          <div className={`${styles.logo} ${loading ? styles.disabled : ''}`}>
+            <Image
+              src={imageErrors[logo.id] ? '/placeholder.png' : logo.imageUrl}
+              alt={logo.alt}
+              width={300}
+              height={300}
+              onError={() => handleImageError(logo.id)}
             />
-          ))}
+            <div className={styles.voteCount}>
+              {t.selectThis} ({voteCount[logo.id] || 0} {t.votes})
+            </div>
+          </div>
+        </div>
+      ))}
+      {errorMessage && (
+        <div className={styles.error} role="alert">
+          {errorMessage}
         </div>
       )}
-
-      <div className={styles.grid} role="radiogroup" aria-label="Select a logo to vote">
-        {logos.map((logo) => {
-          const isSelected = selectedLogo?.id === logo.id;
-          const votes = voteCount[logo.id] || 0;
-          const voteText = `${t.selectThis} (${votes} ${t.votes})`;
-          const altText = logo.alt || `Les Jardins du Lac Campion logo ${logo.id}`;
-
-          return (
-            <div key={logo.id} className={styles.logoWrapper} aria-hidden={loading}>
-              <div
-                role="radio"
-                aria-checked={isSelected}
-                aria-label={`${altText} - ${voteText}`}
-                tabIndex={loading ? -1 : 0}
-                onClick={() => handleLogoClick(logo)}
-                onKeyDown={(e) => handleKeyDown(e, logo)}
-                className={`${styles.logo} ${isSelected ? styles.selected : ''}`}
-              >
-                <Image
-                  src={logo.imageUrl}
-                  alt={altText}
-                  width={300}
-                  height={300}
-                  priority
-                  style={{ objectFit: 'contain', backgroundColor: 'white', padding: '10px' }}
-                  onError={() => {
-                    const errorMessage = `Failed to load image for Logo #${logo.id}`;
-                    if (!errors.includes(errorMessage)) {
-                      setErrors((prev) => [...prev, errorMessage]);
-                      // Remove the error after 3 seconds
-                      setTimeout(() => {
-                        setErrors((prev) => prev.filter((e) => e !== errorMessage));
-                      }, 3000);
-                    }
-                  }}
-                />
-                <div className={styles.voteCount} aria-hidden="true">
-                  {`${t.selectThis} (${votes} ${t.votes})`}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
-}
+};

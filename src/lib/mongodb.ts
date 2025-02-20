@@ -21,7 +21,7 @@ if (!MONGODB_URI) {
 let cachedConnection: typeof mongoose | null = null;
 let connectionPromise: Promise<typeof mongoose> | null = null;
 
-async function connectDB(): Promise<typeof mongoose> {
+export const connectDB = async (): Promise<typeof mongoose> => {
   if (cachedConnection) {
     return cachedConnection;
   }
@@ -37,7 +37,7 @@ async function connectDB(): Promise<typeof mongoose> {
     socketTimeoutMS: 45000,
     family: 4,
     authSource: 'admin',
-    directConnection: true,
+    replicaSet: process.env.NODE_ENV === 'production' ? 'rs1' : 'rs0',
     retryWrites: true,
     retryReads: true,
     writeConcern: {
@@ -56,9 +56,9 @@ async function connectDB(): Promise<typeof mongoose> {
     connectionPromise = null;
     throw error;
   }
-}
+};
 
-export async function disconnectFromDatabase(): Promise<void> {
+export const disconnectFromDatabase = async (): Promise<void> => {
   if (cachedConnection) {
     try {
       await mongoose.disconnect();
@@ -70,18 +70,18 @@ export async function disconnectFromDatabase(): Promise<void> {
       throw error;
     }
   }
-}
+};
 
-export function getBackoffDelay(attempt: number): number {
+export const getBackoffDelay = (attempt: number): number => {
   return Math.min(INITIAL_RETRY_DELAY * Math.pow(2, attempt), MAX_RETRY_DELAY);
-}
+};
 
-export async function withRetry<T>(
+export const withRetry = async <T>(
   operation: () => Promise<T>,
-  maxRetries: number,
+  maxRetries: number = MAX_RETRIES,
   initialDelay: number = INITIAL_RETRY_DELAY,
   maxDelay: number = MAX_RETRY_DELAY
-): Promise<T> {
+): Promise<T> => {
   let currentDelay = initialDelay;
   let attempt = 1;
 
@@ -118,9 +118,9 @@ export async function withRetry<T>(
       });
     }
   }
-}
+};
 
-export async function checkDatabaseConnection(): Promise<boolean> {
+export const checkDatabaseConnection = async (): Promise<boolean> => {
   try {
     const connection = await connectDB();
     return connection.connection.readyState === 1;
@@ -128,6 +128,4 @@ export async function checkDatabaseConnection(): Promise<boolean> {
     console.error('Database connection check failed:', error);
     return false;
   }
-}
-
-export default connectDB;
+};

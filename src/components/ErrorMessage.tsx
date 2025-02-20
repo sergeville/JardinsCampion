@@ -42,11 +42,17 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
     // Try to find exact error type match
     for (const [errorType, metadata] of Object.entries(ERROR_METADATA)) {
       if (errorName.includes(errorType) || errorMessage.includes(errorType)) {
-        return metadata;
+        return {
+          ...metadata,
+          userMessage: metadata.userMessage || errorMessage,
+        };
       }
     }
 
-    return ERROR_METADATA.DEFAULT_ERROR;
+    return {
+      ...ERROR_METADATA.DEFAULT_ERROR,
+      userMessage: 'An unexpected error occurred. Please try again later.',
+    };
   };
 
   const metadata = getErrorMetadata(error);

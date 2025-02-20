@@ -44,6 +44,15 @@ describe('VoteHistory', () => {
   beforeEach(() => {
     // Mock scrollIntoView since it's not implemented in JSDOM
     Element.prototype.scrollIntoView = jest.fn();
+    
+    // Mock matchMedia to return false for reduced motion
+    window.matchMedia = jest.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    }));
   });
 
   it('renders the title', () => {
@@ -146,8 +155,9 @@ describe('VoteHistory', () => {
 
     const voteItems = screen.getAllByRole('listitem');
     voteItems.forEach(item => {
-      const styles = window.getComputedStyle(item);
-      expect(styles.animation).toBe('none');
+      expect(item.className).toContain('voteItem');
+      // Check that the element has the no-animation class
+      expect(item.className).toContain('noAnimation');
     });
   });
 

@@ -11,8 +11,8 @@ const env = {
 };
 process.env = env;
 
-import connectDB from '../lib/mongodb';
-import LogoModel from '../models/Logo';
+import { connectDB } from '@/lib/mongodb';
+import LogoModel from '@/models/Logo';
 
 const logos = [
   {
@@ -64,6 +64,17 @@ const logos = [
     src: '/logos/Logo5.png',
     alt: 'Modern geometric garden logo combining precise angular shapes with organic plant forms, representing the fusion of structured design with natural elements',
     ownerId: 'owner345',
+    status: 'active',
+    voteStats: {
+      totalVotes: 0,
+      uniqueVoters: 0,
+    },
+  },
+  {
+    value: '6',
+    src: '/logos/Logo6.png',
+    alt: 'Sustainable garden design logo with eco-friendly elements and natural motifs',
+    ownerId: 'owner678',
     status: 'active',
     voteStats: {
       totalVotes: 0,

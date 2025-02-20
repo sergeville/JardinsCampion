@@ -217,6 +217,20 @@ export default function ShowData() {
         </div>
       </section>
 
+      <section>
+        <h2>Stats</h2>
+        <div className={styles.dataGrid}>
+          {Object.entries(data.stats).map(([collection, stats]) => (
+            <div key={collection} className={styles.card}>
+              <h3>{collection.charAt(0).toUpperCase() + collection.slice(1)} Stats</h3>
+              {Object.entries(stats).map(([key, value]) => (
+                <p key={key}>{key}: {typeof value === 'number' ? value.toLocaleString() : String(value)}</p>
+              ))}
+            </div>
+          ))}
+        </div>
+      </section>
+
       {selectedLogo && <LogoModal logo={selectedLogo} onClose={() => setSelectedLogo(null)} />}
 
       {editModalOpen && editItem && editType && data?.schemas && (

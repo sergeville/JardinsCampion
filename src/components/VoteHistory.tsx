@@ -34,54 +34,83 @@ export default function VoteHistory({
   const voteListRef = useRef<HTMLUListElement>(null);
   const prevVoteCountRef = useRef(voteHistory.length);
   const prevVotesRef = useRef<{ [key: string]: string }>({});
+  const processedVotesRef = useRef<Set<string>>(new Set());
+  const lastVoteUpdateRef = useRef<string | null>(null);
+  const lastProcessedTimestampRef = useRef<number>(0);
+  const prevVoteHistoryRef = useRef<typeof voteHistory>([]);
+  const processedVoteTimestampsRef = useRef<Set<number>>(new Set());
+  
+  const prefersReducedMotion = typeof window !== 'undefined' && 
+    window.matchMedia && 
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Reset processed votes when vote history changes
+  useEffect(() => {
+    processedVotesRef.current = new Set();
+  }, [voteHistory]);
 
   // Handle vote updates and restrictions
   useEffect(() => {
     if (voteHistory.length === 0) return;
 
     const latestVote = voteHistory[0];
-    
+    const prevVoteHistory = prevVoteHistoryRef.current;
+
+    // Skip if the vote history hasn't changed
+    if (JSON.stringify(voteHistory) === JSON.stringify(prevVoteHistory)) return;
+
     // Check if owner is trying to vote for their own logo
     if (latestVote.userId === latestVote.ownerId) {
       onError?.(new Error(translations.ownerVoteError || 'Logo owners cannot vote for their own logos'));
       return;
     }
 
-    // Check for vote changes
-    const prevVote = prevVotesRef.current[latestVote.userId];
-    if (prevVote && prevVote !== latestVote.logoId) {
-      // Decrement previous vote
+    // Find the user's previous vote in the previous vote history
+    const userPreviousVote = prevVoteHistory.find(vote => vote.userId === latestVote.userId);
+
+    // Determine if this is a new vote or a vote change
+    const isNewVote = !userPreviousVote;
+    const isVoteChange = userPreviousVote && userPreviousVote.logoId !== latestVote.logoId;
+
+    // Process the vote update
+    if (isVoteChange) {
+      // First decrement the previous vote
       onVoteUpdate?.({
-        ...latestVote,
-        logoId: prevVote,
-        action: 'decrement',
+        ...userPreviousVote,
+        action: 'decrement'
       });
-      
-      // Increment new vote
+
+      // Then increment the new vote
       onVoteUpdate?.({
         ...latestVote,
-        action: 'increment',
+        action: 'increment'
       });
-    } else if (!prevVote) {
-      // New vote
+    } else if (isNewVote) {
+      // Only increment for new votes
       onVoteUpdate?.({
         ...latestVote,
-        action: 'increment',
+        action: 'increment'
       });
     }
 
-    // Update previous votes record
-    prevVotesRef.current[latestVote.userId] = latestVote.logoId;
-  }, [voteHistory, onVoteUpdate, onError, translations.ownerVoteError]);
+    // Update the previous vote history reference
+    prevVoteHistoryRef.current = [...voteHistory];
+  }, [voteHistory, onError, translations.ownerVoteError, onVoteUpdate]);
 
   // Handle smooth scrolling when new votes are added
   useEffect(() => {
-    if (voteHistory.length > prevVoteCountRef.current && voteListRef.current) {
-      const firstNewItem = voteListRef.current.children[0];
-      firstNewItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (
+      voteHistory.length > prevVoteCountRef.current &&
+      voteListRef.current &&
+      !prefersReducedMotion
+    ) {
+      const firstNewItem = voteListRef.current.firstElementChild;
+      if (firstNewItem && typeof firstNewItem.scrollIntoView === 'function') {
+        firstNewItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }
     prevVoteCountRef.current = voteHistory.length;
-  }, [voteHistory.length]);
+  }, [voteHistory.length, prefersReducedMotion]);
 
   // Optimize re-renders by memoizing the vote list
   const renderVoteList = useCallback(() => {
@@ -104,7 +133,7 @@ export default function VoteHistory({
       return (
         <li
           key={`${vote.userId}-${vote.logoId}-${index}`}
-          className={styles.voteItem}
+          className={`${styles.voteItem} ${prefersReducedMotion ? styles.noAnimation : ''}`}
           aria-label={`${vote.userName} voted for Logo #${vote.logoId}`}
         >
           <span className={styles.voterName}>{vote.userName}</span>
@@ -126,7 +155,7 @@ export default function VoteHistory({
         </li>
       );
     });
-  }, [voteHistory, translations]);
+  }, [voteHistory, translations, prefersReducedMotion]);
 
   if (loading) {
     return (

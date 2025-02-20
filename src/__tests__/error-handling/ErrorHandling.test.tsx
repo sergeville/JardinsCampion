@@ -24,18 +24,28 @@ describe('Error Handling', () => {
 
   describe('ErrorMessage Component', () => {
     it('renders error message with icon', () => {
-      render(<ErrorMessage error="NETWORK_ERROR" showIcon={true} />);
-      expect(
-        screen.getByText('Unable to connect to the server. Please check your internet connection.')
-      ).toBeInTheDocument();
+      const error = new NetworkError('Network error occurred', {
+        severity: ErrorSeverity.ERROR,
+        category: ErrorCategory.NETWORK,
+        recoverable: true,
+        userMessage: 'Unable to connect to the server. Please check your internet connection.',
+        icon: '🌐',
+      });
+      render(<ErrorMessage error={error} showIcon={true} />);
+      expect(screen.getByText('Unable to connect to the server. Please check your internet connection.')).toBeInTheDocument();
       expect(screen.getByText('🌐')).toBeInTheDocument();
     });
 
     it('hides icon when showIcon is false', () => {
-      render(<ErrorMessage error="NETWORK_ERROR" showIcon={false} />);
-      expect(
-        screen.getByText('Unable to connect to the server. Please check your internet connection.')
-      ).toBeInTheDocument();
+      const error = new NetworkError('Network error occurred', {
+        severity: ErrorSeverity.ERROR,
+        category: ErrorCategory.NETWORK,
+        recoverable: true,
+        userMessage: 'Unable to connect to the server. Please check your internet connection.',
+        icon: '🌐',
+      });
+      render(<ErrorMessage error={error} showIcon={false} />);
+      expect(screen.getByText('Unable to connect to the server. Please check your internet connection.')).toBeInTheDocument();
       expect(screen.queryByText('🌐')).not.toBeInTheDocument();
     });
 
@@ -57,10 +67,9 @@ describe('Error Handling', () => {
     });
 
     it('uses default error for unknown error types', () => {
-      render(<ErrorMessage error="UNKNOWN_ERROR" />);
-      expect(
-        screen.getByText('An unexpected error occurred. Please try again later.')
-      ).toBeInTheDocument();
+      const error = new Error('Unknown error');
+      render(<ErrorMessage error={error} />);
+      expect(screen.getByText('An unexpected error occurred. Please try again later.')).toBeInTheDocument();
     });
 
     it('handles custom error metadata', () => {
@@ -85,12 +94,26 @@ describe('Error Handling', () => {
     });
 
     it('applies severity-based classes', () => {
-      render(<ErrorMessage error="NETWORK_ERROR" />);
+      const error = new NetworkError('Network error occurred', {
+        severity: ErrorSeverity.ERROR,
+        category: ErrorCategory.NETWORK,
+        recoverable: true,
+        userMessage: 'Unable to connect to the server. Please check your internet connection.',
+        icon: '🌐',
+      });
+      render(<ErrorMessage error={error} />);
       expect(screen.getByRole('alert')).toHaveClass('error');
     });
 
     it('applies inline class when inline prop is true', () => {
-      render(<ErrorMessage error="NETWORK_ERROR" inline={true} />);
+      const error = new NetworkError('Network error occurred', {
+        severity: ErrorSeverity.ERROR,
+        category: ErrorCategory.NETWORK,
+        recoverable: true,
+        userMessage: 'Unable to connect to the server. Please check your internet connection.',
+        icon: '🌐',
+      });
+      render(<ErrorMessage error={error} inline={true} />);
       expect(screen.getByRole('alert')).toHaveClass('inline');
     });
 

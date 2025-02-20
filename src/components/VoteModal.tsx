@@ -5,7 +5,7 @@ interface VoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: () => void;
-  userName: string;
+  selectedUserId: string;
   onUserSelect: (userId: string) => void;
   error?: string | null;
   users: Array<{ id: string; name: string }>;
@@ -20,7 +20,7 @@ const VoteModal: React.FC<VoteModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  userName,
+  selectedUserId,
   onUserSelect,
   error,
   users,
@@ -35,17 +35,18 @@ const VoteModal: React.FC<VoteModalProps> = ({
 
   return (
     <div className={styles.modalOverlay}>
-      <div className={styles.modal}>
-        <h2>{t.selectUser}</h2>
+      <div className={styles.modal} role="dialog" aria-labelledby="modal-title">
+        <h2 id="modal-title">{t.selectUser}</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
             <select
-              value={userName}
+              value={selectedUserId}
               onChange={(e) => onUserSelect(e.target.value)}
               className={styles.select}
               data-testid="user-select"
+              aria-label={t.selectUser}
             >
-              <option value="">{t.selectUser}...</option>
+              <option value="">{t.selectUser}</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
                   {user.name}
@@ -53,12 +54,12 @@ const VoteModal: React.FC<VoteModalProps> = ({
               ))}
             </select>
           </div>
-          {error && <div className={styles.error}>{error}</div>}
+          {error && <div className={styles.error} role="alert">{error}</div>}
           <div className={styles.buttonContainer}>
             <button type="button" onClick={onClose} className={styles.cancelButton}>
               {t.cancel}
             </button>
-            <button type="submit" className={styles.submitButton} disabled={!userName}>
+            <button type="submit" className={styles.submitButton} disabled={!selectedUserId}>
               {t.submit}
             </button>
           </div>

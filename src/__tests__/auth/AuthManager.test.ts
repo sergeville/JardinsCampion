@@ -1,8 +1,9 @@
 import { authManager } from '@/lib/auth/authManager';
 import { AuthError } from '@/lib/errors/types';
 import { NetworkError } from '@/lib/utils/networkManager';
+import { AuthManager } from '@/lib/auth/authManager';
 
-// Mock fetch globally
+// Setup fetch polyfill
 const mockFetch = jest.fn();
 global.fetch = mockFetch;
 

@@ -3,15 +3,15 @@ import React, { useState, Suspense, useEffect, useCallback, useMemo } from 'reac
 import { useLanguage } from '@/hooks/useLanguage';
 import { useVoteManagement } from '@/hooks/useVoteManagement';
 import { LogoGrid } from '@/components/LogoGrid';
-import VoteHistory from '../components/VoteHistory';
-import VoteModal from '../components/VoteModal';
-import { useTheme } from '../hooks/useTheme';
-import ErrorBoundary from '../components/ErrorBoundary';
+import VoteHistory from '@/components/VoteHistory';
+import VoteModal from '@/components/VoteModal';
+import { useTheme } from '@/hooks/useTheme';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import DatabaseErrorBoundary from '@/components/DatabaseErrorBoundary';
 import styles from './styles.module.css';
 import ErrorMessage from '@/components/ErrorMessage';
 import { NetworkError } from '@/lib/errors/types';
-import { DB_CONSTANTS } from '@/constants/db';
+import type { Logo } from '@/types/vote';
 
 function LoadingFallback() {
   return <div className={styles.loading}>Loading...</div>;
@@ -36,7 +36,6 @@ export default function Vote() {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { isDarkMode, toggleTheme } = useTheme();
-  const { language: currentLanguage, toggleLanguage: currentToggleLanguage } = useLanguage();
   const [users, setUsers] = useState<Array<{ id: string; name: string }>>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
 
@@ -49,7 +48,7 @@ export default function Vote() {
         }
         const data = await response.json();
         setUsers(
-          data.map((user: any) => ({
+          data.map((user: { userId: string; name: string }) => ({
             id: user.userId,
             name: user.name,
           }))
@@ -125,12 +124,12 @@ export default function Vote() {
   }, []);
 
   useEffect(() => {
-    if (voteError) {
-      setError(voteError);
+    if (voteError || statsError) {
+      setError(voteError || statsError);
     }
-  }, [voteError]);
+  }, [voteError, statsError]);
 
-  const isLoading = voteLoading || loadingUsers;
+  const isLoading = voteLoading || loadingUsers || statsLoading;
 
   const handleLanguageToggle = useCallback(
     (e: React.MouseEvent) => {
@@ -158,12 +157,17 @@ export default function Vote() {
     );
   }, [voteStats]);
 
+  const handleLogoSelect = useCallback((logo: Logo) => {
+    handleLogoSelection(logo);
+    setShowModal(true);
+  }, [handleLogoSelection]);
+
   return (
     <ErrorBoundary>
       <DatabaseErrorBoundary>
         <Suspense fallback={<LoadingFallback />}>
           <main className={styles.main}>
-            {error && !error.includes(t.alreadyVoted('', '').split('!')[0]) && (
+            {error && !error.includes(t.alreadyVoted?.('', '')?.split('!')[0] || '') && (
               <div className={styles.errorMessage}>
                 <ErrorMessage error={error} />
               </div>
@@ -175,91 +179,92 @@ export default function Vote() {
               </div>
             )}
 
-            <div className={styles.mobileMessage} role="note">
-              {t.mobileMessage}
-            </div>
-
             <header className={styles.header}>
               <h1>{t.title}</h1>
               <div className={styles.headerButtons}>
                 <button
-                  onClick={handleLanguageToggle}
-                  className={styles.languageToggle}
                   type="button"
+                  className={styles.languageToggle}
+                  onClick={toggleLanguage}
                   aria-label={language === 'en' ? 'Switch to French' : 'Switch to English'}
                 >
                   {language === 'en' ? 'FR' : 'EN'}
                 </button>
                 <button
-                  onClick={toggleTheme}
-                  className={styles.themeToggle}
                   type="button"
-                  aria-label={isDarkMode ? t.lightMode : t.darkMode}
+                  className={styles.themeToggle}
+                  onClick={toggleTheme}
+                  aria-label={isDarkMode ? 'Light Mode' : 'Dark Mode'}
                 >
                   {isDarkMode ? '☀️' : '🌙'}
                 </button>
               </div>
             </header>
 
+            <div className={styles.welcomeMessage}>
+              {t.mobileMessage}
+            </div>
+
             <LogoGrid
               logos={[
                 {
                   id: '1',
                   alt: 'Les Jardins du Lac Campion logo 1',
-                  imageUrl: '/logos/Logo1.jpeg',
-                  ownerId: 'user1',
+                  imageUrl: '/logos/Logo1.png',
+                  ownerId: 'owner1',
                 },
                 {
                   id: '2',
                   alt: 'Les Jardins du Lac Campion logo 2',
                   imageUrl: '/logos/Logo2.png',
-                  ownerId: 'user2',
+                  ownerId: 'owner2',
                 },
                 {
                   id: '3',
                   alt: 'Les Jardins du Lac Campion logo 3',
                   imageUrl: '/logos/Logo3.png',
-                  ownerId: 'user3',
+                  ownerId: 'owner3',
                 },
                 {
                   id: '4',
                   alt: 'Les Jardins du Lac Campion logo 4',
                   imageUrl: '/logos/Logo4.png',
-                  ownerId: 'user4',
+                  ownerId: 'owner4',
                 },
                 {
                   id: '5',
                   alt: 'Les Jardins du Lac Campion logo 5',
                   imageUrl: '/logos/Logo5.png',
-                  ownerId: 'user5',
+                  ownerId: 'owner5',
+                },
+                {
+                  id: '6',
+                  alt: 'Les Jardins du Lac Campion logo 6',
+                  imageUrl: '/logos/Logo6.png',
+                  ownerId: 'owner6',
                 },
               ]}
               voteCount={voteCount}
-              onLogoSelect={(logo) => {
-                handleLogoSelection(logo);
-                setShowModal(true);
-              }}
+              onSelectLogo={handleLogoSelect}
               selectedLogo={selectedLogo}
               loading={isLoading}
+              error={statsError}
               t={t}
             />
 
-            {showModal && (
-              <VoteModal
-                isOpen={showModal}
-                onClose={handleModalClose}
-                onSubmit={handleModalSubmit}
-                userName={selectedUserId}
-                onUserSelect={setSelectedUserId}
-                error={error}
-                users={users}
-                t={{
-                  selectUser: t.selectUser,
-                  submit: t.submit,
-                  cancel: t.cancel,
-                }}
-              />
-            )}
+            <VoteModal
+              isOpen={showModal}
+              onClose={() => {
+                setShowModal(false);
+                setError(null);
+              }}
+              onSubmit={handleModalSubmit}
+              selectedUserId={selectedUserId}
+              onUserSelect={setSelectedUserId}
+              error={error}
+              users={users}
+              t={t}
+            />
 
             <VoteHistory
               voteHistory={voteHistory}

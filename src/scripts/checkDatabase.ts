@@ -4,10 +4,10 @@ import { resolve } from 'path';
 // Load environment variables from .env.local
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
-import connectDB from '../lib/mongodb';
-import LogoModel from '../models/Logo';
-import UserModel from '../models/User';
-import VoteModel from '../models/Vote';
+import { connectDB } from '@/lib/mongodb';
+import LogoModel from '@/models/Logo';
+import UserModel from '@/models/User';
+import VoteModel from '@/models/Vote';
 
 async function checkDatabase() {
   try {

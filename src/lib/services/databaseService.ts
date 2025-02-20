@@ -1,5 +1,5 @@
 import { Model, Document, ClientSession } from 'mongoose';
-import connectDB, { withRetry } from '@/lib/mongodb';
+import { connectDB, withRetry } from '@/lib/mongodb';
 import UserModelSchema, { IUser } from '@/models/User';
 import VoteModelSchema, { IVote } from '@/models/Vote';
 import LogoModelSchema, { ILogo } from '@/models/Logo';
@@ -326,6 +326,9 @@ export class DatabaseService {
     try {
       await this.connect();
 
+      // Get all active logos first
+      const logos = await LogoModel.find({ status: 'active' }).lean();
+
       // Get all votes with confirmed status
       const votes = await VoteModel.find({ status: 'confirmed' }).lean();
 
@@ -335,9 +338,8 @@ export class DatabaseService {
 
       // Count votes and track last vote timestamp for each logo
       votes.forEach((vote) => {
-        // Simply use the logoId as is - it should be the numeric ID
         const logoId = vote.logoId;
-
+        
         // Update vote count
         const currentCount = voteCountMap.get(logoId) || 0;
         voteCountMap.set(logoId, currentCount + 1);
@@ -349,15 +351,12 @@ export class DatabaseService {
         }
       });
 
-      // Create stats for each logo ID (1 through 5)
-      const stats = Array.from({ length: 5 }, (_, i) => {
-        const logoId = (i + 1).toString();
-        return {
-          logoId,
-          voteCount: voteCountMap.get(logoId) || 0,
-          lastVote: lastVoteMap.get(logoId) || null,
-        };
-      });
+      // Create stats for each logo using the actual logos from the database
+      const stats = logos.map((logo) => ({
+        logoId: `logo${logo.value}`, // Use logo.value instead of logo.id
+        voteCount: voteCountMap.get(`logo${logo.value}`) || 0, // Match the format in vote records
+        lastVote: lastVoteMap.get(`logo${logo.value}`) || null,
+      }));
 
       console.log('DatabaseService: Logo stats:', JSON.stringify(stats, null, 2));
       return stats;

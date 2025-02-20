@@ -66,6 +66,17 @@ describe('DatabaseErrorBoundary', () => {
 
   it('calls onError prop when error occurs', () => {
     const onError = jest.fn();
+    const error = new DatabaseError('Test database error', {
+      severity: ErrorSeverity.CRITICAL,
+      category: ErrorCategory.DATABASE,
+      userMessage: 'A test database error occurred',
+      recoverable: true,
+      icon: '🔴',
+      action: {
+        label: 'Retry',
+        handler: () => undefined,
+      },
+    });
 
     render(
       <DatabaseErrorBoundary onError={onError}>
@@ -74,7 +85,7 @@ describe('DatabaseErrorBoundary', () => {
     );
 
     expect(onError).toHaveBeenCalledWith(
-      expect.any(DatabaseError),
+      error,
       expect.objectContaining({
         componentStack: expect.any(String),
       })
@@ -99,7 +110,7 @@ describe('DatabaseErrorBoundary', () => {
       </DatabaseErrorBoundary>
     );
 
-    const errorContainer = screen.getByRole('generic');
+    const errorContainer = screen.getByTestId('error-container');
     expect(errorContainer).toHaveClass('errorContainer');
   });
 });

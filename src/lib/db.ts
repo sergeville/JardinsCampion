@@ -1,3 +1,3 @@
-import connectDB from './mongodb';
-export { disconnectFromDatabase, checkDatabaseConnection } from './mongodb';
-export { connectDB };
+import { connectDB, disconnectFromDatabase, checkDatabaseConnection } from './mongodb';
+
+export { connectDB, disconnectFromDatabase, checkDatabaseConnection };

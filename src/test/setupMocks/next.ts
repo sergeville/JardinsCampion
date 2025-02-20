@@ -1,20 +1,37 @@
-const mockNextResponse = {
-  json: jest.fn((data) => ({
-    json: () => Promise.resolve(data),
-  })),
+import { NextRequest } from 'next/server';
+
+// Mock Headers
+const mockHeaders = {
+  get: jest.fn(),
+  set: jest.fn(),
+  append: jest.fn(),
+  delete: jest.fn(),
+  has: jest.fn(),
+  entries: jest.fn(() => [][Symbol.iterator]()),
+  keys: jest.fn(() => [][Symbol.iterator]()),
+  values: jest.fn(() => [][Symbol.iterator]()),
+  [Symbol.iterator]: jest.fn(() => [][Symbol.iterator]()),
 };
 
-const mockNextRequest = jest.fn((url: string, init?: RequestInit) => ({
-  url,
-  method: init?.method || 'GET',
-  headers: new Headers(init?.headers),
-  nextUrl: new URL(url),
-  json: () => Promise.resolve(init?.body ? JSON.parse(init.body.toString()) : null),
-}));
+// Mock Request
+const originalNextRequest = NextRequest;
+class MockNextRequest extends originalNextRequest {
+  constructor(input: string | Request, init?: RequestInit) {
+    super(input, init);
+    Object.defineProperty(this, 'cookies', {
+      get: () => ({
+        get: jest.fn(),
+        getAll: jest.fn(),
+        set: jest.fn(),
+        delete: jest.fn(),
+        has: jest.fn(),
+        clear: jest.fn(),
+      }),
+    });
+  }
+}
 
-jest.mock('next/server', () => ({
-  NextResponse: mockNextResponse,
-  NextRequest: mockNextRequest,
-}));
+// Replace NextRequest with our mock
+(global as any).NextRequest = MockNextRequest;
 
-export { mockNextResponse, mockNextRequest };
+export { MockNextRequest };

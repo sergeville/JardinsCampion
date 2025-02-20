@@ -1,11 +1,12 @@
 'use server';
 
+import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import connectDB from '../lib/mongodb';
-import UserModel, { IUser } from '../models/User';
-import VoteModel, { IVote } from '../models/Vote';
-import LogoModel from '../models/Logo';
-import { resolveVoteConflict } from '../lib/dataConsistency';
+import { connectDB } from '@/lib/mongodb';
+import UserModel, { IUser } from '@/models/User';
+import VoteModel, { IVote } from '@/models/Vote';
+import LogoModel from '@/models/Logo';
+import { resolveVoteConflict } from '@/lib/dataConsistency';
 import mongoose from 'mongoose';
 import { logoStatsCache, userVotesCache, voteHistoryCache, CACHE_KEYS } from '@/lib/cache';
 import { withRetry } from '@/lib/utils';

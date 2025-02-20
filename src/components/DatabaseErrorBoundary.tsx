@@ -56,7 +56,7 @@ class DatabaseErrorBoundary extends React.Component<Props, State> {
       }
 
       return (
-        <div className={styles.errorContainer}>
+        <div className={styles.errorContainer} data-testid="error-container">
           <ErrorMessage
             error={error}
             showIcon={true}

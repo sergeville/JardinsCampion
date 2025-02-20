@@ -7,10 +7,10 @@ const env = {
 };
 process.env = env;
 
-import connectDB from '../lib/mongodb';
-import UserModel from '../models/User';
-import VoteModel from '../models/Vote';
-import LogoModel from '../models/Logo';
+import { connectDB } from '@/lib/mongodb';
+import UserModel from '@/models/User';
+import VoteModel from '@/models/Vote';
+import LogoModel from '@/models/Logo';
 
 async function fixData() {
   try {
