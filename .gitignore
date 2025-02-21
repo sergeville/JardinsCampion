@@ -68,3 +68,5 @@ Settings
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+node_modules 2/
+node_modules 3/
