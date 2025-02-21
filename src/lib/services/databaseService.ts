@@ -339,7 +339,7 @@ export class DatabaseService {
       // Count votes and track last vote timestamp for each logo
       votes.forEach((vote) => {
         const logoId = vote.logoId;
-        
+
         // Update vote count
         const currentCount = voteCountMap.get(logoId) || 0;
         voteCountMap.set(logoId, currentCount + 1);

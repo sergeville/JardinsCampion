@@ -19,28 +19,32 @@ const MockImage: React.FC<MockImageProps> = ({
   onError,
   'data-testid': dataTestId,
 }) => {
+  const handleError = React.useCallback(() => {
+    onError?.();
+  }, [onError]);
+
   React.useEffect(() => {
     const img = new Image();
     img.src = src;
-    img.onerror = () => {
-      onError?.();
-    };
-  }, [src, onError]);
+    img.onerror = handleError;
+  }, [src, handleError]);
 
   return (
-    <img
-      src={src}
-      alt={alt}
+    <div
+      role="img"
+      aria-label={alt}
       style={{
         width,
         height,
         ...style,
-        objectFit: 'contain',
+        backgroundImage: `url(${src})`,
+        backgroundSize: 'contain',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
       }}
       data-testid={dataTestId}
-      onError={() => onError?.()}
     />
   );
 };
 
-export default MockImage; 
+export default MockImage;

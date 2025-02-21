@@ -10,16 +10,16 @@ import { ImageProps } from 'next/image';
 
 // Mock the hooks
 jest.mock('@/hooks/useVoteManagement', () => ({
-  useVoteManagement: jest.fn()
+  useVoteManagement: jest.fn(),
 }));
 
 jest.mock('@/hooks/useAuth');
 jest.mock('@/hooks/useTheme', () => ({
-  useTheme: jest.fn()
+  useTheme: jest.fn(),
 }));
 
 jest.mock('../../hooks/useLanguage', () => ({
-  useLanguage: jest.fn()
+  useLanguage: jest.fn(),
 }));
 
 // Mock next/image
@@ -32,20 +32,16 @@ jest.mock('next/image', () => ({
 }));
 
 describe('Vote Page', () => {
-  const mockUsers = [
-    { id: 'user1', name: 'Test User' }
-  ];
+  const mockUsers = [{ id: 'user1', name: 'Test User' }];
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Mock fetch
     global.fetch = jest.fn(() =>
       Promise.resolve({
         ok: true,
-        json: () => Promise.resolve([
-          { userId: 'user1', name: 'Test User' }
-        ]),
+        json: () => Promise.resolve([{ userId: 'user1', name: 'Test User' }]),
       })
     ) as jest.Mock;
 
@@ -63,28 +59,53 @@ describe('Vote Page', () => {
         '2': 0,
         '3': 0,
         '4': 0,
-        '5': 0
+        '5': 0,
       },
       voteStats: [
         { logoId: '1', voteCount: 5 },
         { logoId: '2', voteCount: 0 },
         { logoId: '3', voteCount: 0 },
         { logoId: '4', voteCount: 0 },
-        { logoId: '5', voteCount: 0 }
+        { logoId: '5', voteCount: 0 },
       ],
       logos: [
-        { id: '1', alt: 'Les Jardins du Lac Campion logo 1', imageUrl: '/logos/Logo1.png', ownerId: 'owner1' },
-        { id: '2', alt: 'Les Jardins du Lac Campion logo 2', imageUrl: '/logos/Logo2.png', ownerId: 'owner2' },
-        { id: '3', alt: 'Les Jardins du Lac Campion logo 3', imageUrl: '/logos/Logo3.png', ownerId: 'owner3' },
-        { id: '4', alt: 'Les Jardins du Lac Campion logo 4', imageUrl: '/logos/Logo4.png', ownerId: 'owner4' },
-        { id: '5', alt: 'Les Jardins du Lac Campion logo 5', imageUrl: '/logos/Logo5.png', ownerId: 'owner5' }
-      ]
+        {
+          id: '1',
+          alt: 'Les Jardins du Lac Campion logo 1',
+          imageUrl: '/logos/Logo1.png',
+          ownerId: 'owner1',
+        },
+        {
+          id: '2',
+          alt: 'Les Jardins du Lac Campion logo 2',
+          imageUrl: '/logos/Logo2.png',
+          ownerId: 'owner2',
+        },
+        {
+          id: '3',
+          alt: 'Les Jardins du Lac Campion logo 3',
+          imageUrl: '/logos/Logo3.png',
+          ownerId: 'owner3',
+        },
+        {
+          id: '4',
+          alt: 'Les Jardins du Lac Campion logo 4',
+          imageUrl: '/logos/Logo4.png',
+          ownerId: 'owner4',
+        },
+        {
+          id: '5',
+          alt: 'Les Jardins du Lac Campion logo 5',
+          imageUrl: '/logos/Logo5.png',
+          ownerId: 'owner5',
+        },
+      ],
     });
 
     // Mock useTheme
     (useTheme as jest.Mock).mockReturnValue({
       isDarkMode: false,
-      toggleTheme: jest.fn()
+      toggleTheme: jest.fn(),
     });
 
     // Mock useLanguage
@@ -103,11 +124,12 @@ describe('Vote Page', () => {
         voteFailed: 'Vote submission failed',
         recentVotes: 'Recent Votes',
         votedFor: 'voted for Logo #',
-        alreadyVoted: (name: string, logo: string) => `${name} has already voted for Logo #${logo}!`,
-        failedToLoadUsers: 'Failed to load users'
+        alreadyVoted: (name: string, logo: string) =>
+          `${name} has already voted for Logo #${logo}!`,
+        failedToLoadUsers: 'Failed to load users',
       },
       language: 'en',
-      toggleLanguage: jest.fn()
+      toggleLanguage: jest.fn(),
     });
   });
 
@@ -115,7 +137,7 @@ describe('Vote Page', () => {
     await act(async () => {
       render(<Vote />);
     });
-    
+
     expect(screen.getByText('Vote for Logo')).toBeInTheDocument();
     expect(screen.getByText('Welcome! Tap on a logo to vote.')).toBeInTheDocument();
     expect(screen.getAllByRole('radio')).toHaveLength(5);
@@ -126,7 +148,7 @@ describe('Vote Page', () => {
       id: '1',
       alt: 'Les Jardins du Lac Campion logo 1',
       imageUrl: '/logos/Logo1.png',
-      ownerId: 'owner1'
+      ownerId: 'owner1',
     };
 
     const mockRecordVote = jest.fn().mockResolvedValue({ status: 'confirmed' });
@@ -147,16 +169,16 @@ describe('Vote Page', () => {
         '2': 0,
         '3': 0,
         '4': 0,
-        '5': 0
+        '5': 0,
       },
       voteStats: [
         { logoId: '1', voteCount: 5 },
         { logoId: '2', voteCount: 0 },
         { logoId: '3', voteCount: 0 },
         { logoId: '4', voteCount: 0 },
-        { logoId: '5', voteCount: 0 }
+        { logoId: '5', voteCount: 0 },
       ],
-      logos: [mockLogo]
+      logos: [mockLogo],
     });
 
     render(<Vote />);
@@ -168,7 +190,7 @@ describe('Vote Page', () => {
 
     // Select a logo
     const logo = screen.getAllByRole('radio')[0];
-    
+
     // Update the mock to simulate the selected logo
     (useVoteManagement as jest.Mock).mockReturnValue({
       voteHistory: [],
@@ -183,16 +205,16 @@ describe('Vote Page', () => {
         '2': 0,
         '3': 0,
         '4': 0,
-        '5': 0
+        '5': 0,
       },
       voteStats: [
         { logoId: '1', voteCount: 5 },
         { logoId: '2', voteCount: 0 },
         { logoId: '3', voteCount: 0 },
         { logoId: '4', voteCount: 0 },
-        { logoId: '5', voteCount: 0 }
+        { logoId: '5', voteCount: 0 },
       ],
-      logos: [mockLogo]
+      logos: [mockLogo],
     });
 
     await act(async () => {
@@ -228,7 +250,7 @@ describe('Vote Page', () => {
       logoId: mockLogo.id,
       timestamp: expect.any(Date),
       ownerId: mockLogo.ownerId,
-      userName: 'Test User'
+      userName: 'Test User',
     });
 
     // Check if refreshData was called
@@ -250,13 +272,13 @@ describe('Vote Page', () => {
       handleLogoSelection: jest.fn(),
       voteHistory: [],
       voteCount: {},
-      voteStats: []
+      voteStats: [],
     });
 
     await act(async () => {
       render(<Vote />);
     });
-    
+
     expect(screen.getByText('Loading vote history...')).toBeInTheDocument();
   });
 
@@ -272,13 +294,13 @@ describe('Vote Page', () => {
       voteHistory: [],
       voteCount: {},
       voteStats: [],
-      logos: []
+      logos: [],
     });
 
     await act(async () => {
       render(<Vote />);
     });
-    
+
     const errorElements = screen.getAllByText(errorMessage);
     expect(errorElements.length).toBeGreaterThan(0);
   });
@@ -287,15 +309,15 @@ describe('Vote Page', () => {
     const mockToggleTheme = jest.fn();
     (useTheme as jest.Mock).mockReturnValue({
       isDarkMode: false,
-      toggleTheme: mockToggleTheme
+      toggleTheme: mockToggleTheme,
     });
 
     await act(async () => {
       render(<Vote />);
     });
-    
+
     const themeButton = screen.getByRole('button', { name: /Dark Mode|Light Mode/i });
-    
+
     await act(async () => {
       fireEvent.click(themeButton);
     });
@@ -320,19 +342,20 @@ describe('Vote Page', () => {
         voteFailed: 'Vote submission failed',
         recentVotes: 'Recent Votes',
         votedFor: 'voted for Logo #',
-        alreadyVoted: (name: string, logo: string) => `${name} has already voted for Logo #${logo}!`,
-        failedToLoadUsers: 'Failed to load users'
+        alreadyVoted: (name: string, logo: string) =>
+          `${name} has already voted for Logo #${logo}!`,
+        failedToLoadUsers: 'Failed to load users',
       },
       language: 'en',
-      toggleLanguage: mockToggleLanguage
+      toggleLanguage: mockToggleLanguage,
     });
 
     await act(async () => {
       render(<Vote />);
     });
-    
+
     const languageButton = screen.getByRole('button', { name: /FR|EN/i });
-    
+
     await act(async () => {
       fireEvent.click(languageButton);
     });
@@ -349,7 +372,7 @@ describe('Vote Page', () => {
       id: '1',
       alt: 'Les Jardins du Lac Campion logo 1',
       imageUrl: '/logos/Logo1.png',
-      ownerId: 'owner1'
+      ownerId: 'owner1',
     };
 
     (useVoteManagement as jest.Mock).mockReturnValue({
@@ -365,15 +388,15 @@ describe('Vote Page', () => {
         '2': 0,
         '3': 0,
         '4': 0,
-        '5': 0
+        '5': 0,
       },
       voteStats: [
         { logoId: '1', voteCount: 5 },
         { logoId: '2', voteCount: 0 },
         { logoId: '3', voteCount: 0 },
         { logoId: '4', voteCount: 0 },
-        { logoId: '5', voteCount: 0 }
-      ]
+        { logoId: '5', voteCount: 0 },
+      ],
     });
 
     render(<Vote />);
@@ -406,15 +429,15 @@ describe('Vote Page', () => {
         '2': 0,
         '3': 0,
         '4': 0,
-        '5': 0
+        '5': 0,
       },
       voteStats: [
         { logoId: '1', voteCount: 5 },
         { logoId: '2', voteCount: 0 },
         { logoId: '3', voteCount: 0 },
         { logoId: '4', voteCount: 0 },
-        { logoId: '5', voteCount: 0 }
-      ]
+        { logoId: '5', voteCount: 0 },
+      ],
     });
 
     // Wait for the modal to be rendered
@@ -443,7 +466,7 @@ describe('Vote Page', () => {
       id: '1',
       alt: 'Les Jardins du Lac Campion logo 1',
       imageUrl: '/logos/Logo1.png',
-      ownerId: 'owner1'
+      ownerId: 'owner1',
     };
 
     (useVoteManagement as jest.Mock).mockReturnValue({
@@ -459,15 +482,15 @@ describe('Vote Page', () => {
         '2': 0,
         '3': 0,
         '4': 0,
-        '5': 0
+        '5': 0,
       },
       voteStats: [
         { logoId: '1', voteCount: 5 },
         { logoId: '2', voteCount: 0 },
         { logoId: '3', voteCount: 0 },
         { logoId: '4', voteCount: 0 },
-        { logoId: '5', voteCount: 0 }
-      ]
+        { logoId: '5', voteCount: 0 },
+      ],
     });
 
     render(<Vote />);
@@ -500,15 +523,15 @@ describe('Vote Page', () => {
         '2': 0,
         '3': 0,
         '4': 0,
-        '5': 0
+        '5': 0,
       },
       voteStats: [
         { logoId: '1', voteCount: 5 },
         { logoId: '2', voteCount: 0 },
         { logoId: '3', voteCount: 0 },
         { logoId: '4', voteCount: 0 },
-        { logoId: '5', voteCount: 0 }
-      ]
+        { logoId: '5', voteCount: 0 },
+      ],
     });
 
     // Wait for the modal to be rendered

@@ -12,12 +12,18 @@ import {
 describe('ErrorMessage', () => {
   it('renders string error message', () => {
     render(<ErrorMessage error="Test error message" />);
-    expect(
-      screen.getByText('An unexpected error occurred. Please try again later.')
-    ).toBeInTheDocument();
+    expect(screen.getByText('Test error message')).toBeInTheDocument();
+  });
+
+  it('renders user message', () => {
+    render(<ErrorMessage error="User message" isUserMessage={true} />);
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.getByText('User message')).toBeInTheDocument();
+    expect(screen.getByText('💬')).toBeInTheDocument();
   });
 
   it('renders DatabaseError with metadata', () => {
+    const handleAction = jest.fn();
     const error = new DatabaseError('Database connection failed', {
       severity: ErrorSeverity.CRITICAL,
       category: ErrorCategory.DATABASE,
@@ -26,17 +32,22 @@ describe('ErrorMessage', () => {
       icon: '🔴',
       action: {
         label: 'Retry Connection',
-        handler: jest.fn(),
+        handler: handleAction,
       },
     });
 
     render(<ErrorMessage error={error} />);
     expect(screen.getByText('Database is currently unavailable')).toBeInTheDocument();
     expect(screen.getByText('🔴')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Retry Connection' })).toBeInTheDocument();
+    const retryButton = screen.getByRole('button', { name: 'Retry Connection' });
+    expect(retryButton).toBeInTheDocument();
+
+    fireEvent.click(retryButton);
+    expect(handleAction).toHaveBeenCalled();
   });
 
   it('renders NetworkError with metadata', () => {
+    const handleAction = jest.fn();
     const error = new NetworkError('Network request failed', {
       severity: ErrorSeverity.ERROR,
       category: ErrorCategory.NETWORK,
@@ -45,13 +56,18 @@ describe('ErrorMessage', () => {
       icon: '🌐',
       action: {
         label: 'Retry',
-        handler: jest.fn(),
+        handler: handleAction,
       },
     });
 
     render(<ErrorMessage error={error} />);
     expect(screen.getByText('Unable to connect to server')).toBeInTheDocument();
     expect(screen.getByText('🌐')).toBeInTheDocument();
+    const retryButton = screen.getByRole('button', { name: 'Retry' });
+    expect(retryButton).toBeInTheDocument();
+
+    fireEvent.click(retryButton);
+    expect(handleAction).toHaveBeenCalled();
   });
 
   it('renders ValidationError with metadata', () => {
@@ -66,25 +82,6 @@ describe('ErrorMessage', () => {
     render(<ErrorMessage error={error} />);
     expect(screen.getByText('Please check your input')).toBeInTheDocument();
     expect(screen.getByText('⚠️')).toBeInTheDocument();
-  });
-
-  it('handles action button click', () => {
-    const handleAction = jest.fn();
-    const error = new DatabaseError('Test error', {
-      severity: ErrorSeverity.ERROR,
-      category: ErrorCategory.DATABASE,
-      userMessage: 'Test message',
-      recoverable: true,
-      icon: '🔴',
-      action: {
-        label: 'Retry',
-        handler: handleAction,
-      },
-    });
-
-    render(<ErrorMessage error={error} showAction={true} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
-    expect(handleAction).toHaveBeenCalled();
   });
 
   it('applies inline class when inline prop is true', () => {

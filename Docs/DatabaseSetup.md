@@ -1,7 +1,9 @@
 # Jardins Campion - Database Connection and Setup Guide
+
 ### Version 1.0.0
 
 ## Table of Contents
+
 1. [Local Development Setup](#local-development-setup)
 2. [Database Configuration](#database-configuration)
 3. [Initial Data Setup](#initial-data-setup)
@@ -12,11 +14,13 @@
 ## Local Development Setup
 
 ### Prerequisites
+
 - Node.js (v16 or higher)
 - MongoDB (v6.0 or higher)
 - Git
 
 ### Installation Steps
+
 ```bash
 # Clone the repository
 git clone https://github.com/SergeVilleneuve/JardinsCampion.git
@@ -40,9 +44,9 @@ services:
   mongodb:
     image: mongo:6.0
     container_name: jardins-campion-mongodb
-    command: ["--replSet", "rs0", "--bind_ip_all"]
+    command: ['--replSet', 'rs0', '--bind_ip_all']
     ports:
-      - "27019:27017"
+      - '27019:27017'
     volumes:
       - mongodb_data:/data/db
     environment:
@@ -100,13 +104,16 @@ docker exec jardins-campion-mongodb mongosh --eval '
 ### Remote Server Communication Setup
 
 1. **Firewall Configuration**:
+
 ```bash
 # Allow incoming connections on MongoDB port
 sudo ufw allow 27019/tcp
 ```
 
 2. **Update MongoDB Configuration**:
+
    - For remote access, update your connection string in `.env.local`:
+
    ```env
    # For local development
    MONGODB_URI_DEV=mongodb://admin:devpassword@localhost:27019/jardins-campion-dev?authSource=admin&replicaSet=rs0&directConnection=true
@@ -116,12 +123,14 @@ sudo ufw allow 27019/tcp
    ```
 
 3. **Security Considerations**:
+
    - Use strong passwords in production
    - Set up SSL/TLS for encrypted connections
    - Configure MongoDB authentication
    - Use VPN or private network when possible
 
 4. **Docker Network Setup**:
+
 ```bash
 # Create a dedicated network for MongoDB
 docker network create mongodb_network
@@ -131,12 +140,14 @@ docker network connect mongodb_network your-app-container
 ```
 
 5. **Testing Remote Connection**:
+
 ```bash
 # Test connection from another machine
 mongosh mongodb://admin:devpassword@YOUR_SERVER_IP:27019/jardins-campion-dev?authSource=admin&replicaSet=rs0
 ```
 
 6. **Monitoring**:
+
 ```bash
 # Monitor MongoDB logs
 docker logs -f jardins-campion-mongodb
@@ -156,7 +167,9 @@ docker network inspect mongodb_network
    - Check firewall rules: `sudo ufw status`
 
 ### 2. Environment Setup
+
 Create a `.env.local` file in the project root:
+
 ```env
 # Database Configuration
 MONGODB_URI_DEV=mongodb://admin:devpassword@localhost:27019/jardins-campion-dev?authSource=admin&replicaSet=rs0&directConnection=true
@@ -177,6 +190,7 @@ MONGODB_URI=mongodb://admin:devpassword@localhost:27019/jardins-campion-dev?auth
 ## Initial Data Setup
 
 ### 1. Run Database Initialization Scripts
+
 ```bash
 # Run the database seeding script
 npm run seed-logos
@@ -186,28 +200,32 @@ npm run check-db
 ```
 
 ### 2. Verify Logo Data
+
 The seeding script should create 6 logos with proper IDs:
+
 ```javascript
 [
   {
     value: '1',
     src: '/logos/Logo1.png',
     alt: 'Classic garden design logo...',
-    ownerId: 'owner1'
+    ownerId: 'owner1',
   },
   // ... logos 2 through 6
-]
+];
 ```
 
 ## Running the Application
 
 ### 1. Start Development Server
+
 ```bash
 # Start the development server
 npm run dev
 ```
 
 ### 2. Access Points
+
 - Main application: `http://localhost:3000`
 - Database info: `http://localhost:3000/show-data`
 - API endpoint: `http://localhost:3000/api`
@@ -215,6 +233,7 @@ npm run dev
 ## MongoDB Connection Usage
 
 ### Importing the MongoDB Connection
+
 When using the MongoDB connection in your code, it's crucial to use named imports correctly. The MongoDB connection utilities are exported as named exports from `@/lib/mongodb`:
 
 ```typescript
@@ -228,6 +247,7 @@ import * as mongodb from '@/lib/mongodb';
 ```
 
 ### Available Database Utilities
+
 The MongoDB connection module exports the following named functions:
 
 - `connectDB`: Main connection function that handles connection caching and retries
@@ -245,17 +265,14 @@ export async function GET() {
   try {
     // Connect to the database
     await connectDB();
-    
+
     // Your database operations here
     const result = await YourModel.find();
-    
+
     return NextResponse.json({ data: result });
   } catch (error) {
     console.error('Database operation failed:', error);
-    return NextResponse.json(
-      { error: 'Database operation failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
   }
 }
 ```
@@ -263,15 +280,18 @@ export async function GET() {
 ### Best Practices
 
 1. **Always use named imports**:
+
    - Use `import { connectDB }` instead of default imports
    - Import only the functions you need
 
 2. **Connection Management**:
+
    - Let `connectDB` handle connection caching
    - Don't create multiple connections manually
    - Use `disconnectFromDatabase` for cleanup in tests
 
 3. **Error Handling**:
+
    - Always wrap database operations in try-catch blocks
    - Use the `withRetry` utility for operations that may fail
    - Log errors appropriately before responding to clients
@@ -286,6 +306,7 @@ export async function GET() {
 ### Common Issues
 
 #### 1. "logoundefined" Error
+
 If you see "logoundefined" in the API responses:
 
 ```javascript
@@ -310,6 +331,7 @@ static async getAllLogoStats() {
 ```
 
 #### 2. Database Connection Issues
+
 ```bash
 # Check MongoDB status
 mongosh --port 27019 --eval "rs.status()"
@@ -319,6 +341,7 @@ ps aux | grep mongod
 ```
 
 #### 3. Data Verification
+
 ```bash
 # Connect to MongoDB
 mongosh --port 27019 jardins-campion-dev
@@ -331,6 +354,7 @@ db.logos.distinct("value")
 ```
 
 #### 3. Import Errors
+
 If you see build errors related to MongoDB imports:
 
 ```typescript
@@ -340,6 +364,7 @@ import { connectDB } from '@/lib/mongodb';
 ```
 
 Common import-related issues:
+
 - Using default import instead of named import
 - Missing curly braces in import statement
 - Incorrect path to mongodb utility file
@@ -347,6 +372,7 @@ Common import-related issues:
 ### Quick Fixes
 
 1. Reset Database:
+
 ```bash
 # Stop MongoDB
 pkill mongod
@@ -358,6 +384,7 @@ rm -rf ~/data/db/dev/*
 ```
 
 2. Rebuild Application:
+
 ```bash
 # Clear npm cache
 npm cache clean --force
@@ -375,23 +402,28 @@ npm run build
 ## Maintenance Tasks
 
 ### Regular Checks
+
 1. Monitor database logs:
+
 ```bash
 tail -f ~/data/db/dev/mongod.log
 ```
 
 2. Check application logs:
+
 ```bash
 # Development logs
 npm run dev > app.log 2>&1
 ```
 
 3. Verify data integrity:
+
 ```bash
 npm run check-db
 ```
 
 ### Backup Procedures
+
 ```bash
 # Backup database
 mongodump --port 27019 --db jardins-campion-dev --out ./backup
@@ -410,9 +442,10 @@ mongorestore --port 27019 --db jardins-campion-dev ./backup/jardins-campion-dev
 ## Support
 
 For issues and support:
+
 - GitHub Issues: [JardinsCampion Issues](https://github.com/SergeVilleneuve/JardinsCampion/issues)
 - Documentation: [Project Wiki](https://github.com/SergeVilleneuve/JardinsCampion/wiki)
 
 ---
 
-Remember to always backup your data before making any changes to the database configuration or running initialization scripts. 
+Remember to always backup your data before making any changes to the database configuration or running initialization scripts.

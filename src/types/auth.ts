@@ -1,8 +1,10 @@
 import { Document } from 'mongoose';
 
-export interface User extends Document {
-  userId: string;
+export interface User {
+  id: string;
   name: string;
+  email?: string;
+  role?: 'user' | 'admin';
   voteCount: number;
   votedLogos: string[];
   createdAt?: Date;

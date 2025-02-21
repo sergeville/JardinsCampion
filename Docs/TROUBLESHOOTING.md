@@ -113,6 +113,7 @@ async function incrementVoteCount(logoId) {
 ### 4. Asset Loading Issues
 
 **Symptoms:**
+
 - 404 Not Found errors for logo files
 - Missing images in the UI
 - Incorrect file paths
@@ -131,7 +132,7 @@ function validateLogoPath(path: string): boolean {
 // 3. Handle missing files gracefully
 function LogoImage({ src, alt }: LogoProps) {
   const [error, setError] = useState(false);
-  
+
   return error ? (
     <FallbackImage alt={alt} />
   ) : (
@@ -147,6 +148,7 @@ function LogoImage({ src, alt }: LogoProps) {
 ### 5. UI State Management
 
 **Symptoms:**
+
 - Checkbox selection not working
 - Inconsistent selection state
 - Multiple selection issues
@@ -167,7 +169,7 @@ const [selection, setSelection] = useState<SelectionState>({
 
 // 2. Type-safe selection handlers
 function handleSelect(id: string, checked: boolean) {
-  setSelection(prev => {
+  setSelection((prev) => {
     const newIds = new Set(prev.selectedIds);
     if (checked) {
       newIds.add(id);
@@ -184,15 +186,12 @@ function handleSelect(id: string, checked: boolean) {
 // 3. Batch operations with selection
 async function handleBatchDelete() {
   if (selection.selectedIds.size === 0) return;
-  
+
   try {
     await withTransaction(async (session) => {
-      await Logo.deleteMany(
-        { _id: { $in: Array.from(selection.selectedIds) } },
-        { session }
-      );
+      await Logo.deleteMany({ _id: { $in: Array.from(selection.selectedIds) } }, { session });
     });
-    
+
     setSelection({ selectedIds: new Set(), isAllSelected: false });
   } catch (error) {
     handleError(error);

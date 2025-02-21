@@ -2,10 +2,9 @@ import { DB_CONSTANTS } from '@/constants/db';
 
 export interface VoteData {
   userId: string;
-  logoId: string;
-  timestamp: Date;
-  ownerId?: string;
   userName: string;
+  logoId: string;
+  timestamp?: Date;
 }
 
 export interface VoteResult {

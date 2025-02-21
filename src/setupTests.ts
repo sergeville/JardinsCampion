@@ -48,14 +48,14 @@ class MockEventSource {
 
   removeEventListener(type: string, listener: (event: any) => void) {
     if (!this.listeners[type]) return;
-    this.listeners[type] = this.listeners[type].filter(l => l !== listener);
+    this.listeners[type] = this.listeners[type].filter((l) => l !== listener);
   }
 
   mockOpen() {
     this.readyState = MockEventSource.OPEN;
     if (this.onopen) this.onopen({});
     if (this.listeners.open) {
-      this.listeners.open.forEach(listener => listener({}));
+      this.listeners.open.forEach((listener) => listener({}));
     }
   }
 
@@ -68,7 +68,7 @@ class MockEventSource {
     };
     if (this.onmessage) this.onmessage(event);
     if (this.listeners.message) {
-      this.listeners.message.forEach(listener => listener(event));
+      this.listeners.message.forEach((listener) => listener(event));
     }
   }
 
@@ -76,7 +76,7 @@ class MockEventSource {
     this.readyState = MockEventSource.CLOSED;
     if (this.onerror) this.onerror({});
     if (this.listeners.error) {
-      this.listeners.error.forEach(listener => listener({}));
+      this.listeners.error.forEach((listener) => listener({}));
     }
   }
 
@@ -98,7 +98,7 @@ process.env.MONGODB_URI_PROD = 'mongodb://localhost:27017/test';
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: query === '(prefers-reduced-motion: reduce)',
     media: query,
     onchange: null,
@@ -113,4 +113,4 @@ Object.defineProperty(window, 'matchMedia', {
 // Reset all mocks after each test
 afterEach(() => {
   jest.clearAllMocks();
-}); 
+});

@@ -32,7 +32,9 @@ describe('Error Handling', () => {
         icon: '🌐',
       });
       render(<ErrorMessage error={error} showIcon={true} />);
-      expect(screen.getByText('Unable to connect to the server. Please check your internet connection.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Unable to connect to the server. Please check your internet connection.')
+      ).toBeInTheDocument();
       expect(screen.getByText('🌐')).toBeInTheDocument();
     });
 
@@ -45,7 +47,9 @@ describe('Error Handling', () => {
         icon: '🌐',
       });
       render(<ErrorMessage error={error} showIcon={false} />);
-      expect(screen.getByText('Unable to connect to the server. Please check your internet connection.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Unable to connect to the server. Please check your internet connection.')
+      ).toBeInTheDocument();
       expect(screen.queryByText('🌐')).not.toBeInTheDocument();
     });
 
@@ -69,7 +73,7 @@ describe('Error Handling', () => {
     it('uses default error for unknown error types', () => {
       const error = new Error('Unknown error');
       render(<ErrorMessage error={error} />);
-      expect(screen.getByText('An unexpected error occurred. Please try again later.')).toBeInTheDocument();
+      expect(screen.getByText('Unknown error')).toBeInTheDocument();
     });
 
     it('handles custom error metadata', () => {

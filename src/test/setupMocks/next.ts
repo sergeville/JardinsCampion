@@ -19,21 +19,23 @@ const originalNextRequest = NextRequest;
 class MockNextRequest extends originalNextRequest {
   constructor(input: string | Request, init?: RequestInit) {
     // Create a minimal RequestInit object that matches Next.js requirements
-    const nextInit = init ? {
-      method: init.method,
-      headers: init.headers,
-      body: init.body,
-      signal: init.signal === null ? undefined : init.signal,
-      cache: init.cache,
-      credentials: init.credentials,
-      integrity: init.integrity,
-      keepalive: init.keepalive,
-      mode: init.mode,
-      redirect: init.redirect,
-      referrer: init.referrer,
-      referrerPolicy: init.referrerPolicy,
-      window: init.window,
-    } : {};
+    const nextInit = init
+      ? {
+          method: init.method,
+          headers: init.headers,
+          body: init.body,
+          signal: init.signal === null ? undefined : init.signal,
+          cache: init.cache,
+          credentials: init.credentials,
+          integrity: init.integrity,
+          keepalive: init.keepalive,
+          mode: init.mode,
+          redirect: init.redirect,
+          referrer: init.referrer,
+          referrerPolicy: init.referrerPolicy,
+          window: init.window,
+        }
+      : {};
 
     super(input, nextInit as RequestInit);
     Object.defineProperty(this, 'cookies', {

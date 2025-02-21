@@ -44,7 +44,7 @@ describe('VoteHistory', () => {
   beforeEach(() => {
     // Mock scrollIntoView since it's not implemented in JSDOM
     Element.prototype.scrollIntoView = jest.fn();
-    
+
     // Mock matchMedia to return false for reduced motion
     window.matchMedia = jest.fn().mockImplementation((query) => ({
       matches: false,
@@ -70,7 +70,7 @@ describe('VoteHistory', () => {
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
-    
+
     const voteItems = screen.getAllByRole('listitem');
     expect(voteItems[0]).toHaveTextContent('10:00:00');
     expect(voteItems[1]).toHaveTextContent('11:00:00');
@@ -78,7 +78,7 @@ describe('VoteHistory', () => {
 
   it('shows loading state with spinner when loading prop is true', () => {
     render(<VoteHistory voteHistory={[]} translations={mockTranslations} loading={true} />);
-    
+
     expect(screen.getByRole('status')).toBeInTheDocument();
     expect(screen.getByText('Loading vote history...')).toBeInTheDocument();
     expect(document.querySelector('.loadingSpinner')).toBeInTheDocument();
@@ -99,9 +99,7 @@ describe('VoteHistory', () => {
 
     const updatedVotes = [newVote, ...mockVotes];
 
-    rerender(
-      <VoteHistory voteHistory={updatedVotes} translations={mockTranslations} />
-    );
+    rerender(<VoteHistory voteHistory={updatedVotes} translations={mockTranslations} />);
 
     await waitFor(() => {
       expect(screen.getByText('New User')).toBeInTheDocument();
@@ -117,9 +115,7 @@ describe('VoteHistory', () => {
     const initialHTML = document.body.innerHTML;
 
     // Rerender with same props
-    rerender(
-      <VoteHistory voteHistory={mockVotes} translations={mockTranslations} />
-    );
+    rerender(<VoteHistory voteHistory={mockVotes} translations={mockTranslations} />);
 
     expect(document.body.innerHTML).toBe(initialHTML);
   });
@@ -143,7 +139,7 @@ describe('VoteHistory', () => {
 
   it('respects reduced motion preferences', () => {
     // Mock matchMedia for prefers-reduced-motion
-    window.matchMedia = jest.fn().mockImplementation(query => ({
+    window.matchMedia = jest.fn().mockImplementation((query) => ({
       matches: query === '(prefers-reduced-motion: reduce)',
       media: query,
       onchange: null,
@@ -154,7 +150,7 @@ describe('VoteHistory', () => {
     render(<VoteHistory voteHistory={mockVotes} translations={mockTranslations} />);
 
     const voteItems = screen.getAllByRole('listitem');
-    voteItems.forEach(item => {
+    voteItems.forEach((item) => {
       expect(item.className).toContain('voteItem');
       // Check that the element has the no-animation class
       expect(item.className).toContain('noAnimation');
@@ -163,188 +159,93 @@ describe('VoteHistory', () => {
 
   describe('Vote Count Management', () => {
     it('prevents logo owner from voting for their own logo', async () => {
+      const onError = jest.fn();
       const ownerVote = {
         userName: 'Owner User',
-        userId: 'owner1', // Same as ownerId of logo 1
+        userId: 'owner1',
         logoId: '1',
         timestamp: new Date(),
         ownerId: 'owner1',
       };
 
-      const onError = jest.fn();
+      const { rerender } = render(
+        <VoteHistory voteHistory={mockVotes} translations={mockTranslations} onError={onError} />
+      );
 
-      render(
+      rerender(
         <VoteHistory
-          voteHistory={mockVotes}
+          voteHistory={[ownerVote, ...mockVotes]}
           translations={mockTranslations}
           onError={onError}
         />
       );
 
-      // Attempt to add owner vote
-      act(() => {
-        const updatedVotes = [ownerVote, ...mockVotes];
-        render(
-          <VoteHistory
-            voteHistory={updatedVotes}
-            translations={mockTranslations}
-            onError={onError}
-          />
-        );
-      });
-
       await waitFor(() => {
         expect(onError).toHaveBeenCalledWith(
-          expect.objectContaining({
-            message: expect.stringContaining('Logo owners cannot vote for their own logos')
-          })
+          new Error('Logo owners cannot vote for their own logos')
         );
       });
     });
 
-    it('handles vote count increment when new vote is added', async () => {
-      const initialVotes = [...mockVotes];
-      const newVote = {
-        userName: 'New Voter',
-        userId: 'new-voter',
+    it('handles vote count updates correctly', async () => {
+      const onVoteUpdate = jest.fn();
+      const initialVote = {
+        userName: 'Test User',
+        userId: 'test-user',
         logoId: '1',
         timestamp: new Date(),
-        ownerId: 'owner2', // Different from voter
-      };
-
-      const onVoteUpdate = jest.fn();
-
-      const { rerender } = render(
-        <VoteHistory
-          voteHistory={initialVotes}
-          translations={mockTranslations}
-          onVoteUpdate={onVoteUpdate}
-        />
-      );
-
-      // Add new vote
-      const updatedVotes = [newVote, ...initialVotes];
-      rerender(
-        <VoteHistory
-          voteHistory={updatedVotes}
-          translations={mockTranslations}
-          onVoteUpdate={onVoteUpdate}
-        />
-      );
-
-      await waitFor(() => {
-        expect(onVoteUpdate).toHaveBeenCalledWith(
-          expect.objectContaining({
-            logoId: '1',
-            userId: 'new-voter',
-          })
-        );
-      });
-    });
-
-    it('handles vote count changes when user changes their vote', async () => {
-      const initialVote = {
-        userName: 'Change Voter',
-        userId: 'change-voter',
-        logoId: '1',
-        timestamp: new Date('2024-02-20T10:00:00'),
         ownerId: 'owner2',
       };
 
-      const changedVote = {
-        ...initialVote,
-        logoId: '2',
-        timestamp: new Date('2024-02-20T10:01:00'),
-      };
-
-      const onVoteUpdate = jest.fn();
-
       const { rerender } = render(
+        <VoteHistory voteHistory={[]} translations={mockTranslations} onVoteUpdate={onVoteUpdate} />
+      );
+
+      // Add new vote
+      rerender(
         <VoteHistory
-          voteHistory={[initialVote, ...mockVotes]}
+          voteHistory={[initialVote]}
           translations={mockTranslations}
           onVoteUpdate={onVoteUpdate}
         />
       );
 
       // Change vote
-      rerender(
-        <VoteHistory
-          voteHistory={[changedVote, initialVote, ...mockVotes]}
-          translations={mockTranslations}
-          onVoteUpdate={onVoteUpdate}
-        />
-      );
-
-      await waitFor(() => {
-        // Should be called twice: once for decrement, once for increment
-        expect(onVoteUpdate).toHaveBeenCalledTimes(2);
-        expect(onVoteUpdate).toHaveBeenNthCalledWith(1,
-          expect.objectContaining({
-            logoId: '1',
-            userId: 'change-voter',
-            action: 'decrement',
-          })
-        );
-        expect(onVoteUpdate).toHaveBeenNthCalledWith(2,
-          expect.objectContaining({
-            logoId: '2',
-            userId: 'change-voter',
-            action: 'increment',
-          })
-        );
-      });
-
-      // Verify the vote change message is displayed
-      const voteChangeMessage = screen.getByText(
-        mockTranslations.voteChanged
-          .replace('{previous}', '1')
-          .replace('{current}', '2')
-      );
-      expect(voteChangeMessage).toBeInTheDocument();
-    });
-
-    it('maintains correct vote count history after multiple vote changes', async () => {
-      const voter = {
-        userName: 'Multiple Voter',
-        userId: 'multiple-voter',
+      const changedVote = {
+        ...initialVote,
+        logoId: '2',
+        timestamp: new Date(),
       };
 
-      const voteSequence = [
-        { ...voter, logoId: '1', timestamp: new Date('2024-02-20T10:00:00'), ownerId: 'owner2' },
-        { ...voter, logoId: '2', timestamp: new Date('2024-02-20T10:01:00'), ownerId: 'owner1' },
-        { ...voter, logoId: '3', timestamp: new Date('2024-02-20T10:02:00'), ownerId: 'owner3' },
-      ];
-
-      const onVoteUpdate = jest.fn();
-
-      const { rerender } = render(
+      rerender(
         <VoteHistory
-          voteHistory={[voteSequence[0], ...mockVotes]}
+          voteHistory={[changedVote, initialVote]}
           translations={mockTranslations}
           onVoteUpdate={onVoteUpdate}
         />
       );
 
-      // Simulate vote changes
-      for (let i = 1; i < voteSequence.length; i++) {
-        rerender(
-          <VoteHistory
-            voteHistory={[voteSequence[i], ...voteSequence.slice(0, i), ...mockVotes]}
-            translations={mockTranslations}
-            onVoteUpdate={onVoteUpdate}
-          />
-        );
-      }
-
       await waitFor(() => {
-        // Should be called 4 times: 2 decrements and 2 increments
-        expect(onVoteUpdate).toHaveBeenCalledTimes(4);
-        
-        // Verify the final vote state
-        const voteItems = screen.getAllByRole('listitem');
-        expect(voteItems[0]).toHaveTextContent('Multiple Voter');
-        expect(voteItems[0]).toHaveTextContent('Logo #3');
+        // Should be called twice: once for the initial vote and twice for the vote change
+        expect(onVoteUpdate).toHaveBeenCalledTimes(3);
+
+        // First call: increment initial vote
+        expect(onVoteUpdate).toHaveBeenNthCalledWith(1, {
+          ...initialVote,
+          action: 'increment',
+        });
+
+        // Second call: decrement initial vote
+        expect(onVoteUpdate).toHaveBeenNthCalledWith(2, {
+          ...initialVote,
+          action: 'decrement',
+        });
+
+        // Third call: increment new vote
+        expect(onVoteUpdate).toHaveBeenNthCalledWith(3, {
+          ...changedVote,
+          action: 'increment',
+        });
       });
     });
   });

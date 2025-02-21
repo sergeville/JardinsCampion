@@ -14,18 +14,20 @@ afterAll(() => {
 });
 
 describe('DatabaseErrorBoundary', () => {
+  const testError = new DatabaseError('Test database error', {
+    severity: ErrorSeverity.CRITICAL,
+    category: ErrorCategory.DATABASE,
+    userMessage: 'A test database error occurred',
+    recoverable: true,
+    icon: '🔴',
+    action: {
+      label: 'Retry',
+      handler: () => undefined,
+    },
+  });
+
   const ErrorComponent = () => {
-    throw new DatabaseError('Test database error', {
-      severity: ErrorSeverity.CRITICAL,
-      category: ErrorCategory.DATABASE,
-      userMessage: 'A test database error occurred',
-      recoverable: true,
-      icon: '🔴',
-      action: {
-        label: 'Retry',
-        handler: () => undefined,
-      },
-    });
+    throw testError;
   };
 
   it('renders children when there is no error', () => {
@@ -49,7 +51,7 @@ describe('DatabaseErrorBoundary', () => {
     );
 
     expect(screen.getByText('A test database error occurred')).toBeInTheDocument();
-    expect(onError).toHaveBeenCalled();
+    expect(onError).toHaveBeenCalledWith(testError);
   });
 
   it('renders custom fallback when provided and error occurs', () => {
@@ -64,34 +66,6 @@ describe('DatabaseErrorBoundary', () => {
     expect(screen.getByTestId('fallback')).toBeInTheDocument();
   });
 
-  it('calls onError prop when error occurs', () => {
-    const onError = jest.fn();
-    const error = new DatabaseError('Test database error', {
-      severity: ErrorSeverity.CRITICAL,
-      category: ErrorCategory.DATABASE,
-      userMessage: 'A test database error occurred',
-      recoverable: true,
-      icon: '🔴',
-      action: {
-        label: 'Retry',
-        handler: () => undefined,
-      },
-    });
-
-    render(
-      <DatabaseErrorBoundary onError={onError}>
-        <ErrorComponent />
-      </DatabaseErrorBoundary>
-    );
-
-    expect(onError).toHaveBeenCalledWith(
-      error,
-      expect.objectContaining({
-        componentStack: expect.any(String),
-      })
-    );
-  });
-
   it('logs error information to console', () => {
     render(
       <DatabaseErrorBoundary>
@@ -99,7 +73,7 @@ describe('DatabaseErrorBoundary', () => {
       </DatabaseErrorBoundary>
     );
 
-    expect(console.error).toHaveBeenCalledWith('Database Error:', expect.any(DatabaseError));
+    expect(console.error).toHaveBeenCalledWith('Database Error:', testError);
     expect(console.error).toHaveBeenCalledWith('Error Info:', expect.any(Object));
   });
 

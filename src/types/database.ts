@@ -66,3 +66,12 @@ export interface DatabaseEditModalProps {
   onSave: (data: Record<string, unknown>) => Promise<void>;
   onDelete?: () => Promise<void>;
 }
+
+export interface Logo {
+  id: string;
+  url: string;
+  votes: number;
+  description?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

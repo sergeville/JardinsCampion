@@ -157,10 +157,13 @@ export default function Vote() {
     );
   }, [voteStats]);
 
-  const handleLogoSelect = useCallback((logo: Logo) => {
-    handleLogoSelection(logo);
-    setShowModal(true);
-  }, [handleLogoSelection]);
+  const handleLogoSelect = useCallback(
+    (logo: Logo) => {
+      handleLogoSelection(logo);
+      setShowModal(true);
+    },
+    [handleLogoSelection]
+  );
 
   return (
     <ErrorBoundary>
@@ -201,9 +204,7 @@ export default function Vote() {
               </div>
             </header>
 
-            <div className={styles.welcomeMessage}>
-              {t.mobileMessage}
-            </div>
+            <div className={styles.welcomeMessage}>{t.mobileMessage}</div>
 
             <LogoGrid
               logos={[

@@ -54,7 +54,11 @@ const VoteModal: React.FC<VoteModalProps> = ({
               ))}
             </select>
           </div>
-          {error && <div className={styles.error} role="alert">{error}</div>}
+          {error && (
+            <div className={styles.error} role="alert">
+              {error}
+            </div>
+          )}
           <div className={styles.buttonContainer}>
             <button type="button" onClick={onClose} className={styles.cancelButton}>
               {t.cancel}

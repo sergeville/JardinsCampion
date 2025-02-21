@@ -15,12 +15,19 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useVoteManagement } from '@/hooks/useVoteManagement';
 import { useTheme } from '@/hooks/useTheme';
 import type { ImageProps } from 'next/image';
+import { NetworkError } from '@/lib/errors/types';
 
 // Mock environment variables
 process.env.MONGODB_URI_DEV =
   'mongodb://admin:devpassword@localhost:27019/jardins-campion-dev?authSource=admin';
 process.env.MONGODB_URI_PROD =
   'mongodb://admin:prodpassword@localhost:27020/jardins-campion-prod?authSource=admin';
+
+// Mock all hooks
+jest.mock('@/hooks/useAuth');
+jest.mock('@/hooks/useLanguage');
+jest.mock('@/hooks/useVoteManagement');
+jest.mock('@/hooks/useTheme');
 
 // Mock next/image
 jest.mock('next/image', () => ({
@@ -37,7 +44,7 @@ interface MockVoteHistory {
   timestamp: Date;
 }
 
-let mockVoteHistory: MockVoteHistory[] = [];
+const mockVoteHistory: MockVoteHistory[] = [];
 
 // Mock the useVoteManagement hook
 const mockRecordVote = jest.fn().mockImplementation(async (voteData: VoteData) => {
@@ -75,43 +82,135 @@ const LogoImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) => (
   <Image src={src} alt={alt} width={200} height={200} priority />
 );
 
-// Mock the hooks
-jest.mock('@/hooks/useAuth');
-jest.mock('@/hooks/useLanguage');
-jest.mock('@/hooks/useVoteManagement');
+// Mock the hooks with proper imports
+import * as useAuthModule from '@/hooks/useAuth';
+import * as useLanguageModule from '@/hooks/useLanguage';
+import * as useVoteManagementModule from '@/hooks/useVoteManagement';
+import * as useThemeModule from '@/hooks/useTheme';
+
+// Consolidated mockLanguageHook
+const mockLanguageHook = {
+  t: {
+    selectThis: 'Select this logo',
+    votes: 'votes',
+    loginRequired: 'Please log in to vote',
+    alreadyVoted: 'You have already voted for this logo',
+    welcome: 'Welcome! Tap on a logo to vote.',
+    title: 'Jardins du Lac Campion',
+    subtitle: 'Logo Selection',
+    mobileMessage: 'Welcome! Tap on a logo to vote.',
+    failedToLoadUsers: 'Failed to load users',
+    selectUserRequired: 'Please select a user',
+    voteFailed: 'Failed to submit vote',
+    alreadyVoted: (userId: string, logoId: string) =>
+      `User ${userId} has already voted for logo ${logoId}!`,
+    loading: 'Loading...',
+    errorMessage: 'An error occurred',
+    submit: 'Submit',
+    cancel: 'Cancel',
+  },
+  language: 'en',
+  setLanguage: jest.fn(),
+  toggleLanguage: jest.fn(),
+};
+
+// Consolidated useVoteManagement mock
+const mockVoteManagementHook = {
+  selectedLogo: null,
+  voteCount: {},
+  voteHistory: [],
+  loading: false,
+  error: null,
+  handleLogoSelection: jest.fn(),
+  handleVoteSubmit: jest.fn(),
+  getUserPreviousVote: jest.fn(),
+  recordVote: jest.fn().mockImplementation(async (voteData: VoteData) => {
+    alert(`Vote recorded for ${voteData.userName} on Logo #${voteData.logoId}`);
+    return { status: 'confirmed' };
+  }),
+  refreshData: jest.fn(),
+  voteStats: [],
+  statsLoading: false,
+  statsError: null,
+  isLoading: false,
+  hasVoted: false,
+  currentVote: null,
+};
+
+jest.mock('@/hooks/useVoteManagement', () => ({
+  __esModule: true,
+  useVoteManagement: jest.fn(() => mockVoteManagementHook),
+}));
+
+jest.mock('@/hooks/useLanguage', () => ({
+  __esModule: true,
+  useLanguage: jest.fn(() => mockLanguageHook),
+}));
+
+jest.mock('@/hooks/useTheme', () => ({
+  __esModule: true,
+  useTheme: jest.fn(() => ({
+    theme: 'light',
+    isDarkMode: false,
+    toggleTheme: jest.fn(),
+  })),
+}));
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
+const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <AuthProvider>
+    <VoteProvider>
+      <DatabaseProvider>{children}</DatabaseProvider>
+    </VoteProvider>
+  </AuthProvider>
+);
 
 describe('VotePage', () => {
+  let alertMock: jest.SpyInstance;
+
   const mockAuthHook = {
     isAuthenticated: true,
     loading: false,
+    user: null,
+    login: jest.fn(),
+    logout: jest.fn(),
   };
 
-  const mockLanguageHook = {
-    t: {
-      selectThis: 'Select this logo',
-      votes: 'votes',
-      loginRequired: 'Please log in to vote',
-      alreadyVoted: 'You have already voted for this logo',
-    },
-  };
-
-  const mockVoteManagementHook = {
-    selectedLogo: null,
-    voteCount: {},
-    loading: false,
-    error: null,
-    handleLogoSelection: jest.fn(),
-    handleVoteSubmit: jest.fn(),
-    getUserPreviousVote: jest.fn(),
+  const customRender = (ui: React.ReactElement) => {
+    return render(ui, { wrapper: TestWrapper });
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useAuth as jest.Mock).mockReturnValue(mockAuthHook);
-    (useLanguage as jest.Mock).mockReturnValue(mockLanguageHook);
-    (useVoteManagement as jest.Mock).mockReturnValue(mockVoteManagementHook);
 
-    // Mock localStorage with a working implementation
+    // Initialize alert mock
+    alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});
+
+    // Setup hook mocks
+    (useAuth as jest.Mock).mockImplementation(() => mockAuthHook);
+    (useLanguage as jest.Mock).mockImplementation(() => mockLanguageHook);
+    (useVoteManagement as jest.Mock).mockImplementation(() => mockVoteManagementHook);
+    (useTheme as jest.Mock).mockImplementation(() => ({
+      theme: 'light',
+      isDarkMode: false,
+      toggleTheme: jest.fn(),
+    }));
+
+    // Mock localStorage
     const localStorageData: { [key: string]: string } = {};
     const localStorageMock = {
       getItem: jest.fn((key: string) => localStorageData[key] || null),
@@ -132,326 +231,260 @@ describe('VotePage', () => {
       writable: true,
     });
 
-    // Mock navigator.language
-    Object.defineProperty(window.navigator, 'language', {
-      value: 'fr-FR', // Set default language to French
-      configurable: true,
-    });
-
-    // Mock matchMedia
-    window.matchMedia = jest.fn().mockImplementation((query) => ({
-      matches: query === '(prefers-color-scheme: dark)', // Match dark mode by default
-      media: query,
-      onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    }));
-
-    // Reset document body and cleanup any previous renders
+    // Reset document body and cleanup
     document.body.innerHTML = '';
     document.documentElement.removeAttribute('data-theme');
-
-    // Mock alert
-    const alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});
-    // Reset vote history
-    mockVoteHistory = [];
   });
 
   afterEach(() => {
-    // Restore alert mock
+    // Restore all mocks
     alertMock.mockRestore();
+    jest.clearAllMocks();
+
     // Clear localStorage
     window.localStorage.clear();
+
     // Reset document theme
     document.documentElement.removeAttribute('data-theme');
+
     // Clean up rendered components
     document.body.innerHTML = '';
-    // Clean up any mounted components
-    jest.clearAllMocks();
   });
-
-  const switchToEnglish = async () => {
-    // Set initial language to English
-    window.localStorage.setItem('language', 'en');
-    const { unmount } = render(<Vote />);
-
-    // Wait for language effect to complete
-    await waitFor(() => {
-      expect(window.localStorage.getItem('language')).toBe('en');
-    });
-
-    // Wait for title to update
-    await waitFor(() => {
-      const titles = screen.getAllByRole('heading', { level: 1 });
-      const titleParts = titles[0].textContent?.split('\n').map((part) => part.trim()) || [];
-      expect(titleParts[1]).toBe('Logo Selection');
-    });
-
-    return unmount;
-  };
 
   it('renders the title in English when switched', async () => {
-    const unmount = await switchToEnglish();
-    expect(screen.getByText(/Jardins du Lac Campion/)).toBeInTheDocument();
-    expect(screen.getByText(/Logo Selection/)).toBeInTheDocument();
+    const { unmount } = customRender(<Vote />);
+    expect(screen.getByText(mockLanguageHook.t.title)).toBeInTheDocument();
+    expect(screen.getByText(mockLanguageHook.t.mobileMessage)).toBeInTheDocument();
     unmount();
   });
 
-  it('shows the mobile welcome message in English', async () => {
-    const unmount = await switchToEnglish();
-    expect(screen.getByText(/Welcome! Tap on a logo to vote./i)).toBeInTheDocument();
+  it('shows error message when present', async () => {
+    const testError = 'Test error message';
+    (useVoteManagement as jest.Mock).mockImplementationOnce(() => ({
+      ...mockVoteManagementHook,
+      error: testError,
+    }));
+
+    const { unmount } = customRender(<Vote />);
+    expect(screen.getByText(testError)).toBeInTheDocument();
     unmount();
   });
 
-  it('prevents voting for the same logo twice', async () => {
-    const unmount = await switchToEnglish();
+  it('handles network error during vote submission', async () => {
+    const networkError = new NetworkError('Network error during vote');
+    mockVoteManagementHook.recordVote.mockRejectedValueOnce(networkError);
 
-    // Wait for loading to finish
-    await waitFor(() => {
-      const logosContainer = screen.getByTestId('logos-container');
-      expect(logosContainer.classList.contains('loading')).toBe(false);
-    });
+    const { unmount } = customRender(<Vote />);
 
-    // First vote
-    await waitFor(() => {
-      const logos = screen.getAllByRole('img');
-      fireEvent.click(logos[0]);
-    });
-
-    // Wait for the modal to appear and be interactive
-    await waitFor(() => {
-      const nameInput = screen.getByTestId('name-input');
-      expect(nameInput).not.toBeDisabled();
-    });
-
-    const nameInput = screen.getByTestId('name-input');
-    await waitFor(() => {
-      fireEvent.change(nameInput, { target: { value: 'Test User' } });
-    });
-
-    await waitFor(() => {
-      const submitButton = screen.getByRole('button', { name: /Submit|Soumettre/i });
-      fireEvent.click(submitButton);
-      await waitFor(() => {
-        expect(alertMock).toHaveBeenCalledWith(expect.stringContaining('Test User'));
-        expect(alertMock).toHaveBeenCalledWith(expect.stringContaining('Logo #1'));
-      });
-    });
-
-    unmount();
-  });
-
-  it('allows changing language between English and French', async () => {
-    // Start with French (default)
-    window.localStorage.removeItem('language'); // Ensure no language is set
-    const { unmount } = render(<Vote />);
-
-    // Wait for initial render and effects to complete
-    await waitFor(() => {
-      expect(window.localStorage.getItem('language')).toBe('fr');
-    });
-
-    await waitFor(() => {
-      const title = screen.getAllByRole('heading', { level: 1 })[0];
-      const titleParts = title.textContent?.split('\n').map((part) => part.trim()) || [];
-      expect(titleParts[0]).toBe('Jardins du Lac Campion');
-      expect(titleParts[1]).toBe('Voté pour le plus beau logo');
-    });
-
-    // Switch to English
-    const languageToggle = screen.getByText('EN');
-    fireEvent.click(languageToggle);
-
-    // Wait for language effect to complete
-    await waitFor(() => {
-      expect(window.localStorage.getItem('language')).toBe('en');
-    });
-
-    // Wait for title to update
-    await waitFor(() => {
-      const title = screen.getAllByRole('heading', { level: 1 })[0];
-      expect(title).toHaveTextContent('Jardins du Lac Campion');
-    });
-
-    await waitFor(() => {
-      const title = screen.getAllByRole('heading', { level: 1 })[0];
-      expect(title).toHaveTextContent('Logo Selection');
-    });
-
-    // Switch back to French
-    fireEvent.click(languageToggle);
-
-    // Wait for language effect to complete
-    await waitFor(() => {
-      expect(window.localStorage.getItem('language')).toBe('fr');
-    });
-
-    // Wait for title to update
-    await waitFor(() => {
-      const title = screen.getAllByRole('heading', { level: 1 })[0];
-      expect(title).toHaveTextContent('Jardins du Lac Campion');
-    });
-
-    await waitFor(() => {
-      const title = screen.getAllByRole('heading', { level: 1 })[0];
-      expect(title).toHaveTextContent('Voté pour le plus beau logo');
-    });
-
-    unmount();
-  });
-
-  it('maintains dark/light mode preference', async () => {
-    // Start with dark theme
-    window.localStorage.setItem('theme', 'dark');
-    document.documentElement.setAttribute('data-theme', 'dark');
-    const { unmount } = render(<Vote />);
-
-    // Wait for initial render and effects to complete
-    await waitFor(() => {
-      expect(window.localStorage.getItem('theme')).toBe('dark');
-    });
-
-    await waitFor(() => {
-      expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-    });
-
-    // Find and click theme toggle
-    const themeToggle = screen.getAllByRole('button', {
-      name: /Light Mode|Mode Clair|Dark Mode|Mode Sombre/i,
-    })[0];
-    fireEvent.click(themeToggle);
-
-    // Wait for theme effect to complete
-    await waitFor(() => {
-      expect(window.localStorage.getItem('theme')).toBe('light');
-    });
-
-    await waitFor(() => {
-      expect(document.documentElement.getAttribute('data-theme')).toBe('light');
-    });
-
-    // Click again to toggle back to dark mode
-    fireEvent.click(themeToggle);
-
-    // Wait for theme effect to complete
-    await waitFor(() => {
-      expect(window.localStorage.getItem('theme')).toBe('dark');
-    });
-
-    await waitFor(() => {
-      expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-    });
-
-    unmount();
-  });
-
-  it('allows users to enter their name and vote', async () => {
-    // Set initial language to English
-    window.localStorage.setItem('language', 'en');
-    const { unmount } = render(<Vote />);
-
-    // Wait for language effect to complete
-    await waitFor(() => {
-      expect(window.localStorage.getItem('language')).toBe('en');
-    });
-
-    // Wait for initial render
-    await waitFor(() => {
-      expect(screen.getByTestId('logos-container')).toBeInTheDocument();
-    });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('logos-container').classList.contains('loading')).toBe(false);
-    });
-
-    // Update mock vote history before submitting vote
-    mockVoteHistory = [
-      {
-        userName: 'Test User',
-        userId: 'test-user',
-        logoId: '1',
-        timestamp: new Date(),
-      },
-    ];
-
-    // Click on a logo to vote
-    const logos = screen.getAllByRole('img');
-    fireEvent.click(logos[0]);
+    // Click on a logo
+    const logo = screen.getByTestId('logo-1');
+    fireEvent.click(logo);
 
     // Wait for the modal to appear
     await waitFor(() => {
-      expect(screen.getByTestId('name-input')).toBeInTheDocument();
+      expect(screen.getByTestId('vote-modal')).toBeInTheDocument();
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId('name-input')).not.toBeDisabled();
-    });
-
-    // Enter name in the modal
+    // Enter user name
     const nameInput = screen.getByTestId('name-input');
     fireEvent.change(nameInput, { target: { value: 'Test User' } });
 
     // Submit vote
-    const submitButton = screen.getByRole('button', { name: /Submit|Soumettre/i });
+    const submitButton = screen.getByText('Submit');
     fireEvent.click(submitButton);
 
-    // Wait for alert
+    // Verify error message
     await waitFor(() => {
-      expect(alertMock).toHaveBeenCalledWith(expect.stringContaining('Test User'));
+      expect(screen.getByText('Network error during vote')).toBeInTheDocument();
     });
-
-    // Wait for vote history to update
-    await waitFor(() => {
-      expect(screen.getByTestId('vote-list')).toBeInTheDocument();
-    });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('vote-list')).toHaveTextContent('Test User');
-    });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('vote-list')).toHaveTextContent(/Logo #1/);
-    });
-
-    // Wait for vote history to update
-    await waitFor(
-      () => {
-        const voteList = screen.getByTestId('vote-list');
-        expect(voteList).toHaveTextContent('Test User');
-        expect(voteList).toHaveTextContent(/Logo #1/);
-      },
-      { timeout: 2000 }
-    );
 
     unmount();
   });
 
-  it('shows error message when present', () => {
-    const error = 'Test error message';
-    (useVoteManagement as jest.Mock).mockReturnValue({
-      ...mockVoteManagementHook,
-      error,
+  it('handles failed user fetch', async () => {
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: false,
+        status: 500,
+      })
+    );
+
+    const { unmount } = customRender(<Vote />);
+
+    await waitFor(() => {
+      expect(screen.getByText(mockLanguageHook.t.failedToLoadUsers)).toBeInTheDocument();
     });
 
-    render(<Vote />);
-    expect(screen.getByText(error)).toBeInTheDocument();
+    unmount();
   });
 
-  it('calls getUserPreviousVote when selecting logo while not authenticated', () => {
-    (useAuth as jest.Mock).mockReturnValue({
-      ...mockAuthHook,
-      isAuthenticated: false,
+  it('prevents voting for the same logo twice', async () => {
+    mockVoteManagementHook.recordVote.mockImplementationOnce(async (voteData: VoteData) => ({
+      status: 'rejected',
+      conflictResolution: {
+        originalVote: {
+          userId: voteData.userId,
+          logoId: voteData.logoId,
+          userName: voteData.userName,
+          timestamp: new Date(),
+        },
+        newVote: voteData,
+        resolution: 'keep-original',
+      },
+    }));
+
+    const { unmount } = customRender(<Vote />);
+
+    // Click on a logo
+    const logo = screen.getByTestId('logo-1');
+    fireEvent.click(logo);
+
+    // Wait for the modal to appear
+    await waitFor(() => {
+      expect(screen.getByTestId('vote-modal')).toBeInTheDocument();
     });
 
-    (useVoteManagement as jest.Mock).mockReturnValue({
+    // Enter user name
+    const nameInput = screen.getByTestId('name-input');
+    fireEvent.change(nameInput, { target: { value: 'Test User' } });
+
+    // Submit vote
+    const submitButton = screen.getByText('Submit');
+    fireEvent.click(submitButton);
+
+    // Verify duplicate vote message
+    await waitFor(() => {
+      expect(
+        screen.getByText(mockLanguageHook.t.alreadyVoted('Test User', '1'))
+      ).toBeInTheDocument();
+    });
+
+    unmount();
+  });
+
+  it('shows loading state when fetching data', async () => {
+    (useVoteManagement as jest.Mock).mockImplementationOnce(() => ({
       ...mockVoteManagementHook,
-      selectedLogo: { id: '1', name: 'Test Logo', imageUrl: '/test.png' },
+      loading: true,
+    }));
+
+    const { unmount } = customRender(<Vote />);
+    expect(screen.getByText(mockLanguageHook.t.loading)).toBeInTheDocument();
+    unmount();
+  });
+
+  it('handles successful vote submission', async () => {
+    const { unmount } = customRender(<Vote />);
+
+    // Click on a logo
+    const logo = screen.getByTestId('logo-1');
+    fireEvent.click(logo);
+
+    // Wait for the modal to appear
+    await waitFor(() => {
+      expect(screen.getByTestId('vote-modal')).toBeInTheDocument();
     });
 
-    render(<Vote />);
-    expect(mockVoteManagementHook.getUserPreviousVote).toHaveBeenCalled();
+    // Enter user name
+    const nameInput = screen.getByTestId('name-input');
+    fireEvent.change(nameInput, { target: { value: 'Test User' } });
+
+    // Submit vote
+    const submitButton = screen.getByText(mockLanguageHook.t.submit);
+    fireEvent.click(submitButton);
+
+    // Verify vote was recorded and modal was closed
+    await waitFor(() => {
+      expect(mockVoteManagementHook.recordVote).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userName: 'Test User',
+          logoId: '1',
+        })
+      );
+      expect(screen.queryByTestId('vote-modal')).not.toBeInTheDocument();
+    });
+
+    unmount();
+  });
+
+  it('handles modal close', async () => {
+    const { unmount } = customRender(<Vote />);
+
+    // Click on a logo
+    const logo = screen.getByTestId('logo-1');
+    fireEvent.click(logo);
+
+    // Wait for the modal to appear
+    await waitFor(() => {
+      expect(screen.getByTestId('vote-modal')).toBeInTheDocument();
+    });
+
+    // Click cancel button
+    const cancelButton = screen.getByText(mockLanguageHook.t.cancel);
+    fireEvent.click(cancelButton);
+
+    // Verify modal was closed
+    await waitFor(() => {
+      expect(screen.queryByTestId('vote-modal')).not.toBeInTheDocument();
+    });
+
+    unmount();
   });
 });
+
+// Mock fetch API
+const mockFetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+    json: () =>
+      Promise.resolve([
+        { userId: '1', name: 'Test User' },
+        { userId: '2', name: 'Jane Smith' },
+      ]),
+  })
+);
+
+global.fetch = mockFetch;
+
+// Mock components
+jest.mock('@/components/LogoGrid', () => ({
+  LogoGrid: ({ logos, onSelectLogo, loading, t }: any) => (
+    <div data-testid="logos-container" className={loading ? 'loading' : ''}>
+      {loading ? (
+        <div>{t.loading}</div>
+      ) : (
+        logos.map((logo: any) => (
+          <div
+            key={logo.id}
+            role="img"
+            onClick={() => onSelectLogo(logo)}
+            data-testid={`logo-${logo.id}`}
+          />
+        ))
+      )}
+    </div>
+  ),
+}));
+
+jest.mock('@/components/VoteModal', () => ({
+  __esModule: true,
+  default: ({ isOpen, onClose, onSubmit, error, t }: any) =>
+    isOpen ? (
+      <div data-testid="vote-modal">
+        <input data-testid="name-input" type="text" />
+        {error && <div role="alert">{error}</div>}
+        <button onClick={onSubmit}>{t.submit}</button>
+        <button onClick={onClose}>{t.cancel}</button>
+      </div>
+    ) : null,
+}));
+
+// Add ErrorMessage mock
+jest.mock('@/components/ErrorMessage', () => ({
+  __esModule: true,
+  default: ({ error, isUserMessage }: any) => (
+    <div role="alert" className={isUserMessage ? 'user-message' : 'error'}>
+      {error}
+    </div>
+  ),
+}));

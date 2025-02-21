@@ -86,8 +86,7 @@ function initializeModel<T extends Document, M extends Model<T>>(
   name: string,
   schema: Schema<T>
 ): M {
-  return (mongoose.models[name] ||
-    mongoose.model<T, M>(name, schema)) as M;
+  return (mongoose.models[name] || mongoose.model<T, M>(name, schema)) as M;
 }
 
 // Safe schema access
@@ -95,7 +94,7 @@ function getSchemaFields(schema: Schema | undefined): string[] {
   if (!schema?.paths) {
     return [];
   }
-  
+
   return Object.keys(schema.paths);
 }
 ```
@@ -293,11 +292,13 @@ interface ErrorMetadata {
 ## Best Practices for Error Prevention
 
 1. **Type Safety**
+
    - Use TypeScript's strict mode
    - Add type guards for runtime checks
    - Validate data before operations
 
 2. **Null Checks**
+
    - Always check for undefined/null values
    - Use optional chaining and nullish coalescing
    - Provide default values when appropriate

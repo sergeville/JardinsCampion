@@ -13,13 +13,13 @@ describe('VoteModal', () => {
     error: null,
     users: [
       { id: 'user1', name: 'John Doe' },
-      { id: 'user2', name: 'Jane Smith' }
+      { id: 'user2', name: 'Jane Smith' },
     ],
     t: {
       selectUser: 'Select who is voting',
       submit: 'Submit Vote',
-      cancel: 'Cancel'
-    }
+      cancel: 'Cancel',
+    },
   };
 
   beforeEach(() => {
@@ -88,8 +88,8 @@ describe('VoteModal', () => {
     render(<VoteModal {...mockProps} />);
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-labelledby', 'modal-title');
-    
+
     const select = screen.getByTestId('user-select');
     expect(select).toHaveAttribute('aria-label', 'Select who is voting');
   });
-}); 
+});
