@@ -1,11 +1,8 @@
 /** @type {import('next').NextConfig} */
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const path = require('path');
 
 const nextConfig = {
+  output: 'export',  // Enable static exports for GitHub Pages
   basePath: process.env.GITHUB_ACTIONS ? '/JardinsCampion' : '',
   images: {
     unoptimized: true,
@@ -52,33 +49,8 @@ const nextConfig = {
   poweredByHeader: false,
   generateEtags: false,
   compress: true,
-  // Only include headers and rewrites if not exporting
-  ...(process.env.NEXT_EXPORT !== 'true' && {
-    async headers() {
-      return [
-        {
-          source: '/api/:path*',
-          headers: [
-            { key: 'Access-Control-Allow-Origin', value: '*' },
-            { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
-            { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
-          ],
-        },
-      ];
-    },
-    async rewrites() {
-      return [
-        {
-          source: '/show-data',
-          destination: '/show-data',
-        },
-        {
-          source: '/api/:path*',
-          destination: '/api/:path*',
-        },
-      ];
-    },
-  }),
+  // Headers and rewrites are not needed for static export
+  // They will be ignored when output: 'export' is set
 };
 
-export default nextConfig;
+module.exports = nextConfig;
