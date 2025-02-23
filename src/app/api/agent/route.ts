@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { DatabaseService } from '@/lib/services/databaseService';
 
 interface ErrorPattern {
@@ -111,74 +111,13 @@ function analyzeError(error: string): { suggestion: string; codeExample?: string
   };
 }
 
-export async function POST(request: Request) {
-  try {
-    const { message, error, logs } = await request.json();
+// Configure route for static export
+export const dynamic = 'error';
+export const dynamicParams = false;
 
-    // Log the agent request
-    DatabaseService.addLog({
-      operation: 'agentRequest',
-      details: `Processing agent request: ${message}`,
-      success: true,
-    });
-
-    let response = '';
-
-    // If there's an error to analyze
-    if (error) {
-      const analysis = analyzeError(error);
-      response =
-        `I've analyzed the error and here's what I found:\n\n` +
-        `🔍 Error: ${error}\n\n` +
-        `💡 Suggestion: ${analysis.suggestion}\n\n` +
-        (analysis.codeExample
-          ? `📝 Here's an example of the correct implementation:\n\`\`\`typescript\n${analysis.codeExample}\n\`\`\``
-          : '');
-    }
-    // Handle other types of messages
-    else if (message.toLowerCase().includes('test')) {
-      response =
-        'I can help you with testing. Here are some available tests:\n' +
-        '- Vote History: Tests the vote history retrieval\n' +
-        '- Logo Stats: Checks logo statistics and counts\n' +
-        '- User Votes: Verifies user voting functionality\n' +
-        '- Database Info: Shows database status and records\n' +
-        '- Upload Logo: Tests logo upload functionality\n\n' +
-        'Which test would you like to run?';
-    } else if (message.toLowerCase().includes('help')) {
-      response =
-        "I'm here to help! I can assist with:\n" +
-        '- Analyzing and fixing errors\n' +
-        '- Running specific tests\n' +
-        '- Explaining test results\n' +
-        '- Providing code examples\n' +
-        '- Checking database logs\n\n' +
-        'What would you like help with?';
-    } else {
-      response =
-        "I'm your test assistant. I can help analyze errors, run tests, and provide suggestions. " +
-        "If you're encountering an error, please share the error message, and I'll help you resolve it.";
-    }
-
-    // Log the agent response
-    DatabaseService.addLog({
-      operation: 'agentResponse',
-      details: `Agent response generated for ${error ? 'error analysis' : 'general inquiry'}`,
-      success: true,
-    });
-
-    return NextResponse.json({ success: true, response });
-  } catch (error) {
-    // Log the error
-    DatabaseService.addLog({
-      operation: 'agentError',
-      details: error instanceof Error ? error.message : 'Unknown error in agent processing',
-      success: false,
-    });
-
-    return NextResponse.json(
-      { success: false, error: 'Failed to process agent request' },
-      { status: 500 }
-    );
-  }
+export async function POST(request: NextRequest) {
+  return new Response(
+    'This API route is not available in static export. Please use client-side data management.',
+    { status: 404 }
+  );
 }

@@ -1,14 +1,12 @@
-import { NextResponse } from 'next/server';
-import { DatabaseService } from '@/lib/services/databaseService';
+import { NextRequest } from 'next/server';
 
-export async function GET() {
-  try {
-    const logs = await DatabaseService.getLogs();
-    return NextResponse.json({ success: true, logs });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch database logs' },
-      { status: 500 }
-    );
-  }
+// Configure route for static export
+export const dynamic = 'error';
+export const dynamicParams = false;
+
+export async function GET(request: NextRequest) {
+  return new Response(
+    'This API route is not available in static export. Please use client-side data fetching.',
+    { status: 404 }
+  );
 }
