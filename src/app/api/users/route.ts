@@ -1,14 +1,12 @@
-import { NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
-import UserModel from '@/models/User';
+import { NextRequest } from 'next/server';
 
-export async function GET() {
-  try {
-    await connectDB();
-    const users = await UserModel.find({}, { name: 1, userId: 1 }).sort({ name: 1 });
-    return NextResponse.json(users);
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
-  }
+// Configure route for static export
+export const dynamic = 'error';
+export const dynamicParams = false;
+
+export async function GET(request: NextRequest) {
+  return new Response(
+    'This API route is not available in static export. Please use client-side data fetching.',
+    { status: 404 }
+  );
 }
