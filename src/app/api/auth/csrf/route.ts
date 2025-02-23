@@ -1,15 +1,13 @@
 import { NextResponse } from 'next/server';
 import { randomBytes } from 'crypto';
 
-export async function GET() {
-  try {
-    // Generate a random CSRF token
-    const token = randomBytes(32).toString('hex');
+// Configure route for static export
+export const dynamic = 'error';
+export const dynamicParams = false;
 
-    // In a real application, you would store this token in a session or database
-    // For testing purposes, we'll just return it
-    return NextResponse.json({ token }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to generate CSRF token' }, { status: 500 });
-  }
+export async function GET() {
+  return new Response(
+    'This API route is not available in static export. Please use client-side CSRF token generation.',
+    { status: 404 }
+  );
 }

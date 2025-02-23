@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
-const path = require('path');
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const nextConfig = {
   output: 'export',  // Enable static exports for GitHub Pages
@@ -49,8 +53,10 @@ const nextConfig = {
   poweredByHeader: false,
   generateEtags: false,
   compress: true,
-  // Headers and rewrites are not needed for static export
-  // They will be ignored when output: 'export' is set
+  // Static export configuration
+  trailingSlash: true, // Recommended for GitHub Pages
+  skipTrailingSlashRedirect: true,
+  distDir: 'out',
 };
 
-module.exports = nextConfig;
+export default nextConfig;
