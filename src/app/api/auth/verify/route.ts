@@ -1,21 +1,22 @@
 import { NextResponse } from 'next/server';
 import { verify } from 'jsonwebtoken';
 
+// Configure route for static export
+export const dynamic = 'error';
+export const dynamicParams = false;
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function GET() {
-  return NextResponse.json({ valid: true }, { status: 200 });
+  return new Response(
+    'This API route is not available in static export. Please use client-side token verification.',
+    { status: 404 }
+  );
 }
 
 export async function POST(request: Request) {
-  try {
-    const { token } = await request.json();
-
-    // Verify the token
-    verify(token, JWT_SECRET);
-
-    return NextResponse.json({ valid: true }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-  }
+  return new Response(
+    'This API route is not available in static export. Please use client-side token verification.',
+    { status: 404 }
+  );
 }
