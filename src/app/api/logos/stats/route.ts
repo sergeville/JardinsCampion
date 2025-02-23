@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
 
-export async function GET() {
-  // For now, return mock data
-  const mockStats = {
-    '1': 0,
-    '2': 0,
-    '3': 0,
-    '4': 0,
-    '5': 0,
-  };
+// Configure route for static export
+export const dynamic = 'error';
+export const dynamicParams = false;
 
-  return NextResponse.json(mockStats);
+export async function GET() {
+  return new Response(
+    'This API route is not available in static export. Please use client-side data fetching.',
+    { status: 404 }
+  );
 }
