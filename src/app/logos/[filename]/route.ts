@@ -2,31 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import LogoModel from '@/models/Logo';
 
+export const dynamic = 'error';
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return [
+    { filename: 'Logo1.png' },
+    { filename: 'Logo2.png' },
+    { filename: 'Logo3.png' },
+    { filename: 'Logo4.png' },
+    { filename: 'Logo6.png' }
+  ];
+}
+
 export async function GET(request: NextRequest) {
-  try {
-    await connectDB();
-
-    const filename = request.url.split('/').pop();
-    if (!filename) {
-      return NextResponse.json({ error: 'Filename is required' }, { status: 400 });
+  return new NextResponse(
+    JSON.stringify({
+      error: 'This API route is not available in static export. Please use client-side data management instead.',
+    }),
+    {
+      status: 404,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }
-
-    // Extract the logo ID from the filename
-    const id = filename.replace(/\.(png|jpg|jpeg|gif|svg)$/i, '');
-
-    // Find the logo in the database
-    const logo = await LogoModel.findActiveLogo(id);
-
-    if (!logo) {
-      return NextResponse.json({ error: 'Logo not found' }, { status: 404 });
-    }
-
-    const response = new NextResponse(logo.src);
-
-    // Return the image with appropriate content type
-    return response;
-  } catch (error) {
-    console.error('Error fetching logo:', error);
-    return NextResponse.json({ error: 'Error fetching logo' }, { status: 500 });
-  }
+  );
 }
