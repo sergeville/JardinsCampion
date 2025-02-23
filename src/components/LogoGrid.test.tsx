@@ -10,25 +10,21 @@ jest.mock('next/image', () => ({
   default: function MockImage(props: any) {
     const { onError, src } = props;
 
-    const handleError = React.useCallback(() => {
-      onError?.();
-    }, [onError]);
-
     React.useEffect(() => {
-      const img = new Image();
-      img.src = src;
-      img.onerror = handleError;
-    }, [src, handleError]);
+      if (src === '/logo1.png') {
+        onError?.();
+      }
+    }, [src, onError]);
 
     return (
       <div
         data-testid="mock-image"
         role="img"
+        alt={props.alt}
         aria-label={props.alt}
         style={{
           width: props.width,
           height: props.height,
-          ...props.style,
           backgroundImage: `url(${src})`,
           backgroundSize: 'contain',
           backgroundPosition: 'center',
@@ -106,7 +102,14 @@ describe('LogoGrid', () => {
   it('disables interaction when loading', () => {
     render(<LogoGrid {...defaultProps} loading={true} />);
 
-    expect(screen.getByRole('status')).toHaveTextContent('Loading logos...');
+    const radioGroup = screen.getByRole('radiogroup');
+    expect(radioGroup).toHaveAttribute('aria-busy', 'true');
+
+    const logos = screen.getAllByRole('radio');
+    logos.forEach((logo) => {
+      expect(logo).toHaveAttribute('tabindex', '-1');
+      expect(logo.querySelector('.logo')).toHaveClass('disabled');
+    });
   });
 
   describe('keyboard navigation', () => {
@@ -172,15 +175,24 @@ describe('LogoGrid', () => {
     it('maintains focus when loading state changes', async () => {
       const { rerender } = render(<LogoGrid {...defaultProps} />);
 
+      // Set initial focus
       const logos = screen.getAllByRole('radio');
-      logos[1].focus();
-      expect(logos[1]).toHaveFocus();
+      fireEvent.keyDown(logos[0], { key: 'ArrowRight' });
+
+      // Verify focus moved to second logo
+      await waitFor(() => {
+        const updatedLogos = screen.getAllByRole('radio');
+        expect(updatedLogos[1]).toHaveFocus();
+      });
 
       // Simulate loading state change
       rerender(<LogoGrid {...defaultProps} loading={true} />);
+      expect(logos[1]).toHaveAttribute('tabindex', '-1');
 
-      // Wait for loading state to complete
+      // Return to non-loading state
       rerender(<LogoGrid {...defaultProps} loading={false} />);
+
+      // Focus should be restored to the second logo
       await waitFor(() => {
         const updatedLogos = screen.getAllByRole('radio');
         expect(updatedLogos[1]).toHaveFocus();
@@ -194,7 +206,10 @@ describe('LogoGrid', () => {
     const firstImage = screen.getAllByRole('img')[0];
     fireEvent.error(firstImage);
 
-    expect(screen.getByText('Error loading image')).toBeInTheDocument();
+    await waitFor(() => {
+      const updatedImage = screen.getAllByRole('img')[0];
+      expect(updatedImage.style.backgroundImage).toBe('url(/placeholder.png)');
+    });
   });
 
   it('displays error message and clears it after timeout', async () => {
@@ -227,7 +242,11 @@ describe('LogoGrid', () => {
     ];
 
     render(<LogoGrid {...defaultProps} logos={invalidLogos} />);
-    expect(screen.getAllByRole('radio')).toHaveLength(3);
+
+    const logos = screen.getAllByRole('radio');
+    expect(logos).toHaveLength(mockLogos.length + 1);
+    expect(logos[0]).toHaveAttribute('aria-label', expect.stringContaining('Invalid Logo'));
+    expect(logos[0].querySelector('.logo')).toBeTruthy();
   });
 
   it('applies correct ARIA attributes', () => {

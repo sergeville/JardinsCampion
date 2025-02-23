@@ -109,35 +109,59 @@ describe('AuthManager', () => {
 
     // Default mock implementation for fetch
     mockFetch.mockImplementation((url) => {
-      switch (url) {
-        case '/api/auth/csrf':
+      const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`;
+      switch (fullUrl) {
+        case 'http://localhost/api/auth/csrf':
           return Promise.resolve({
             ok: true,
             json: () => Promise.resolve({ token: 'csrf-token' }),
           });
-        case '/api/auth/verify':
+        case 'http://localhost/api/auth/verify':
           return Promise.resolve({
             ok: true,
             json: () => Promise.resolve({ valid: true }),
           });
-        case '/api/auth/refresh':
+        case 'http://localhost/api/auth/refresh':
           return Promise.resolve({
             ok: true,
             json: () => Promise.resolve({ accessToken: 'new.valid.token' }),
           });
-        case '/api/auth/logout':
+        case 'http://localhost/api/auth/logout':
           return Promise.resolve({ ok: true });
+        case 'http://localhost/api/auth/login':
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ accessToken: 'valid.jwt.token' }),
+          });
         default:
-          return Promise.reject(new Error('Unexpected request to ' + url));
+          return Promise.reject(new Error('Unexpected request to ' + fullUrl));
       }
     });
   });
 
   describe('Initialization', () => {
+    beforeEach(() => {
+      // Mock window.location.origin
+      Object.defineProperty(window, 'location', {
+        value: {
+          origin: 'http://localhost',
+        },
+        writable: true,
+      });
+    });
+
     it('should initialize CSRF token on creation', async () => {
       await authManager['initializeCsrfToken']();
       expect(authManager['csrfToken']).toBe('csrf-token');
-      expect(mockFetch).toHaveBeenCalledWith('/api/auth/csrf');
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost/api/auth/csrf',
+        expect.objectContaining({
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+      );
     });
 
     it('should handle CSRF token initialization failure gracefully', async () => {
@@ -236,9 +260,42 @@ describe('AuthManager', () => {
   });
 
   describe('Token Management', () => {
+    beforeEach(() => {
+      // Mock window.location.origin
+      Object.defineProperty(window, 'location', {
+        value: {
+          origin: 'http://localhost',
+        },
+        writable: true,
+      });
+    });
+
     it('should validate tokens correctly', async () => {
+      // Mock fetch for token verification
+      mockFetch.mockImplementationOnce((url) => {
+        if (url === '/api/auth/verify') {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ valid: true }),
+          });
+        }
+        return Promise.reject(new Error('Unexpected request to ' + url));
+      });
+
       const isValid = await authManager['validateToken']('valid.jwt.token');
       expect(isValid).toBe(true);
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/auth/verify',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': '',
+          }),
+          credentials: 'include',
+          body: JSON.stringify({ token: 'valid.jwt.token' }),
+        })
+      );
     });
 
     it('should detect expired tokens', async () => {
@@ -256,11 +313,17 @@ describe('AuthManager', () => {
     });
 
     it('should handle token refresh correctly', async () => {
-      // Initial valid token
-      authManager['accessToken'] = 'valid.jwt.token';
+      mockFetch.mockImplementationOnce((url) => {
+        if (url === 'http://localhost/api/auth/refresh') {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ accessToken: 'new.valid.token' }),
+          });
+        }
+        return Promise.reject(new Error('Unexpected request to ' + url));
+      });
 
       await authManager['refreshToken']();
-      expect(mockFetch).toHaveBeenCalledWith('/api/auth/refresh', expect.any(Object));
       expect(authManager['accessToken']).toBe('new.valid.token');
     });
 

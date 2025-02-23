@@ -4,7 +4,8 @@ export interface VoteData {
   userId: string;
   userName: string;
   logoId: string;
-  timestamp?: Date;
+  timestamp: Date;
+  ownerId?: string;
 }
 
 export interface VoteResult {
