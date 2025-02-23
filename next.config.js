@@ -45,6 +45,9 @@ const nextConfig = {
   env: {
     MONGODB_URI_DEV: process.env.MONGODB_URI_DEV,
     MONGODB_URI_PROD: process.env.MONGODB_URI_PROD,
+    MONGODB_URI: process.env.MONGODB_URI,
+    JWT_SECRET: process.env.JWT_SECRET,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
   poweredByHeader: false,
   generateEtags: false,
