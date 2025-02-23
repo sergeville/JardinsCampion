@@ -233,13 +233,74 @@ jardins-campion/
 
 The project uses Jest and React Testing Library for testing. Tests cover:
 
-- Component rendering
-- User interactions
-- Accessibility features
-- Theme switching
-- Language switching
-- Vote management
-- Error handling
+- Component rendering and behavior:
+  - Logo grid display and interaction
+  - Image loading and error states
+  - Loading state management
+  - Vote count display
+  - Invalid data handling
+- User interactions:
+  - Logo selection
+  - Keyboard navigation (arrow keys, Home/End)
+  - Focus management
+  - Loading state interaction blocking
+- Accessibility features:
+  - ARIA labels and roles
+  - Keyboard navigation
+  - Focus management
+  - Loading state announcements
+- Theme switching:
+  - Dark/Light mode toggle
+  - Theme persistence
+  - Visual consistency
+- Language switching:
+  - English/French toggle
+  - Translation completeness
+  - Language persistence
+- Vote management:
+  - Vote recording
+  - Vote history display
+  - Vote count updates
+  - Invalid vote handling
+- Error handling:
+  - Image loading errors
+  - Network errors
+  - Invalid data
+  - User feedback
+- Mock implementations:
+  - Next.js Image component
+  - Database interactions
+  - Network requests
+  - User interactions
+
+### Test Organization
+
+Tests are organized in two locations:
+- `src/components/__tests__/` - Component-specific tests
+- `src/components/*.test.tsx` - Legacy test files (being migrated)
+
+### Test Utilities
+
+- Global test setup in `src/setupTests.ts`
+- Custom test utilities in `src/test-utils`
+- Mock implementations in `src/__mocks__`
+- TypeScript declarations for test-specific globals
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run specific test file
+npm test -- path/to/test.tsx
+```
 
 ## Accessibility
 
