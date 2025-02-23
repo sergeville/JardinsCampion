@@ -1,31 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
-import mongoose from 'mongoose';
+import { NextRequest } from 'next/server';
+
+// Configure route for static export
+export const dynamic = 'error';
+export const dynamicParams = false;
 
 export async function GET(request: NextRequest) {
-  try {
-    await connectDB();
-
-    // Force a refresh of the database connection
-    if (mongoose.connection.readyState !== 1) {
-      await mongoose.connection.close();
-      await connectDB();
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Database connection refreshed',
-      connectionState: mongoose.connection.readyState,
-    });
-  } catch (error) {
-    console.error('Error refreshing database connection:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        message: 'Failed to refresh database connection',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    );
-  }
+  return new Response(
+    'This API route is not available in static export. Please use client-side data management.',
+    { status: 404 }
+  );
 }
